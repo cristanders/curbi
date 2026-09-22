@@ -1,0 +1,57 @@
+<div class="page">
+  <app-topbar active="saves" />
+
+  <main class="content">
+    <div class="page-head">
+      <h1 class="page-title">My saves</h1>
+      <span class="source-chip" [class.is-demo]="source === 'demo'">
+        {{ source === 'api' ? 'Backend conectado' : 'Datos de demostración' }} · {{ lastUpdate }}
+      </span>
+    </div>
+
+    <section class="stats" aria-label="Savings summary">
+      <article class="stat-card">
+        <p class="stat-label">SALDO TOTAL AHORRADO</p>
+        <p class="stat-amount">(GTQ{{ totalSaved }}<span class="dec">.00</span>)</p>
+      </article>
+      <article class="stat-card">
+        <p class="stat-label">CASHBACK ACUMULADO</p>
+        <p class="stat-amount">(GTQ{{ cashback }}<span class="dec">.00</span>)</p>
+      </article>
+      <article class="stat-card">
+        <p class="stat-label">INTERESES GENERADOS</p>
+        <p class="stat-amount">(GTQ{{ interest }}<span class="dec">.{{ interestDecimals }}</span>)</p>
+      </article>
+    </section>
+
+    <h2 class="section-title">Your saves goals</h2>
+
+    <section class="goals" aria-label="Savings goals">
+      @for (goal of goals; track goal.id) {
+        <article class="goal-card">
+          <div class="goal-head">
+            <div class="goal-text">
+              <h3 class="goal-name">{{ goal.name }}</h3>
+              <p class="goal-nums">Q{{ fmt(goal.current) }}/Q{{ fmt(goal.target) }}</p>
+            </div>
+            <!-- PLACEHOLDER: assets/icons/goal-plane.png | goal-lock.png | goal-screen.png -->
+            <span class="goal-icon" aria-hidden="true">
+              <img [src]="goal.icon" alt="" width="40" height="40" />
+            </span>
+          </div>
+
+          <p class="goal-progress">{{ progressOf(goal) }}% Completado</p>
+
+          <div class="progress" aria-hidden="true">
+            <span [style.width.%]="progressOf(goal)"></span>
+          </div>
+
+          <div class="goal-actions">
+            <button type="button" class="btn-details" (click)="viewDetails(goal)">Ver detalles</button>
+            <button type="button" class="btn-contribute" (click)="contribute(goal)">Aportar $</button>
+          </div>
+        </article>
+      }
+    </section>
+  </main>
+</div>

@@ -1,0 +1,144 @@
+<div class="page">
+  <app-topbar active="wallet" />
+
+  <main class="content">
+    <div class="page-head">
+      <div>
+        <h1>My Wallets</h1>
+        <p class="page-sub">
+          {{ source === 'api' ? 'Sincronizado con el backend' : 'Datos de demostración' }} ·
+          actualizado {{ lastUpdate }}
+        </p>
+      </div>
+      <button type="button" class="add-card" (click)="addCard()" aria-label="Add credit or debit card">
+        <span aria-hidden="true">+</span>
+        <span class="add-card-label">Add Credit/Debit Card</span>
+      </button>
+    </div>
+
+    <section class="wallet-layout">
+      <article class="credit-card" aria-label="Banco Industrial card">
+        <div class="card-glow" aria-hidden="true"></div>
+
+        <div class="card-top">
+          <div class="card-bank">
+            <!-- PLACEHOLDER: assets/images/bank-bi.png -->
+            <span class="bi-logo" aria-hidden="true">
+              <img [src]="biLogo" alt="" width="44" height="44" />
+            </span>
+            <div>
+              <p class="bank-name">Banco Industrial</p>
+              <p class="card-type">{{ cardType }} ···· {{ last4 }}</p>
+            </div>
+          </div>
+          <div class="card-top-right">
+            <!-- PLACEHOLDER: assets/icons/contactless.png -->
+            <img
+              class="contactless"
+              [src]="contactlessUrl"
+              alt=""
+              width="22"
+              height="22"
+            />
+          </div>
+        </div>
+
+        <div class="card-chip-row">
+          <!-- PLACEHOLDER: assets/images/card-chip.png -->
+          <span class="chip" aria-hidden="true">
+            <img [src]="chipUrl" alt="" width="46" height="34" />
+          </span>
+        </div>
+
+        <p class="card-holder-label">Titular</p>
+        <p class="card-holder">{{ holder }}</p>
+
+        <div class="card-bottom">
+          <div class="card-actions">
+            <button type="button" class="card-action" (click)="transfer()">TRANSFERIR</button>
+            <button type="button" class="card-action" (click)="pay()">PAGAR</button>
+          </div>
+          <div class="visa">
+            <!-- PLACEHOLDER: assets/images/visa.png -->
+            <img class="visa-img" [src]="visaUrl" alt="VISA" width="70" height="28" />
+            <span class="visa-sub">débito</span>
+          </div>
+        </div>
+
+        <div class="card-balance">
+          <p class="balance-label">Saldo Disponible</p>
+          <p class="balance-amount">
+            GTQ{{ balance }}<span class="balance-dec">.{{ balanceDecimals }}</span>
+          </p>
+        </div>
+      </article>
+
+      <aside class="quick-panel card">
+        <h2>Quick actions</h2>
+        <div class="quick-grid">
+          <button type="button" class="quick" (click)="transfer()">
+            <span class="quick-icon" aria-hidden="true">
+              <img [src]="quickIcons.transfer" alt="" width="20" height="20" />
+            </span>
+            Transfer
+          </button>
+          <button type="button" class="quick" (click)="pay()">
+            <span class="quick-icon" aria-hidden="true">
+              <img [src]="quickIcons.request" alt="" width="20" height="20" />
+            </span>
+            Request
+          </button>
+          <button type="button" class="quick" (click)="pay()">
+            <span class="quick-icon" aria-hidden="true">
+              <img [src]="quickIcons.pay" alt="" width="20" height="20" />
+            </span>
+            Pay bill
+          </button>
+          <button type="button" class="quick" (click)="addCard()">
+            <span class="quick-icon" aria-hidden="true">
+              <img [src]="quickIcons.add" alt="" width="20" height="20" />
+            </span>
+            Add card
+          </button>
+        </div>
+
+        <div class="mini-stats">
+          <div class="mini-stat">
+            <span>Ingresos (mes)</span>
+            <strong class="positive">Q{{ income }}</strong>
+          </div>
+          <div class="mini-stat">
+            <span>Gastos (mes)</span>
+            <strong class="negative">Q{{ expense }}</strong>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="card movements">
+      <div class="movements-head">
+        <h2>ÚLTIMOS MOVIMIENTOS</h2>
+        <a routerLink="/transactions" class="see-all">Ver todos</a>
+      </div>
+
+      <ul class="movement-list">
+        @for (m of movements; track m.title + m.date) {
+          <li class="movement">
+            <div class="movement-info">
+              <p class="movement-title">{{ m.title }}</p>
+              <p class="movement-meta">{{ m.date }} — {{ m.origin }}</p>
+            </div>
+            <div class="movement-right">
+              <span class="movement-kind" [class.is-credit]="m.kind === 'Credito'">{{ m.kind }}</span>
+              <span class="movement-amount" [class.is-credit]="m.kind === 'Credito'">
+                {{ m.sign }} GTQ{{ m.amount }}
+              </span>
+            </div>
+          </li>
+        } @empty {
+          <li class="movement-empty">Aún no hay movimientos.</li>
+        }
+      </ul>
+    </section>
+  </main>
+</div>

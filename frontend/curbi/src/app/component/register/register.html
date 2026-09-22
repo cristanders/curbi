@@ -1,1 +1,141 @@
-<p>register works!</p>
+<div class="page">
+  <header class="topbar">
+    <a routerLink="/login" class="nav-btn nav-btn--light">Login</a>
+    <a routerLink="/register" class="nav-btn nav-btn--dark">Register</a>
+  </header>
+
+  <main class="card">
+    <section class="brand">
+      <!-- PLACEHOLDER: assets/icons/curbi-mascot.png -->
+      <div class="mascot" aria-hidden="true">
+        <img [src]="mascot" alt="Mascota CURBI" width="340" height="360" />
+      </div>
+
+      <div class="chat-box">
+        <p class="chat-placeholder">What Questions do you have about Curbi?</p>
+        <div class="chat-actions">
+          <div class="chat-icons">
+            <button type="button" class="icon-btn" aria-label="Attach image">
+              <img [src]="chatIcons.attach" alt="" width="16" height="16" />
+            </button>
+            <button type="button" class="icon-btn" aria-label="Emoji">
+              <img [src]="chatIcons.emoji" alt="" width="16" height="16" />
+            </button>
+            <button type="button" class="icon-btn" aria-label="Microphone">
+              <img [src]="chatIcons.mic" alt="" width="16" height="16" />
+            </button>
+          </div>
+          <button type="button" class="send-btn" aria-label="Send">
+            <img [src]="chatIcons.send" alt="" width="14" height="14" />
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-side">
+      <div class="hero">
+        <h1 class="hero-title">
+          <span class="hero-welcome"><span>Welcome</span> <span>to</span></span>
+          <span class="hero-name">CURBI</span>
+        </h1>
+        <p class="hero-subtitle">Get started and improve your money today!</p>
+      </div>
+
+      <h2 class="form-title">Create account</h2>
+
+      <button type="button" class="social-btn">
+        <!-- PLACEHOLDER: assets/images/google.png -->
+        <img class="social-icon" [src]="googleIcon" alt="" width="20" height="20" />
+        LOGIN WITH GOOGLE
+      </button>
+
+      <p class="form-hint">or fill in the form to create an account</p>
+
+      @if (error) {
+        <p class="form-error" role="alert">{{ error }}</p>
+      }
+
+      <form class="login-form" (ngSubmit)="onSubmit()">
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">Full Name</span>
+            <input
+              type="text"
+              name="fullName"
+              placeholder="Curby Prints"
+              [(ngModel)]="fullName"
+              autocomplete="name"
+            />
+          </label>
+
+          <label class="field">
+            <span class="field-label">Username</span>
+            <input
+              type="text"
+              name="username"
+              placeholder="@Temporaryword"
+              [(ngModel)]="username"
+              autocomplete="username"
+            />
+          </label>
+        </div>
+
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">Email</span>
+            <input
+              type="email"
+              name="email"
+              placeholder="exampleforcli@gmail.com"
+              [(ngModel)]="email"
+              autocomplete="email"
+            />
+          </label>
+
+          <label class="field">
+            <span class="field-label">Phone</span>
+            <input
+              type="tel"
+              name="phone"
+              placeholder="+502 5555-1234"
+              [(ngModel)]="phone"
+              autocomplete="tel"
+            />
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="field-label">Password</span>
+          <input
+            type="password"
+            name="password"
+            placeholder="••••••••"
+            [(ngModel)]="password"
+            autocomplete="new-password"
+          />
+        </label>
+
+        <p class="password-hint">At least 8 characters</p>
+
+        <label class="agree">
+          <input type="checkbox" name="agreed" [(ngModel)]="agreed" />
+          <span>
+            I agree to
+            <a href="#">Privacy Policy</a>
+            and
+            <a href="#">Terms of Services</a>.
+          </span>
+        </label>
+
+        <button type="submit" class="signin-btn" [disabled]="loading">
+          {{ loading ? 'Creating…' : 'Create account' }}
+        </button>
+
+        <p class="signup-note">
+          Already have an account?
+          <a routerLink="/login">Log in</a>
+        </p>
+      </form>
+    </section>
+  </main>
+</div>

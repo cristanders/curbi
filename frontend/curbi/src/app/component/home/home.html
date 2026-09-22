@@ -1,1 +1,230 @@
-<p>home works!</p>
+<div class="page">
+  <app-topbar active="home" />
+
+  <main class="content">
+    <section class="status-bar" aria-live="polite">
+      <div class="status-chip" [class.is-demo]="source === 'demo'">
+        <span class="status-dot" [class.is-live]="source === 'api'"></span>
+        {{ sourceLabel }}
+      </div>
+      <div class="status-chip status-chip--trend" [attr.data-trend]="status">
+        Tendencia:
+        {{ status === 'up' ? '▲ subiendo' : status === 'down' ? '▼ bajando' : '■ estable' }}
+      </div>
+      <div class="status-chip">Última actualización: {{ lastUpdate }}</div>
+    </section>
+
+    <!-- Estado actual del usuario -->
+    <section class="kpi-grid" aria-label="Estado actual">
+      <article class="kpi">
+        <p class="kpi-label">SALDO TOTAL</p>
+        <p class="kpi-value">Q{{ money(totalBalance) }}</p>
+        <p class="kpi-delta" [attr.data-trend]="totalChange >= 0 ? 'up' : 'down'">
+          {{ totalChange >= 0 ? '▲' : '▼' }} {{ totalChange.toFixed(2) }}% en la sesión
+        </p>
+      </article>
+      <article class="kpi">
+        <p class="kpi-label">AHORRO TOTAL</p>
+        <p class="kpi-value">Q{{ money(summary.totalSaved) }}</p>
+        <p class="kpi-delta kpi-delta--muted">{{ summary.goalCount }} metas activas</p>
+      </article>
+      <article class="kpi">
+        <p class="kpi-label">GASTOS DEL MES</p>
+        <p class="kpi-value">Q{{ money(spendNow) }}</p>
+        <p class="kpi-delta" [attr.data-trend]="spendChange > 0 ? 'down' : 'up'">
+          {{ spendChange >= 0 ? '▲' : '▼' }} {{ spendChange.toFixed(2) }}% vs. inicio
+        </p>
+      </article>
+      <article class="kpi">
+        <p class="kpi-label">INGRESOS vs GASTOS</p>
+        <p class="kpi-value">
+          Q{{ money(summary.income) }} <span class="kpi-sep">/</span> Q{{ money(summary.expense) }}
+        </p>
+        <p class="kpi-delta" [attr.data-trend]="summary.net >= 0 ? 'up' : 'down'">
+          Balance neto Q{{ money(summary.net) }}
+        </p>
+      </article>
+    </section>
+
+    <!-- Grafica principal en vivo -->
+    <section class="chart-card">
+      <div class="chart-head">
+        <h2>EVOLUCIÓN DEL SALDO — EN VIVO</h2>
+        <span class="chart-live"><span class="live-dot"></span> actualiza cada 3s</span>
+      </div>
+
+      <div class="chart-stage">
+        <svg viewBox="0 0 640 200" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="gradTotal" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4ec8cd" stop-opacity="0.45" />
+              <stop offset="100%" stop-color="#4ec8cd" stop-opacity="0.02" />
+            </linearGradient>
+          </defs>
+          <line class="grid-line" x1="0" y1="50" x2="640" y2="50" />
+          <line class="grid-line" x1="0" y1="100" x2="640" y2="100" />
+          <line class="grid-line" x1="0" y1="150" x2="640" y2="150" />
+          <polygon [attr.points]="totalArea" fill="url(#gradTotal)" />
+          <polyline
+            [attr.points]="totalLine"
+            fill="none"
+            stroke="#2fa8ae"
+            stroke-width="3"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+          />
+        </svg>
+      </div>
+
+      <div class="chart-foot">
+        <span>Q{{ money(totalPoints[0]) }}</span>
+        <span class="chart-current">Actual: Q{{ money(totalBalance) }}</span>
+        <span>Q{{ money(totalPoints[totalPoints.length - 1]) }}</span>
+      </div>
+    </section>
+
+    <section class="bank-grid" aria-label="Bank accounts">
+      @for (bank of banks; track bank.id) {
+        <article class="bank-card">
+          <div class="bank-card-top">
+            <div class="bank-id">
+              <!-- PLACEHOLDER: assets/images/bank-bi.png | bank-banrural.png | bank-bancafe.png -->
+              <span class="bank-logo">
+                <img [src]="bank.logo" alt="" width="40" height="40" />
+              </span>
+              <div class="bank-meta">
+                <span class="bank-label">El diario</span>
+                <span class="bank-name">{{ bank.name }}</span>
+              </div>
+            </div>
+            <button type="button" class="bank-expand" aria-label="Expand">
+              <img src="assets/icons/chevron-right.png" alt="" width="14" height="14" />
+            </button>
+          </div>
+
+          <div class="bank-chart" aria-hidden="true">
+            <svg viewBox="0 0 240 80" preserveAspectRatio="none">
+              <defs>
+                <linearGradient
+                  [attr.id]="'grad-' + bank.id"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop offset="0%" stop-color="#4ec8cd" stop-opacity="0.45" />
+                  <stop offset="100%" stop-color="#4ec8cd" stop-opacity="0.02" />
+                </linearGradient>
+              </defs>
+              <polygon
+                [attr.points]="bankArea(bank)"
+                [attr.fill]="'url(#grad-' + bank.id + ')'"
+              />
+              <polyline
+                [attr.points]="bankLine(bank)"
+                fill="none"
+                stroke="#2fa8ae"
+                stroke-width="2.5"
+                stroke-linejoin="round"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+
+          <div class="bank-card-bottom">
+            <span class="bank-change" [attr.data-trend]="bank.change >= 0 ? 'up' : 'down'">
+              {{ bank.change >= 0 ? '+' : '' }}{{ bank.change.toFixed(1) }}%
+            </span>
+            <span class="bank-active">
+              <span class="bank-active-label">Activo:</span>
+              Q{{ money(bank.balance) }}
+            </span>
+          </div>
+        </article>
+      }
+    </section>
+
+    <section class="wallet-section">
+      <h2 class="section-title">
+        YOUR ACTIVE WALLETS
+        <img [src]="walletTitleIcon" alt="" width="16" height="16" />
+      </h2>
+
+      <article class="wallet-card">
+        <div class="wallet-main">
+          <p class="wallet-updated">Last Update — {{ lastUpdate }}</p>
+
+          <div class="wallet-head">
+            <div>
+              <h3 class="wallet-holder">
+                {{ user }}
+                <span class="wallet-bank">({{ bankCode }})</span>
+              </h3>
+              <p class="wallet-balance-label">Current balance (GTQ)</p>
+              <p class="wallet-balance">
+                Q{{ balance }}<span class="wallet-decimals">.{{ balanceDecimals }}</span>
+              </p>
+            </div>
+
+            <aside class="savings-box">
+              <p class="savings-title">
+                <img [src]="savingsIcon" alt="" width="14" height="14" />
+                YOUR SAVINGS ON THIS CARD
+              </p>
+              <p class="savings-range">6 Months</p>
+              <p class="savings-amount">
+                Q{{ savings }}<span class="wallet-decimals">.{{ savingsDecimals }}</span>
+              </p>
+            </aside>
+          </div>
+
+          <div class="spending">
+            <div class="spending-head">
+              <h4>Recent spending — This Month</h4>
+              <span class="spending-badge">Q{{ money(spendNow) }}</span>
+            </div>
+
+            <div class="spend-chart" aria-hidden="true">
+              <svg viewBox="0 0 300 120" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="gradSpend" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.4" />
+                    <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.02" />
+                  </linearGradient>
+                </defs>
+                <polygon [attr.points]="spendArea" fill="url(#gradSpend)" />
+                <polyline
+                  [attr.points]="spendLine"
+                  fill="none"
+                  stroke="#d97706"
+                  stroke-width="2.5"
+                  stroke-linejoin="round"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+
+            <ul class="tx-list">
+              @for (tx of transactions; track $index) {
+                <li class="tx-item">
+                  <!-- PLACEHOLDER: assets/images/tx-*.png -->
+                  <span class="tx-icon" aria-hidden="true">
+                    <img [src]="tx.icon" alt="" width="44" height="44" />
+                  </span>
+                  <div class="tx-body">
+                    <span class="tx-when">{{ tx.when }}</span>
+                    <span class="tx-title">{{ tx.title }}</span>
+                    <span class="tx-detail">{{ tx.detail }}</span>
+                  </div>
+                  <span class="tx-amount">{{ tx.amount }}</span>
+                </li>
+              } @empty {
+                <li class="tx-empty">Aún no hay movimientos.</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+</div>

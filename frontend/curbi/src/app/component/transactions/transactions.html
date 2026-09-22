@@ -1,0 +1,88 @@
+<div class="page">
+  <app-topbar active="transactions" />
+
+  <main class="content">
+    <div class="page-head">
+      <div>
+        <h1>Transactions</h1>
+        <p class="page-sub">
+          {{ source === 'api' ? 'Sincronizado con el backend' : 'Datos de demostración' }} ·
+          actualizado {{ lastUpdate }}
+        </p>
+      </div>
+      <button type="button" class="btn-primary" (click)="addSample()">+ Nueva transacción</button>
+    </div>
+
+    <section class="stats" aria-label="Resumen de transacciones">
+      <article class="stat-card">
+        <p class="stat-label">INGRESOS</p>
+        <p class="stat-amount positive">Q{{ incomeTotal }}</p>
+      </article>
+      <article class="stat-card">
+        <p class="stat-label">GASTOS</p>
+        <p class="stat-amount negative">Q{{ expenseTotal }}</p>
+      </article>
+      <article class="stat-card">
+        <p class="stat-label">TOTAL MOVIMIENTOS</p>
+        <p class="stat-amount">{{ filtered.length }}</p>
+      </article>
+    </section>
+
+    <section class="card filters">
+      <label class="filter">
+        <span>Buscar</span>
+        <input
+          type="search"
+          name="search"
+          placeholder="Descripción o categoría"
+          [(ngModel)]="search"
+          (ngModelChange)="applyFilter()"
+        />
+      </label>
+
+      <label class="filter">
+        <span>Tipo</span>
+        <select name="type" [(ngModel)]="typeFilter" (ngModelChange)="applyFilter()">
+          <option value="todas">Todas</option>
+          <option value="Ingreso">Ingresos</option>
+          <option value="Gasto">Gastos</option>
+        </select>
+      </label>
+
+      <label class="filter">
+        <span>Categoría</span>
+        <select name="category" [(ngModel)]="categoryId" (ngModelChange)="applyFilter()">
+          <option [ngValue]="0">Todas</option>
+          @for (c of categories; track c.id_category) {
+            <option [ngValue]="c.id_category">{{ c.type_category }}</option>
+          }
+        </select>
+      </label>
+
+      <button type="button" class="btn-ghost" (click)="reset()">Limpiar</button>
+    </section>
+
+    <section class="card">
+      <ul class="tx-table">
+        @for (row of filtered; track row.id) {
+          <li class="tx-row">
+            <span class="tx-date">{{ row.date }}</span>
+            <span class="tx-icon" aria-hidden="true">
+              <img [src]="defaultIcon" alt="" width="36" height="36" />
+            </span>
+            <span class="tx-info">
+              <strong>{{ row.description }}</strong>
+              <small>{{ row.category }}</small>
+            </span>
+            <span class="tx-type" [class.is-income]="row.type === 'Ingreso'">{{ row.type }}</span>
+            <span class="tx-value" [class.is-income]="row.type === 'Ingreso'">
+              {{ row.type === 'Ingreso' ? '+' : '-' }}Q{{ row.amount.toFixed(2) }}
+            </span>
+          </li>
+        } @empty {
+          <li class="tx-empty">No hay transacciones con esos filtros.</li>
+        }
+      </ul>
+    </section>
+  </main>
+</div>
