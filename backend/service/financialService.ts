@@ -1,5 +1,5 @@
 import { CreateFinancialAccountDto, FinancialAccount } from "../model/financial";
-import { FinancialAccountRepository } from "../repository/FinancialRepository";
+import { FinancialAccountRepository } from "../repository/financialRepository";
 
 export class FinancialAccountService {
   private accountRepository = new FinancialAccountRepository();

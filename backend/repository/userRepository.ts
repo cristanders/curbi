@@ -17,6 +17,15 @@ export class UserRepository {
     return users.length > 0 ? users[0] : null;
   }
 
+  async findByEmail(email: string): Promise<User | null> {
+    const [rows] = await db.query<RowDataPacket[]>(
+      'SELECT * FROM Users WHERE email = ?',
+      [email]
+    );
+    const users = rows as User[];
+    return users.length > 0 ? users[0] : null;
+  }
+
   async create(userDto: CreateUserDto): Promise<User> {
     const { name, username, email, phone, password } = userDto;
     const [result] = await db.query<ResultSetHeader>(
