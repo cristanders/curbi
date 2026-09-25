@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../service/api.service';
@@ -17,8 +17,8 @@ export class Register {
   phone = '';
   password = '';
   agreed = true;
-  error = '';
-  loading = false;
+  readonly error = signal('');
+  readonly loading = signal(false);
 
   readonly mascot = 'assets/icons/curbi-mascot.png';
   readonly chatIcons = {
@@ -36,17 +36,17 @@ export class Register {
   ) {}
 
   async onSubmit(): Promise<void> {
-    this.error = '';
+    this.error.set('');
     if (!this.agreed) {
-      this.error = 'Debes aceptar la Privacy Policy y los Terms of Services.';
+      this.error.set('Debes aceptar la Privacy Policy y los Terms of Services.');
       return;
     }
     if (this.password.length < 8) {
-      this.error = 'La contraseña debe tener al menos 8 caracteres.';
+      this.error.set('La contraseña debe tener al menos 8 caracteres.');
       return;
     }
 
-    this.loading = true;
+    this.loading.set(true);
     const { data, ok, error } = await this.api.register({
       name: this.fullName.trim(),
       username: this.username.trim(),
@@ -54,10 +54,10 @@ export class Register {
       password: this.password,
       phone: this.phone.trim(),
     });
-    this.loading = false;
+    this.loading.set(false);
 
     if (!ok || !data) {
-      this.error = error ?? 'No se pudo conectar con el servidor. Inténtalo de nuevo.';
+      this.error.set(error ?? 'No se pudo conectar con el servidor. Inténtalo de nuevo.');
       return;
     }
 

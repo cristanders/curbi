@@ -6,6 +6,7 @@ import { Profile } from './component/profile/profile';
 import { Wallet } from './component/wallet/wallet';
 import { Saves } from './component/saves/saves';
 import { Transactions } from './component/transactions/transactions';
+import { Notifications } from './component/notifications/notifications';
 import { authGuard } from './service/auth.guard';
 
 export const routes: Routes = [
@@ -17,5 +18,6 @@ export const routes: Routes = [
   { path: 'wallet', component: Wallet, canActivate: [authGuard] },
   { path: 'saves', component: Saves, canActivate: [authGuard] },
   { path: 'transactions', component: Transactions, canActivate: [authGuard] },
+  { path: 'notifications', component: Notifications, canActivate: [authGuard] },
   { path: '**', redirectTo: 'home' },
 ];

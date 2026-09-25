@@ -118,3 +118,105 @@ export const GUATEMALAN_BANKS: BankDef[] = [
 export function bankById(id: string): BankDef {
   return GUATEMALAN_BANKS.find((b) => b.id === id) ?? GUATEMALAN_BANKS[0];
 }
+
+/* ------------------------------------------------------------------ */
+/* Red de la tarjeta (Visa / Mastercard / ...)                        */
+/* ------------------------------------------------------------------ */
+
+export type CardBrand = 'Visa' | 'Mastercard' | 'Amex' | 'Discover' | 'Desconocida';
+
+/** Logos disponibles en assets/images. Las redes sin logo muestran solo la etiqueta. */
+const CARD_NETWORK_LOGO: Partial<Record<CardBrand, string>> = {
+  Visa: 'assets/images/visa.png',
+  Mastercard: 'assets/images/mastercard.svg',
+};
+
+/** Etiqueta corta que se muestra bajo el logo de la tarjeta. */
+const CARD_NETWORK_LABEL: Record<CardBrand, string> = {
+  Visa: 'VISA',
+  Mastercard: 'mastercard',
+  Amex: 'AMERICAN EXPRESS',
+  Discover: 'DISCOVER',
+  Desconocida: 'TARJETA',
+};
+
+/** Quita todo lo que no sea digito (guiones, espacios, letras). */
+export function digitsOnly(value: string): string {
+  return (value ?? '').replace(/\D/g, '');
+}
+
+/**
+ * Valida el numero con el algoritmo de Luhn. Devuelve `false` si esta vacio,
+ * tiene menos de 13 digitos o el digito verificador no cuadra.
+ */
+export function luhnValid(value: string): boolean {
+  const digits = digitsOnly(value);
+  if (digits.length < 13) {
+    return false;
+  }
+  let sum = 0;
+  let doubling = false;
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let digit = Number(digits[i]);
+    if (doubling) {
+      digit *= 2;
+      if (digit > 9) {
+        digit -= 9;
+      }
+    }
+    sum += digit;
+    doubling = !doubling;
+  }
+  return sum % 10 === 0;
+}
+
+/**
+ * Deduce la red a partir del IIN (los primeros digitos del numero):
+ * 4 = Visa, 51-55 y 2221-2720 = Mastercard, 34/37 = Amex,
+ * 6011/65/644-649 = Discover.
+ */
+export function detectCardBrand(value: string): CardBrand {
+  const digits = digitsOnly(value);
+  if (!luhnValid(digits)) {
+    return 'Desconocida';
+  }
+  if (digits.startsWith('4')) {
+    return 'Visa';
+  }
+  if (/^5[1-5]/.test(digits) || /^2[2-7]/.test(digits)) {
+    return 'Mastercard';
+  }
+  if (/^3[47]/.test(digits)) {
+    return 'Amex';
+  }
+  if (/^6011/.test(digits) || /^65/.test(digits) || /^64[4-9]/.test(digits)) {
+    return 'Discover';
+  }
+  return 'Desconocida';
+}
+
+/** URL del logo de la red, o cadena vacia si no tenemos el asset. */
+export function cardNetworkLogo(brand: CardBrand): string {
+  return CARD_NETWORK_LOGO[brand] ?? '';
+}
+
+/** Nombre de la red como se escribe en la tarjeta. */
+export function cardNetworkLabel(brand: CardBrand): string {
+  return CARD_NETWORK_LABEL[brand];
+}
+
+/** Agrupa el numero en bloques de 4 mientras se escribe. */
+export function formatCardNumber(value: string): string {
+  return digitsOnly(value).slice(0, 19).replace(/(\d{4})(?=\d)/g, '$1 ');
+}
+
+/** Normaliza la vigencia a MM/AA. */
+export function formatCardExpiry(value: string): string {
+  const digits = digitsOnly(value).slice(0, 4);
+  return digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+}
+
+/** Ultimos 4 digitos del numero, que es lo unico que se guarda. */
+export function last4Of(value: string): string {
+  return digitsOnly(value).slice(-4);
+}

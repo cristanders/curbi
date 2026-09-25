@@ -24,6 +24,10 @@ export interface FinancialAccount {
   account_name: string;
   balance: number;
   id_user?: number;
+  /** Numero con el que la cuenta recibe Depositos. */
+  account_number?: string;
+  card_type?: 'Debito' | 'Credito';
+  credit_limit?: number;
 }
 
 export interface Transaction {
@@ -58,6 +62,111 @@ export interface House {
   id_house: number;
   name: string;
   username: string;
+}
+
+export interface Bank {
+  id_bank: number;
+  bank_code: string;
+  bank_name: string;
+}
+
+export interface BankAccount {
+  id_account: number;
+  account_number: string;
+  account_holder: string;
+  account_type?: 'Debito' | 'Credito';
+  balance?: number;
+  id_bank: number;
+  bank_name?: string;
+  bank_code?: string;
+}
+
+export interface TransferResult {
+  amount: number;
+  description: string;
+  destination: BankAccount;
+  transaction: Transaction;
+  /** Saldo de la cuenta origen despues del movimiento. */
+  balance: number;
+}
+
+/** Codigos de error de negocio que devuelve el backend. */
+export type ApiErrorCode =
+  | 'MONTO_INVALIDO'
+  | 'USUARIO_INVALIDO'
+  | 'CUENTA_INVALIDA'
+  | 'DESTINO_INEXISTENTE'
+  | 'DESTINO_INVALIDO'
+  | 'SALDO_INSUFICIENTE'
+  | 'REQUIERE_CREDITO'
+  | 'ENTIDAD_INVALIDA'
+  | 'REFERENCIA_INVALIDA'
+  | 'NO_ES_CREDITO'
+  | 'YA_PENDIENTE'
+  | 'ERROR';
+
+/** Error que la API devuelve con codigo de negocio. */
+export class ApiBusinessError extends Error {
+  constructor(
+    readonly code: ApiErrorCode,
+    message: string,
+    readonly details: Record<string, number> = {},
+  ) {
+    super(message);
+    this.name = 'ApiBusinessError';
+  }
+}
+
+export interface BillPaymentResult {
+  amount: number;
+  provider_name: string;
+  reference: string;
+  balance: number;
+  transaction: Transaction;
+}
+
+export interface AppNotification {
+  id_notification: number;
+  id_user: number;
+  type: 'Transferencia' | 'Deposito' | 'Credito' | 'Factura' | 'Sistema';
+  title: string;
+  message: string;
+  amount?: number;
+  is_read: boolean | 0 | 1;
+  created_at: string;
+}
+
+export interface NotificationsPayload {
+  notifications: AppNotification[];
+  unread: number;
+}
+
+export interface CreditRequest {
+  id_credit: number;
+  id_user: number;
+  id_financial: number;
+  amount: number;
+  status: 'Pendiente' | 'Aprobado' | 'Rechazado';
+  created_at: string;
+  resolved_at?: string | null;
+}
+
+/** Estado de cuenta que necesita el modal para decidir si alcanza o hay que pedir cupo. */
+export interface AccountState {
+  id_financial: number;
+  account_name: string;
+  card_type: 'Debito' | 'Credito';
+  balance: number;
+  credit_limit: number;
+  /** Dinero con el que se puede pagar ahora: saldo + cupo aprobado. */
+  disponible: number;
+  pendiente: {
+    id_credit: number;
+    amount: number;
+    created_at: string;
+    /** Cuantos segundos faltan para que la banca responda. */
+    segundos_restantes: number;
+  } | null;
 }
 
 export interface ExpenditureAttempt {
@@ -213,6 +322,15 @@ export class ApiService {
     return this.try(() => this.call<House[]>('get', `/houses/user/${username}`), []);
   }
 
+  banks(): Promise<{ data: Bank[]; ok: boolean }> {
+    return this.try(() => this.call<Bank[]>('get', '/banks'), []);
+  }
+
+  /** Cuentas de prueba: sirven para validar la cuenta destino de una transferencia. */
+  bankAccounts(): Promise<{ data: BankAccount[]; ok: boolean }> {
+    return this.try(() => this.call<BankAccount[]>('get', '/bank-accounts'), []);
+  }
+
   expenditures(idUser: number): Promise<{ data: ExpenditureAttempt[]; ok: boolean }> {
     return this.try(
       () => this.call<ExpenditureAttempt[]>('get', `/expenditures/user/${idUser}`),
@@ -225,6 +343,91 @@ export class ApiService {
       () => this.call<Transaction>('post', '/transactions', payload),
       null,
     );
+  }
+
+  /**
+   * Transfiere a otra cuenta bancaria. A diferencia del resto de metodos no se
+   * come el error: el backend responde 402 si no hay saldo y la UI necesita el
+   * codigo para ofrecer "pedir cupo" en vez de un mensaje generico.
+   */
+  async createTransfer(payload: {
+    amount: number;
+    account_number: string;
+    description?: string;
+    id_user: number;
+    id_financial: number;
+  }): Promise<{ data: TransferResult | null; ok: boolean; error?: ApiBusinessError }> {
+    if (!this.isBrowser) {
+      return { data: null, ok: false, error: new ApiBusinessError('ERROR', 'No se pudo conectar con el servidor.') };
+    }
+    try {
+      const data = await this.call<TransferResult>('post', '/transfers', payload, 6000);
+      return { data, ok: true };
+    } catch (e: unknown) {
+      return { data: null, ok: false, error: toBusinessError(e) };
+    }
+  }
+
+  /**
+   * Paga una factura a una entidad (luz, agua, cable). El backend descuenta del
+   * saldo y devuelve el nuevo balance.
+   */
+  async payBill(payload: {
+    id_user: number;
+    id_financial: number;
+    provider_code: string;
+    provider_name: string;
+    amount: number;
+    reference: string;
+  }): Promise<{ data: BillPaymentResult | null; ok: boolean; error?: ApiBusinessError }> {
+    if (!this.isBrowser) {
+      return { data: null, ok: false, error: new ApiBusinessError('ERROR', 'No se pudo conectar con el servidor.') };
+    }
+    try {
+      const data = await this.call<BillPaymentResult>('post', '/bills/pay', payload, 6000);
+      return { data, ok: true };
+    } catch (e: unknown) {
+      return { data: null, ok: false, error: toBusinessError(e) };
+    }
+  }
+
+  /** Pide cupo extra. La banca responde entre 1 y 2 minutos. */
+  async requestCredit(payload: {
+    id_user: number;
+    id_financial: number;
+    amount: number;
+  }): Promise<{ data: CreditRequest | null; ok: boolean; error?: ApiBusinessError }> {
+    if (!this.isBrowser) {
+      return { data: null, ok: false, error: new ApiBusinessError('ERROR', 'No se pudo conectar con el servidor.') };
+    }
+    try {
+      const data = await this.call<CreditRequest>('post', '/credit-requests', payload, 6000);
+      return { data, ok: true };
+    } catch (e: unknown) {
+      return { data: null, ok: false, error: toBusinessError(e) };
+    }
+  }
+
+  /** Saldo, cupo aprobado y si hay una solicitud en espera. */
+  async accountState(
+    idFinancial: number
+  ): Promise<{ data: AccountState | null; ok: boolean }> {
+    return this.try<AccountState | null>(
+      () => this.call<AccountState>('get', `/accounts/${idFinancial}/state`),
+      null,
+    );
+  }
+
+  /** Notificaciones del usuario + cuantas quedan sin leer. */
+  async notifications(idUser: number): Promise<{ data: NotificationsPayload | null; ok: boolean }> {
+    return this.try<NotificationsPayload | null>(
+      () => this.call<NotificationsPayload>('get', `/notifications/user/${idUser}`, undefined, 6000),
+      null,
+    );
+  }
+
+  async markNotificationsRead(idUser: number): Promise<{ ok: boolean }> {
+    return this.try(() => this.call('post', `/notifications/user/${idUser}/read-all`), { ok: true });
   }
 
   createSavingsGoal(payload: Partial<SavingsGoal>): Promise<{ data: SavingsGoal | null; ok: boolean }> {
@@ -248,4 +451,17 @@ export class ApiService {
   updateAvatar(idUser: number, avatar: string): Promise<{ data: User | null; ok: boolean }> {
     return this.try<User | null>(() => this.call<User>('post', `/users/${idUser}/avatar`, { avatar }), null);
   }
+}
+
+/**
+ * Convierte la respuesta de error del backend en un ApiBusinessError, para que
+ * los modales puedan reaccionar segun el codigo (falta saldo, falta cupo, etc).
+ */
+function toBusinessError(e: unknown): ApiBusinessError {
+  const body = (e as { error?: { error?: string; code?: ApiErrorCode; details?: Record<string, number> } })
+    ?.error;
+  if (body?.error) {
+    return new ApiBusinessError(body.code ?? 'ERROR', body.error, body.details ?? {});
+  }
+  return new ApiBusinessError('ERROR', 'No se pudo completar la operacion.');
 }

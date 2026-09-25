@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../service/api.service';
@@ -13,9 +13,9 @@ import { SessionService } from '../../service/session.service';
 export class Login {
   email = '';
   password = '';
-  error = '';
-  loading = false;
-  demoMode = false;
+  readonly error = signal('');
+  readonly loading = signal(false);
+  readonly demoMode = signal(false);
 
   readonly mascot = 'assets/icons/curbi-mascot.png';
   readonly chatIcons = {
@@ -34,18 +34,18 @@ export class Login {
   ) {}
 
   async onSubmit(): Promise<void> {
-    this.error = '';
-    this.loading = true;
+    this.error.set('');
+    this.loading.set(true);
 
     const { data, ok, error } = await this.api.login(this.email.trim(), this.password);
-    this.loading = false;
+    this.loading.set(false);
 
     if (!ok || !data) {
-      this.error = error ?? 'No se pudo conectar con el servidor. Inténtalo de nuevo.';
+      this.error.set(error ?? 'No se pudo conectar con el servidor. Inténtalo de nuevo.');
       return;
     }
 
-    this.demoMode = !!data.demo;
+    this.demoMode.set(!!data.demo);
     this.session.set(data.user, !!data.demo);
     void this.router.navigate(['/home']);
   }

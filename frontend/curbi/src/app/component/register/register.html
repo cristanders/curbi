@@ -51,8 +51,8 @@
 
       <p class="form-hint">or fill in the form to create an account</p>
 
-      @if (error) {
-        <p class="form-error" role="alert">{{ error }}</p>
+      @if (error()) {
+        <p class="form-error" role="alert">{{ error() }}</p>
       }
 
       <form class="login-form" (ngSubmit)="onSubmit()">
@@ -127,8 +127,8 @@
           </span>
         </label>
 
-        <button type="submit" class="signin-btn" [disabled]="loading">
-          {{ loading ? 'Creating…' : 'Create account' }}
+        <button type="submit" class="signin-btn" [disabled]="loading()">
+          {{ loading() ? 'Creating…' : 'Create account' }}
         </button>
 
         <p class="signup-note">
