@@ -6,10 +6,20 @@ export interface BankSerie {
   logo: string;
   monogramClass: string;
   name: string;
+  color: string;
   base: number;
   balance: number;
   change: number;
   points: number[];
+}
+
+export interface WalletCardInput {
+  bankId: string;
+  name: string;
+  monogram: string;
+  logo: string;
+  color: string;
+  balance: number;
 }
 
 export interface TxItem {
@@ -20,60 +30,33 @@ export interface TxItem {
   icon: string;
 }
 
+export interface SpendSource {
+  amount: number;
+  type_transacion?: 'Ingreso' | 'Gasto';
+}
+
 /**
  * Simula un feed de mercado en vivo para las graficas del dashboard.
- * Cada tick la serie se desplaza con un random walk acotado, de modo que las
- * graficas genuinamente suben y bajan y el estado actual siempre refleja el ultimo valor.
+ * - Las graficas de saldo/bancos se mueven constantemente (random walk acotado).
+ * - La grafica "Recent spending" NO se mueve sola: solo avanza cuando llegan
+ *   movimientos reales (gastos o ingresos) de la cuenta.
  */
 @Injectable({ providedIn: 'root' })
 export class LiveMarketService {
   readonly tickMs = 3000;
   readonly pointsPerSerie = 24;
 
-  readonly banks: BankSerie[] = [
-    {
-      id: 1,
-      monogram: 'BI',
-      logo: 'assets/images/bank-bi.png',
-      monogramClass: 'bi',
-      name: 'Banco Industrial (BI)',
-      base: 185.2,
-      balance: 185.2,
-      change: 12.8,
-      points: this.seed(185.2, 12.8),
-    },
-    {
-      id: 2,
-      monogram: 'BR',
-      logo: 'assets/images/bank-banrural.png',
-      monogramClass: 'br',
-      name: 'Banco de Desarrollo Rural (Banrural)',
-      base: 142.8,
-      balance: 142.8,
-      change: 5.8,
-      points: this.seed(142.8, 5.8),
-    },
-    {
-      id: 3,
-      monogram: 'BC',
-      logo: 'assets/images/bank-bancafe.png',
-      monogramClass: 'bc',
-      name: 'Banco del Café, S.A. (BANCAFE)',
-      base: 64.15,
-      balance: 64.15,
-      change: -2.1,
-      points: this.seed(64.15, -2.1),
-    },
-  ];
+  /** Sin datos reales no hay feed demo: las graficas parten de cero. */
+  banks: BankSerie[] = [];
 
-  /** Serie principal del dashboard (saldo total) */
-  readonly totalPoints: number[] = [];
+  /** Serie principal del dashboard (saldo total en vivo) */
+  totalPoints: number[] = [];
   totalBalance = 0;
   totalChange = 0;
 
-  /** Gastos del mes recientes (simula la grafica de gastos) */
+  /** Gastos del mes: se construye SOLO con movimientos reales de la cuenta. */
   readonly spendPoints: number[] = [];
-  spendNow = 124.59;
+  spendNow = 0;
   spendChange = 0;
 
   private readonly listeners = new Set<() => void>();
@@ -82,11 +65,11 @@ export class LiveMarketService {
   private started = false;
 
   constructor() {
-    this.totalPoints = this.seed(392.15, 6.4);
-    this.totalBalance = this.totalPoints[this.totalPoints.length - 1];
-    this.totalChange = 6.4;
-    this.spendPoints = this.seed(124.59, -3.2);
-    this.spendNow = this.spendPoints[this.spendPoints.length - 1];
+    this.totalPoints = this.seed(0, 0);
+    this.totalBalance = 0;
+    this.totalChange = 0;
+    this.spendPoints = this.seed(0, 0);
+    this.spendNow = 0;
   }
 
   private seed(endValue: number, changePct: number): number[] {
@@ -130,7 +113,10 @@ export class LiveMarketService {
     this.started = false;
   }
 
-  /** Un paso de la simulacion: mueve todas las series un poco. */
+  /**
+   * Un paso de la simulacion: mueve las graficas de saldo y bancos en vivo.
+   * La grafica de gastos del mes NO participa aqui.
+   */
   tick(): void {
     this.tickCount++;
 
@@ -151,12 +137,84 @@ export class LiveMarketService {
     this.totalBalance = Number(newTotal.toFixed(2));
     this.totalChange = Number((((newTotal - first) / first) * 100).toFixed(2));
 
-    const spendDelta = (Math.random() - 0.45) * 6;
-    this.spendNow = Number(Math.max(20, this.spendNow + spendDelta).toFixed(2));
-    this.spendPoints.push(this.spendNow);
-    this.spendPoints.shift();
-    const s0 = this.spendPoints[0];
-    this.spendChange = Number((((this.spendNow - s0) / s0) * 100).toFixed(2));
+    for (const fn of this.listeners) {
+      fn();
+    }
+  }
+
+  /**
+   * Reemplaza las series demo por las tarjetas reales del usuario. Cada tarjeta
+   * se convierte en una serie que parte del saldo real de la tarjeta. Si no hay
+   * tarjetas, mantiene el feed demo original.
+   */
+  setBanksFromWallet(cards: WalletCardInput[]): void {
+    if (!cards || cards.length === 0) {
+      this.banks = [];
+      this.totalPoints = this.seed(0, 0);
+      this.totalBalance = 0;
+      this.totalChange = 0;
+      for (const fn of this.listeners) {
+        fn();
+      }
+      return;
+    }
+
+    const sum = (arr: number[]) => arr.reduce((s, v) => s + v, 0);
+    const series: BankSerie[] = cards.map((c, i) => ({
+      id: i + 1,
+      monogram: c.monogram,
+      logo: c.logo,
+      monogramClass: c.bankId,
+      name: c.name,
+      base: c.balance,
+      balance: c.balance,
+      change: 0,
+      points: this.seed(c.balance, 0),
+      color: c.color,
+    }));
+
+    this.banks = series;
+
+    const total = Number(sum(series.map((b) => b.base)).toFixed(2));
+    this.totalPoints = this.seed(total, 0);
+    this.totalBalance = total;
+    this.totalChange = 0;
+
+    for (const fn of this.listeners) {
+      fn();
+    }
+  }
+
+  /**
+   * Reconstruye la grafica "Recent spending" solo a partir de movimientos reales.
+   * Si no hay movimientos la serie queda plana en cero (no se mueve sola).
+   */
+  syncSpend(txs: SpendSource[]): void {
+    const n = this.pointsPerSerie;
+    const out = new Array<number>(n).fill(0);
+    let cum = 0;
+
+    const list = txs.slice(0, n);
+    if (list.length > 0) {
+      const chunk = n / list.length;
+      for (let i = 0; i < list.length; i++) {
+        const t = list[i];
+        cum += t.type_transacion === 'Ingreso' ? t.amount : -t.amount;
+        const start = i === 0 ? 0 : Math.round(i * chunk);
+        const end = Math.round((i + 1) * chunk);
+        for (let j = start; j < Math.min(end, n); j++) {
+          out[j] = Number(cum.toFixed(2));
+        }
+      }
+    }
+
+    for (let i = 0; i < n; i++) {
+      this.spendPoints[i] = out[i];
+    }
+    const previous = this.spendNow;
+    this.spendNow = Number(out[n - 1].toFixed(2));
+    this.spendChange =
+      previous !== 0 ? Number((((this.spendNow - previous) / previous) * 100).toFixed(2)) : 0;
 
     for (const fn of this.listeners) {
       fn();
@@ -165,8 +223,9 @@ export class LiveMarketService {
 
   private step(current: number, base: number): number {
     const drift = (base - current) * 0.06;
-    const noise = (Math.random() - 0.5) * base * 0.035;
-    return current + drift + noise;
+    const amp = Math.max(base * 0.035, 3);
+    const noise = (Math.random() - 0.5) * amp;
+    return Math.max(0, current + drift + noise);
   }
 
   get status(): 'up' | 'down' | 'flat' {

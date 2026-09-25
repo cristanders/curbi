@@ -1,144 +1,235 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Topbar } from '../shell/topbar';
-import { ApiService, FinancialAccount, Transaction } from '../../service/api.service';
-import { DemoDataService } from '../../service/demo-data.service';
 import { LiveMarketService } from '../../service/live-market.service';
 import { SessionService } from '../../service/session.service';
+import { WalletCardService, WalletCard, WalletMovement } from '../../service/wallet-card.service';
+import { GUATEMALAN_BANKS, bankById, CardKind } from '../../service/bank-catalog';
+import { RefreshBusService } from '../../service/refresh-bus.service';
 
-interface Movement {
-  title: string;
-  date: string;
-  origin: string;
-  kind: 'Debito' | 'Credito';
-  amount: string;
-  sign: '-' | '+';
-}
+type TxKind = 'transfer' | 'request' | 'pay';
 
 @Component({
-  imports: [RouterLink, Topbar],
+  imports: [FormsModule, RouterLink, Topbar],
   selector: 'app-wallet',
   styleUrl: './wallet.css',
   templateUrl: './wallet.html',
 })
-export class Wallet implements OnInit, OnDestroy {
-  readonly biLogo = 'assets/images/bank-bi.png';
+export class Wallet implements OnInit {
   readonly chipUrl = 'assets/images/card-chip.png';
   readonly visaUrl = 'assets/images/visa.png';
-  readonly contactlessUrl = 'assets/icons/contactless.png';
+  readonly contactlessUrl = 'assets/icons/contactless.svg';
+  readonly banks = GUATEMALAN_BANKS;
+  readonly bankById = bankById;
   readonly quickIcons = {
-    transfer: 'assets/icons/quick-transfer.png',
-    request: 'assets/icons/quick-request.png',
-    pay: 'assets/icons/quick-pay.png',
-    add: 'assets/icons/quick-add.png',
+    transfer: 'assets/icons/quick-transfer.svg',
+    request: 'assets/icons/quick-request.svg',
+    pay: 'assets/icons/quick-pay.svg',
+    add: 'assets/icons/quick-add.svg',
   };
 
-  holder = 'BRAYAN OSWALDO COMPA FUENTES';
-  cardType = 'CLASICA';
-  last4 = '6904';
-  balance = '67';
-  balanceDecimals = '95';
-
-  income = '100.00';
-  expense = '35.00';
+  holder = '';
   source: 'api' | 'demo' = 'demo';
   lastUpdate = 'just now';
 
-  movements: Movement[] = [];
-  accounts: FinancialAccount[] = [];
+  card: WalletCard | null = null;
+  movements: WalletMovement[] = [];
 
-  private unsub: (() => void) | null = null;
+  income = '0.00';
+  expense = '0.00';
+
+  /* ----- modal agregar tarjeta ----- */
+  addOpen = false;
+  addStep: 'bank' | 'kind' = 'bank';
+  selectedBankId = 'bi';
+  selectedKind: CardKind = 'Debito';
+
+  /* ----- modal transacciones ----- */
+  txOpen = false;
+  txKind: TxKind = 'transfer';
+  txAmount = 0;
+  txTitle = '';
+
+  toast = '';
 
   constructor(
-    private readonly api: ApiService,
-    private readonly demo: DemoDataService,
     readonly market: LiveMarketService,
     private readonly session: SessionService,
+    readonly store: WalletCardService,
+    private readonly bus: RefreshBusService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.holder = this.session.currentUser.name || this.holder;
-
-    const [acc, tx] = await Promise.all([
-      this.api.accounts(this.session.idUser),
-      this.api.transactions(this.session.idUser),
-    ]);
-
-    const accounts = acc.ok && acc.data.length ? acc.data : this.demo.accounts;
-    const transactions = tx.ok && tx.data.length ? tx.data : this.demo.transactions;
-    this.source = acc.ok && acc.data.length ? 'api' : 'demo';
-
-    this.accounts = accounts;
-    this.applyBalance(accounts);
-    this.applyMovements(transactions);
-    this.applyMiniStats(transactions);
-
-    this.unsub = this.market.subscribe(() => this.tick());
+    this.holder = this.session.currentUser.name || '';
+    console.log('WALLET-DEBUG pre-load ' + JSON.stringify({
+      idUser: this.session.idUser,
+      cards: this.store.allCards,
+    }));
+    await this.store.load();
+    console.log('WALLET-DEBUG post-load ' + JSON.stringify({
+      cards: this.store.allCards,
+      active: this.store.activeCard ? { id: this.store.activeCard.id, last4: this.store.activeCard.last4, balance: this.store.activeCard.balance } : null,
+    }));
+    this.applyState();
   }
 
-  ngOnDestroy(): void {
-    this.unsub?.();
+  private applyState(): void {
+    this.card = this.store.activeCard;
+    this.movements = this.store.allMovements;
+    this.applyMiniStats();
   }
 
-  private tick(): void {
-    this.lastUpdate = 'just now';
-    // el saldo de la tarjeta acompana la serie en vivo del dashboard
-    const live = this.market.formatMoney(this.market.totalBalance);
-    this.balance = live.integer;
-    this.balanceDecimals = live.decimals;
+  private applyMiniStats(): void {
+    const rows = this.store.allMovements;
+    const income = rows
+      .filter((m) => m.kind === 'Credito')
+      .reduce((s, m) => s + Number(m.amount), 0);
+    const expense = rows
+      .filter((m) => m.kind === 'Debito')
+      .reduce((s, m) => s + Number(m.amount), 0);
+    this.income = income.toFixed(2);
+    this.expense = expense.toFixed(2);
   }
 
-  private applyBalance(accounts: FinancialAccount[]): void {
-    const total = accounts.reduce((s, a) => s + Number(a.balance || 0), 0);
-    const f = this.market.formatMoney(total || 67.95);
-    this.balance = f.integer;
-    this.balanceDecimals = f.decimals;
-    if (accounts[0]) {
-      this.last4 = String(accounts[0].id_financial).padStart(4, '0').slice(-4);
+  get cardBank(): ReturnType<typeof bankById> {
+    return bankById(this.card?.bankId ?? 'bi');
+  }
+
+  get bankCardLogo(): string {
+    return this.cardBank.logo || '';
+  }
+
+  get cardLast4(): string {
+    return this.card?.last4 ?? '0000';
+  }
+
+  get cardType(): CardKind {
+    return this.card?.type ?? 'Debito';
+  }
+
+  get balanceParts(): { integer: string; decimals: string } {
+    return this.market.formatMoney(this.card?.balance ?? 0);
+  }
+
+  /* ---------------------- tarjetas ---------------------- */
+
+  selectCard(id: string): void {
+    this.store.setActive(id);
+    this.applyState();
+  }
+
+  openAdd(): void {
+    this.addStep = 'bank';
+    this.selectedBankId = this.card?.bankId ?? 'bi';
+    this.addOpen = true;
+  }
+
+  closeAdd(): void {
+    this.addOpen = false;
+  }
+
+  chooseBank(id: string): void {
+    this.selectedBankId = id;
+    this.addStep = 'kind';
+  }
+
+  backToBanks(): void {
+    this.addStep = 'bank';
+  }
+
+  chooseKind(kind: CardKind): void {
+    this.selectedKind = kind;
+  }
+
+  async confirmAddCard(): Promise<void> {
+    if (!this.selectedBankId) {
+      return;
+    }
+    await this.store.addCard(this.selectedBankId, this.selectedKind);
+    this.addOpen = false;
+    this.applyState();
+    this.bus.emit();
+    this.showToast('Tarjeta agregada correctamente');
+  }
+
+  async removeActiveCard(): Promise<void> {
+    if (!this.card) {
+      return;
+    }
+    await this.store.removeCard(this.card.id);
+    this.applyState();
+    this.bus.emit();
+    this.showToast('Tarjeta eliminada');
+  }
+
+  /* ---------------------- transacciones ---------------------- */
+
+  openTx(kind: TxKind): void {
+    this.txKind = kind;
+    this.txAmount = 0;
+    this.txTitle = '';
+    this.txOpen = true;
+  }
+
+  closeTx(): void {
+    this.txOpen = false;
+  }
+
+  get txTitleLabel(): string {
+    switch (this.txKind) {
+      case 'transfer':
+        return 'Transferir dinero';
+      case 'pay':
+        return 'Pagar factura';
+      case 'request':
+        return 'Solicitar dinero';
     }
   }
 
-  private applyMovements(list: Transaction[]): void {
-    this.movements = list.slice(0, 8).map((t, i) => {
-      const credit = t.type_transacion === 'Ingreso';
-      const d = new Date(Date.now() - i * 86400000);
-      const date = `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getFullYear()).slice(2)}`;
-      return {
-        title: (t.description ?? 'MOVIMIENTO').split('|')[0].trim().toUpperCase(),
-        date,
-        origin: `ID #${t.id_transaction}`,
-        kind: credit ? 'Credito' : 'Debito',
-        amount: Number(t.amount).toFixed(2),
-        sign: credit ? '+' : '-',
-      };
+  get txKindLabel(): 'Debito' | 'Credito' {
+    return this.txKind === 'request' ? 'Credito' : 'Debito';
+  }
+
+  async confirmTx(): Promise<void> {
+    const amount = Number(this.txAmount);
+    if (!amount || amount <= 0) {
+      this.showToast('Ingresa un monto válido');
+      return;
+    }
+    const title = this.txTitle.trim() || this.defaultTitle(this.txKind);
+    await this.store.addMovement({
+      cardId: this.card?.id ?? '',
+      kind: this.txKindLabel,
+      amount,
+      title,
     });
+    this.txOpen = false;
+    this.applyState();
+    this.bus.emit();
+    this.showToast(`${this.txKindLabel === 'Credito' ? 'Ingreso' : 'Movimiento'} registrado: Q${amount.toFixed(2)}`);
   }
 
-  private applyMiniStats(list: Transaction[]): void {
-    const income = list
-      .filter((t) => t.type_transacion === 'Ingreso')
-      .reduce((s, t) => s + Number(t.amount), 0);
-    const expense = list
-      .filter((t) => t.type_transacion === 'Gasto')
-      .reduce((s, t) => s + Number(t.amount), 0);
-    this.income = (income || 100).toFixed(2);
-    this.expense = (expense || 35).toFixed(2);
+  private defaultTitle(kind: TxKind): string {
+    switch (kind) {
+      case 'transfer':
+        return 'Transferencia';
+      case 'pay':
+        return 'Pago de factura';
+      case 'request':
+        return 'Solicitud de dinero';
+    }
   }
 
-  transfer(): void {
-    console.log('transfer');
+  private showToast(msg: string): void {
+    this.toast = msg;
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
+    this.toastTimer = setTimeout(() => {
+      this.toast = '';
+    }, 2600) as ReturnType<typeof setTimeout>;
   }
 
-  pay(): void {
-    console.log('pay');
-  }
-
-  addCard(): void {
-    void this.api.createAccount({
-      account_name: 'Nueva cuenta',
-      balance: 0,
-      id_user: this.session.idUser,
-    });
-    console.log('add card');
-  }
+  private toastTimer: ReturnType<typeof setTimeout> | null = null;
 }

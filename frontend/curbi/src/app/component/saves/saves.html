@@ -5,7 +5,7 @@
     <div class="page-head">
       <h1 class="page-title">My saves</h1>
       <span class="source-chip" [class.is-demo]="source === 'demo'">
-        {{ source === 'api' ? 'Backend conectado' : 'Datos de demostración' }} · {{ lastUpdate }}
+        {{ source === 'api' ? 'Backend conectado' : 'Sin conexión al backend' }} · {{ lastUpdate }}
       </span>
     </div>
 
@@ -34,7 +34,7 @@
               <h3 class="goal-name">{{ goal.name }}</h3>
               <p class="goal-nums">Q{{ fmt(goal.current) }}/Q{{ fmt(goal.target) }}</p>
             </div>
-            <!-- PLACEHOLDER: assets/icons/goal-plane.png | goal-lock.png | goal-screen.png -->
+            <!-- PLACEHOLDER: assets/icons/goal-plane.svg | goal-lock.svg | goal-screen.svg -->
             <span class="goal-icon" aria-hidden="true">
               <img [src]="goal.icon" alt="" width="40" height="40" />
             </span>

@@ -2,13 +2,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { ApiService } from '../../service/api.service';
-import { DemoDataService } from '../../service/demo-data.service';
 import { Wallet } from './wallet';
 
 describe('Wallet', () => {
   let component: Wallet;
   let fixture: ComponentFixture<Wallet>;
-  let demo: DemoDataService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -16,7 +14,6 @@ describe('Wallet', () => {
       providers: [provideRouter([]), provideHttpClient()],
     }).compileComponents();
 
-    demo = TestBed.inject(DemoDataService);
     const api = TestBed.inject(ApiService);
     vi.spyOn(api, 'accounts').mockResolvedValue({ data: [], ok: false });
     vi.spyOn(api, 'transactions').mockResolvedValue({ data: [], ok: false });
@@ -42,14 +39,15 @@ describe('Wallet', () => {
     expect(compiled.querySelector('.page-head h1')?.textContent).toContain('My Wallets');
   });
 
-  it('should render the demo movements', () => {
-    expect(component.movements.length).toBeGreaterThan(0);
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelectorAll('.movement').length).toBeGreaterThan(0);
+  it('should start with an empty balance and no movements', () => {
+    expect(component.movements.length).toBe(0);
+    expect(component.balanceParts.integer).toBe('0');
+    expect(component.balanceParts.decimals).toBe('00');
+    expect(component.income).toBe('0.00');
+    expect(component.expense).toBe('0.00');
   });
 
-  it('should fall back to demo accounts', () => {
-    expect(component.source).toBe('demo');
-    expect(component.accounts.length).toBe(demo.accounts.length);
+  it('should keep the holder name from the session', () => {
+    expect(component.holder).toBe('');
   });
 });

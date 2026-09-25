@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Topbar } from '../shell/topbar';
 import { ApiService, SavingsGoal } from '../../service/api.service';
-import { DemoDataService } from '../../service/demo-data.service';
 import { SessionService } from '../../service/session.service';
+import { RefreshBusService } from '../../service/refresh-bus.service';
 
 interface SaveGoal {
   id: number;
@@ -20,40 +20,30 @@ interface SaveGoal {
 })
 export class Saves implements OnInit {
   readonly goalIcons: Record<string, string> = {
-    plane: 'assets/icons/goal-plane.png',
-    lock: 'assets/icons/goal-lock.png',
-    screen: 'assets/icons/goal-screen.png',
+    plane: 'assets/icons/goal-plane.svg',
+    lock: 'assets/icons/goal-lock.svg',
+    screen: 'assets/icons/goal-screen.svg',
   };
 
-  totalSaved = '200';
-  cashback = '185';
-  interest = '12';
-  interestDecimals = '45';
+  totalSaved = '0';
+  cashback = '0';
+  interest = '0';
+  interestDecimals = '00';
   source: 'api' | 'demo' = 'demo';
   lastUpdate = 'just now';
 
-  goals: SaveGoal[] = [
-    { id: 1, name: 'VIAJE A LA ANTIGUA', current: 3000, target: 4000, icon: this.goalIcons['plane'] },
-    {
-      id: 2,
-      name: 'FONDOS DE EMERGENCIA',
-      current: 8500,
-      target: 8500,
-      icon: this.goalIcons['lock'],
-    },
-    { id: 3, name: 'NINTENDO SWITCH 2', current: 1500, target: 6500, icon: this.goalIcons['screen'] },
-  ];
+  goals: SaveGoal[] = [];
 
   constructor(
     private readonly api: ApiService,
-    private readonly demo: DemoDataService,
     private readonly session: SessionService,
+    private readonly bus: RefreshBusService,
   ) {}
 
   async ngOnInit(): Promise<void> {
     const { data, ok } = await this.api.savingsGoals(this.session.idUser);
-    const list = ok && data.length ? data : this.demo.savingsGoals;
-    this.source = ok && data.length ? 'api' : 'demo';
+    const list = data ?? [];
+    this.source = ok ? 'api' : 'demo';
 
     const icons = [this.goalIcons['plane'], this.goalIcons['lock'], this.goalIcons['screen']];
     this.goals = list.map((g: SavingsGoal, i: number) => ({
@@ -68,7 +58,7 @@ export class Saves implements OnInit {
   }
 
   private applyTotals(): void {
-    const saved = this.goals.reduce((s, g) => s + g.current, 0) || 200;
+    const saved = this.goals.reduce((s, g) => s + g.current, 0);
     const cashback = Math.round(saved * 0.0925);
     const interest = saved * 0.0622;
 
@@ -109,5 +99,6 @@ export class Saves implements OnInit {
       current_amount: goal.current,
       id_user: this.session.idUser,
     });
+    this.bus.emit();
   }
 }

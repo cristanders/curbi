@@ -16,6 +16,7 @@ export interface User {
   username: string;
   email: string;
   phone?: string;
+  avatar?: string;
 }
 
 export interface FinancialAccount {
@@ -138,21 +139,23 @@ export class ApiService {
     }
   }
 
-  async login(identifier: string, password: string): Promise<{ data: AuthResponse; ok: boolean }> {
-    return this.try(
-      () =>
-        this.call<AuthResponse>('post', '/auth/login', { identifier, password }, 6000),
-      {
-        demo: true,
-        user: {
-          id_user: 1,
-          name: 'BRAYAN CAMPA',
-          username: 'brayancampa',
-          email: identifier || 'brayan.compa@curbi.com',
-          phone: '+502 5555-1234',
-        },
-      },
-    );
+  async login(
+    identifier: string,
+    password: string,
+  ): Promise<{ data: AuthResponse | null; ok: boolean; error?: string }> {
+    if (!this.isBrowser) {
+      return { data: null, ok: false, error: 'No se pudo conectar con el servidor.' };
+    }
+    try {
+      const data = await this.call<AuthResponse>('post', '/auth/login', { identifier, password }, 6000);
+      return { data, ok: true };
+    } catch (e: unknown) {
+      const status = (e as { status?: number })?.status;
+      if (status === 401) {
+        return { data: null, ok: false, error: 'Usuario o contraseña incorrectos.' };
+      }
+      return { data: null, ok: false, error: 'No se pudo conectar con el servidor. Inténtalo de nuevo.' };
+    }
   }
 
   async register(payload: {
@@ -161,11 +164,16 @@ export class ApiService {
     email: string;
     password: string;
     phone?: string;
-  }): Promise<{ data: AuthResponse; ok: boolean }> {
-    return this.try(
-      () => this.call<AuthResponse>('post', '/auth/register', payload, 6000),
-      { demo: true, user: { id_user: 1, ...payload } },
-    );
+  }): Promise<{ data: AuthResponse | null; ok: boolean; error?: string }> {
+    if (!this.isBrowser) {
+      return { data: null, ok: false, error: 'No se pudo conectar con el servidor.' };
+    }
+    try {
+      const data = await this.call<AuthResponse>('post', '/auth/register', payload, 6000);
+      return { data, ok: true };
+    } catch {
+      return { data: null, ok: false, error: 'No se pudo conectar con el servidor. Inténtalo de nuevo.' };
+    }
   }
 
   dashboard(idUser: number): Promise<{ data: DashboardPayload | null; ok: boolean }> {
@@ -235,5 +243,9 @@ export class ApiService {
 
   createBudget(payload: Partial<Budget>): Promise<{ data: Budget | null; ok: boolean }> {
     return this.try<Budget | null>(() => this.call<Budget>('post', '/budgets', payload), null);
+  }
+
+  updateAvatar(idUser: number, avatar: string): Promise<{ data: User | null; ok: boolean }> {
+    return this.try<User | null>(() => this.call<User>('post', `/users/${idUser}/avatar`, { avatar }), null);
   }
 }

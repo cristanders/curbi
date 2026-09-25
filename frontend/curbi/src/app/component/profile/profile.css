@@ -118,6 +118,46 @@
   display: block;
 }
 
+.avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.photo-btn {
+  position: absolute;
+  right: -4px;
+  bottom: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #141414;
+  border: 2px solid #fff;
+  box-shadow: 0 4px 10px rgba(20, 80, 95, 0.25);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.photo-btn:hover {
+  transform: translateY(-1px);
+  background: #2a2a2a;
+}
+
+.photo-btn img {
+  filter: brightness(0) invert(1);
+  display: block;
+}
+
+.photo-btn input[type='file'] {
+  display: none;
+}
+
+.photo-clear {
+  margin-top: 2px;
+}
+
 .hero-id {
   min-width: 0;
 }
