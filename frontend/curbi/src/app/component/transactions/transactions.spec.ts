@@ -44,9 +44,11 @@ describe('Transactions', () => {
     expect(compiled.querySelectorAll('.stat-card').length).toBe(3);
   });
 
-  it('should render demo rows', () => {
-    expect(component.rows.length).toBeGreaterThan(0);
+  it('should render zero totals and no rows when there is no data', () => {
+    expect(component.rows.length).toBe(0);
+    expect(component.incomeTotal).toBe('0.00');
+    expect(component.expenseTotal).toBe('0.00');
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelectorAll('.tx-row').length).toBeGreaterThan(0);
+    expect(compiled.querySelectorAll('.tx-row').length).toBe(0);
   });
 });

@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Topbar } from '../shell/topbar';
 import { ApiService, Category, Transaction } from '../../service/api.service';
-import { DemoDataService } from '../../service/demo-data.service';
 import { SessionService } from '../../service/session.service';
+import { RefreshBusService } from '../../service/refresh-bus.service';
 
 interface TxRow {
   id: number;
@@ -22,7 +22,7 @@ interface TxRow {
   templateUrl: './transactions.html',
 })
 export class Transactions implements OnInit {
-  readonly defaultIcon = 'assets/icons/icon-transaction.png';
+  readonly defaultIcon = 'assets/icons/icon-transaction.svg';
 
   rows: TxRow[] = [];
   filtered: TxRow[] = [];
@@ -39,19 +39,23 @@ export class Transactions implements OnInit {
 
   constructor(
     private readonly api: ApiService,
-    private readonly demo: DemoDataService,
     private readonly session: SessionService,
+    private readonly bus: RefreshBusService,
   ) {}
 
   async ngOnInit(): Promise<void> {
+    await this.load();
+  }
+
+  private async load(): Promise<void> {
     const [tx, cats] = await Promise.all([
       this.api.transactions(this.session.idUser),
       this.api.categories(),
     ]);
 
-    const list = tx.ok && tx.data.length ? tx.data : this.demo.transactions;
-    this.source = tx.ok && tx.data.length ? 'api' : 'demo';
-    this.categories = cats.ok && cats.data.length ? cats.data : [];
+    const list = tx.data ?? [];
+    this.source = tx.ok ? 'api' : 'demo';
+    this.categories = cats.data;
 
     this.rows = list.map((t: Transaction, i: number) => {
       const d = new Date(Date.now() - i * 86400000);
@@ -103,13 +107,17 @@ export class Transactions implements OnInit {
   }
 
   async addSample(): Promise<void> {
-    await this.api.createTransaction({
+    const { ok } = await this.api.createTransaction({
       amount: 25.5,
       type_transacion: 'Gasto',
       description: 'Movimiento de prueba|Creado desde la UI',
       id_user: this.session.idUser,
       id_category: 1,
     });
+    if (ok) {
+      await this.load();
+      this.bus.emit();
+    }
     this.lastUpdate = 'just now';
   }
 }

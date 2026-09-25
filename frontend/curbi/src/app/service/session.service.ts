@@ -1,51 +1,111 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, Optional, PLATFORM_ID, REQUEST } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { User } from './api.service';
 
-const STORAGE_KEY = 'curbi.session';
+const STORAGE_KEY = 'curbi.session.v2';
+const LEGACY_KEYS = ['curbi.session'];
 
-const DEMO_USER: User = {
-  id_user: 1,
-  name: 'BRAYAN CAMPA',
-  username: 'brayancampa',
-  email: 'brayan.compa@curbi.com',
-  phone: '+502 5555-1234',
+const EMPTY_USER: User = {
+  id_user: 0,
+  name: '',
+  username: '',
+  email: '',
+  phone: '',
 };
 
+interface SessionPayload {
+  user: User;
+  demo: boolean;
+}
+
+/**
+ * Guarda la sesión en una cookie (legible por el SSR y el navegador) y en
+ * localStorage. Así, al volver a entrar a la app, el servidor puede renderizar
+ * el perfil con el usuario real y no una pantalla vacía.
+ */
 @Injectable({ providedIn: 'root' })
 export class SessionService {
-  private user: User = DEMO_USER;
-  private demo = true;
+  private user: User = EMPTY_USER;
+  private demo = false;
 
-  constructor() {
+  constructor(
+    @Inject(PLATFORM_ID) private readonly platformId: object,
+    @Optional() @Inject(REQUEST) private readonly request?: Request | null,
+  ) {
+    this.removeLegacy();
     this.read();
   }
 
-  private read(): void {
-    if (typeof localStorage === 'undefined') {
-      return;
-    }
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (parsed?.user) {
-          this.user = parsed.user;
-          this.demo = !!parsed.demo;
+  private get isBrowser(): boolean {
+    return isPlatformBrowser(this.platformId);
+  }
+
+  private removeLegacy(): void {
+    if (this.isBrowser) {
+      try {
+        for (const key of LEGACY_KEYS) {
+          localStorage.removeItem(key);
+          document.cookie = `${key}=; path=/; max-age=0; samesite=Lax`;
         }
+      } catch {
+        /* ignore */
       }
-    } catch {
-      /* sin storage: se queda en demo */
     }
   }
 
-  private write(): void {
-    if (typeof localStorage === 'undefined') {
+  private read(): void {
+    const raw = this.readCookie();
+    if (!raw) {
       return;
     }
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ user: this.user, demo: this.demo }));
+      const parsed = JSON.parse(decodeURIComponent(raw)) as SessionPayload;
+      if (parsed?.user?.id_user) {
+        this.user = parsed.user;
+        this.demo = !!parsed.demo;
+      }
     } catch {
-      /* ignore */
+      /* cookie inválida: se queda en usuario vacío */
+    }
+  }
+
+  private readCookie(): string | null {
+    let source = '';
+    if (this.isBrowser) {
+      try {
+        source = document.cookie ?? '';
+      } catch {
+        source = '';
+      }
+    } else {
+      try {
+        source = this.request?.headers?.get?.('cookie') ?? '';
+      } catch {
+        source = '';
+      }
+    }
+    if (!source) {
+      return null;
+    }
+    const prefix = `${STORAGE_KEY}=`;
+    for (const part of source.split(';')) {
+      const token = part.trim();
+      if (token.startsWith(prefix)) {
+        return token.slice(prefix.length);
+      }
+    }
+    return null;
+  }
+
+  private write(): void {
+    const payload = encodeURIComponent(JSON.stringify({ user: this.user, demo: this.demo }));
+    if (this.isBrowser) {
+      try {
+        document.cookie = `${STORAGE_KEY}=${payload}; path=/; samesite=Lax; max-age=31536000`;
+        localStorage.setItem(STORAGE_KEY, payload);
+      } catch {
+        /* ignore */
+      }
     }
   }
 
@@ -53,8 +113,21 @@ export class SessionService {
     return this.user;
   }
 
+  get hasUser(): boolean {
+    return Boolean(this.user?.id_user);
+  }
+
+  get avatar(): string {
+    return this.user?.avatar || '';
+  }
+
+  setAvatar(avatar: string): void {
+    this.user = { ...this.user, avatar };
+    this.write();
+  }
+
   get idUser(): number {
-    return Number(this.user?.id_user) || 1;
+    return this.user?.id_user || 0;
   }
 
   get initials(): string {
@@ -63,7 +136,7 @@ export class SessionService {
       .split(/\s+/)
       .filter(Boolean);
     if (parts.length === 0) {
-      return 'BC';
+      return '';
     }
     if (parts.length === 1) {
       return parts[0].slice(0, 2).toUpperCase();
@@ -82,10 +155,11 @@ export class SessionService {
   }
 
   clear(): void {
-    this.user = DEMO_USER;
-    this.demo = true;
-    if (typeof localStorage !== 'undefined') {
+    this.user = EMPTY_USER;
+    this.demo = false;
+    if (this.isBrowser) {
       try {
+        document.cookie = `${STORAGE_KEY}=; path=/; max-age=0; samesite=Lax`;
         localStorage.removeItem(STORAGE_KEY);
       } catch {
         /* ignore */

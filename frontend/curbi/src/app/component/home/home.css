@@ -580,6 +580,189 @@
   color: #111;
 }
 
+/* ---------- bank tabs (selector) ---------- */
+.bank-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.bank-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1.5px solid #e3eef0;
+  background: #fff;
+  border-radius: 999px;
+  padding: 5px 12px 5px 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #333;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.bank-tab.is-active {
+  border-color: #4ec8cd;
+  box-shadow: 0 0 0 3px rgba(78, 200, 205, 0.18);
+}
+
+.bank-tab-monogram {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.bank-tab-monogram.all {
+  background: linear-gradient(135deg, #0f2748, #4ec8cd);
+}
+
+.bank-tab-monogram img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.bank-monogram {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* ---------- tutorial ---------- */
+.tour-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(8, 26, 34, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(3px);
+}
+
+.tour-modal {
+  position: relative;
+  background: #fff;
+  border-radius: 24px;
+  padding: 30px 30px 24px;
+  width: min(420px, 100%);
+  text-align: center;
+  box-shadow: 0 28px 70px rgba(10, 40, 55, 0.4);
+}
+
+.tour-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  border: none;
+  background: #f2f7f8;
+  color: #444;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.tour-close:hover {
+  background: #e3eef0;
+}
+
+.tour-title {
+  margin: 8px 0 10px;
+  font-size: 22px;
+  font-weight: 800;
+  color: #111;
+  letter-spacing: -0.02em;
+}
+
+.tour-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #4a5a5f;
+}
+
+.tour-img {
+  margin: 14px auto 6px;
+  display: block;
+}
+
+.tour-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 18px 0 16px;
+}
+
+.tour-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d9e8ea;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.tour-dot.is-active {
+  background: #4ec8cd;
+  transform: scale(1.25);
+}
+
+.tour-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.btn-primary {
+  border: none;
+  background: #4ec8cd;
+  color: #0b3d40;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, filter 0.15s ease;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+.btn-ghost {
+  border: 1.5px solid #e3eef0;
+  background: transparent;
+  color: #4a6b70;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.btn-ghost:hover {
+  border-color: #4ec8cd;
+  color: #0b3d40;
+}
+
 /* ---------- responsive ---------- */
 @media (max-width: 1100px) {
   .kpi-grid {

@@ -19,10 +19,10 @@ export class Login {
 
   readonly mascot = 'assets/icons/curbi-mascot.png';
   readonly chatIcons = {
-    attach: 'assets/icons/chat-attach.png',
-    emoji: 'assets/icons/chat-emoji.png',
-    mic: 'assets/icons/chat-mic.png',
-    send: 'assets/icons/chat-send.png',
+    attach: 'assets/icons/chat-attach.svg',
+    emoji: 'assets/icons/chat-emoji.svg',
+    mic: 'assets/icons/chat-mic.svg',
+    send: 'assets/icons/chat-send.svg',
   };
   readonly googleIcon = 'assets/images/google.png';
   readonly outlookIcon = 'assets/images/outlook.png';
@@ -37,11 +37,11 @@ export class Login {
     this.error = '';
     this.loading = true;
 
-    const { data, ok } = await this.api.login(this.email.trim(), this.password);
+    const { data, ok, error } = await this.api.login(this.email.trim(), this.password);
     this.loading = false;
 
-    if (!ok && !data) {
-      this.error = 'No se pudo conectar con el servidor. Inténtalo de nuevo.';
+    if (!ok || !data) {
+      this.error = error ?? 'No se pudo conectar con el servidor. Inténtalo de nuevo.';
       return;
     }
 

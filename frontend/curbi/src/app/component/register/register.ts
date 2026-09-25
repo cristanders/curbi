@@ -22,10 +22,10 @@ export class Register {
 
   readonly mascot = 'assets/icons/curbi-mascot.png';
   readonly chatIcons = {
-    attach: 'assets/icons/chat-attach.png',
-    emoji: 'assets/icons/chat-emoji.png',
-    mic: 'assets/icons/chat-mic.png',
-    send: 'assets/icons/chat-send.png',
+    attach: 'assets/icons/chat-attach.svg',
+    emoji: 'assets/icons/chat-emoji.svg',
+    mic: 'assets/icons/chat-mic.svg',
+    send: 'assets/icons/chat-send.svg',
   };
   readonly googleIcon = 'assets/images/google.png';
 
@@ -47,7 +47,7 @@ export class Register {
     }
 
     this.loading = true;
-    const { data, ok } = await this.api.register({
+    const { data, ok, error } = await this.api.register({
       name: this.fullName.trim(),
       username: this.username.trim(),
       email: this.email.trim(),
@@ -56,8 +56,8 @@ export class Register {
     });
     this.loading = false;
 
-    if (!ok && !data) {
-      this.error = 'No se pudo conectar con el servidor. Inténtalo de nuevo.';
+    if (!ok || !data) {
+      this.error = error ?? 'No se pudo conectar con el servidor. Inténtalo de nuevo.';
       return;
     }
 

@@ -1,5 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { SessionService } from '../../service/session.service';
 
 export type TopbarActive = 'home' | 'wallet' | 'saves' | 'transactions' | 'profile' | 'none';
 
@@ -11,6 +12,12 @@ export type TopbarActive = 'home' | 'wallet' | 'saves' | 'transactions' | 'profi
 })
 export class Topbar {
   @Input({ required: true }) active: TopbarActive = 'none';
-  avatarUrl = 'assets/images/avatar.png';
-  brandUrl = 'assets/icons/curbi-logo.png';
+  readonly defaultAvatarUrl = 'assets/images/avatar.png';
+  readonly brandUrl = 'assets/icons/curbi-logo.png';
+
+  private readonly session = inject(SessionService);
+
+  get avatarUrl(): string {
+    return this.session.avatar || this.defaultAvatarUrl;
+  }
 }

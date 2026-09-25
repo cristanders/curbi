@@ -49,8 +49,48 @@
     <!-- Grafica principal en vivo -->
     <section class="chart-card">
       <div class="chart-head">
-        <h2>EVOLUCIÓN DEL SALDO — EN VIVO</h2>
+        <h2>
+          EVOLUCIÓN DEL SALDO
+          @if (selectedBank) {
+            — {{ selectedBank.monogram }}
+          }
+        </h2>
         <span class="chart-live"><span class="live-dot"></span> actualiza cada 3s</span>
+      </div>
+
+      <!-- Selector de banco para las gráficas -->
+      <div class="bank-tabs" role="tablist" aria-label="Banco a graficar">
+        <button
+          type="button"
+          class="bank-tab"
+          [class.is-active]="selectedBankId === 'all'"
+          role="tab"
+          [attr.aria-selected]="selectedBankId === 'all'"
+          (click)="selectBank('all')"
+        >
+          <span class="bank-tab-monogram all">◈</span>
+          <span>Todos</span>
+        </button>
+        @for (bank of banks; track bank.id) {
+          <button
+            type="button"
+            class="bank-tab"
+            [class.is-active]="selectedBankId === bank.monogramClass"
+            role="tab"
+            [attr.aria-selected]="selectedBankId === bank.monogramClass"
+            (click)="selectBank(bank.monogramClass)"
+            title="{{ bank.name }}"
+          >
+            <span class="bank-tab-monogram" [style.background]="bank.color || '#0f2748'">
+              @if (bank.logo) {
+                <img [src]="bank.logo" alt="" width="20" height="20" />
+              } @else {
+                {{ bank.monogram }}
+              }
+            </span>
+            <span>{{ bank.monogram }}</span>
+          </button>
+        }
       </div>
 
       <div class="chart-stage">
@@ -78,27 +118,38 @@
 
       <div class="chart-foot">
         <span>Q{{ money(totalPoints[0]) }}</span>
-        <span class="chart-current">Actual: Q{{ money(totalBalance) }}</span>
+        <span class="chart-current">
+          @if (selectedBank) {
+            {{ selectedBank.monogram }}: Q{{ money(totalBalance) }}
+          } @else {
+            Actual: Q{{ money(totalBalance) }}
+          }
+        </span>
         <span>Q{{ money(totalPoints[totalPoints.length - 1]) }}</span>
       </div>
     </section>
 
     <section class="bank-grid" aria-label="Bank accounts">
-      @for (bank of banks; track bank.id) {
+      @for (bank of visibleBanks; track bank.id) {
         <article class="bank-card">
           <div class="bank-card-top">
             <div class="bank-id">
-              <!-- PLACEHOLDER: assets/images/bank-bi.png | bank-banrural.png | bank-bancafe.png -->
-              <span class="bank-logo">
-                <img [src]="bank.logo" alt="" width="40" height="40" />
+              <span class="bank-logo" [style.background]="bank.color || '#f4f7fb'">
+                @if (bank.logo) {
+                  <img [src]="bank.logo" alt="" width="40" height="40" />
+                } @else {
+                  <span class="bank-monogram" [style.color]="bank.name ? '#fff' : ''">
+                    {{ bank.monogram }}
+                  </span>
+                }
               </span>
               <div class="bank-meta">
-                <span class="bank-label">El diario</span>
+                <span class="bank-label">Saldo en vivo</span>
                 <span class="bank-name">{{ bank.name }}</span>
               </div>
             </div>
-            <button type="button" class="bank-expand" aria-label="Expand">
-              <img src="assets/icons/chevron-right.png" alt="" width="14" height="14" />
+            <button type="button" class="bank-expand" aria-label="Ver gráfica de {{ bank.name }}" (click)="selectBank(bank.monogramClass)">
+              <img src="assets/icons/chevron-right.svg" alt="" width="14" height="14" />
             </button>
           </div>
 
@@ -158,7 +209,9 @@
             <div>
               <h3 class="wallet-holder">
                 {{ user }}
-                <span class="wallet-bank">({{ bankCode }})</span>
+                @if (bankCode) {
+                  <span class="wallet-bank">({{ bankCode }})</span>
+                }
               </h3>
               <p class="wallet-balance-label">Current balance (GTQ)</p>
               <p class="wallet-balance">
@@ -207,7 +260,6 @@
             <ul class="tx-list">
               @for (tx of transactions; track $index) {
                 <li class="tx-item">
-                  <!-- PLACEHOLDER: assets/images/tx-*.png -->
                   <span class="tx-icon" aria-hidden="true">
                     <img [src]="tx.icon" alt="" width="44" height="44" />
                   </span>
@@ -227,4 +279,60 @@
       </article>
     </section>
   </main>
+
+  <!-- Tutorial de primera vez -->
+  @if (tourOpen) {
+    <div class="tour-backdrop" role="dialog" aria-modal="true" aria-label="Tutorial de CURBI">
+      <div class="tour-modal">
+        <button type="button" class="tour-close" (click)="closeTour()" aria-label="Cerrar tutorial">×</button>
+
+        @if (tourStep === 0) {
+          <h2 class="tour-title">¡Bienvenido a CURBI! 👋</h2>
+          <p class="tour-text">
+            Esta es tu <strong>Dashboard</strong>: aquí ves tu saldo total y tus gráficas
+            en vivo. Sigue este mini tutorial para conocer la aplicación.
+          </p>
+          <img class="tour-img" src="assets/icons/curbi-mascot.png" alt="" width="120" height="120" />
+        } @else if (tourStep === 1) {
+          <h2 class="tour-title">Gráficas por banco</h2>
+          <p class="tour-text">
+            En <strong>Dashboard</strong> hay pestañas para elegir de qué banco quieres
+            ver las gráficas. Presiona el banco y solo se mostrará su evolución.
+          </p>
+        } @else if (tourStep === 2) {
+          <h2 class="tour-title">Tu Wallet (billetera)</h2>
+          <p class="tour-text">
+            En <strong>Wallet</strong> agregas tarjetas de débito o crédito de tu banco,
+            transfieres, pagas facturas y solicitas dinero. Tus movimientos se guardan
+            aquí y en el Dashboard.
+          </p>
+        } @else if (tourStep === 3) {
+          <h2 class="tour-title">Saves y Transactions</h2>
+          <p class="tour-text">
+            <strong>Saves</strong> guarda tus metas de ahorro y <strong>Transactions</strong>
+            muestra el historial completo con filtros.
+          </p>
+        } @else {
+          <h2 class="tour-title">¡Listo! 🎉</h2>
+          <p class="tour-text">
+            Explora cada sección desde el menú superior. Puedes cerrar este tutorial
+            cuando quieras.
+          </p>
+        }
+
+        <div class="tour-dots" aria-hidden="true">
+          @for (s of tourSteps; track s) {
+            <span class="tour-dot" [class.is-active]="s === tourStep"></span>
+          }
+        </div>
+
+        <div class="tour-actions">
+          <button type="button" class="btn-ghost" (click)="closeTour()">Saltar</button>
+          <button type="button" class="btn-primary" (click)="nextTour()">
+            {{ tourStep === 4 ? 'Entendido' : 'Siguiente' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

@@ -6,95 +6,137 @@
       <div>
         <h1>My Wallets</h1>
         <p class="page-sub">
-          {{ source === 'api' ? 'Sincronizado con el backend' : 'Datos de demostración' }} ·
+          {{ source === 'api' ? 'Sincronizado con el backend' : 'Sin conexión al backend' }} ·
           actualizado {{ lastUpdate }}
         </p>
       </div>
-      <button type="button" class="add-card" (click)="addCard()" aria-label="Add credit or debit card">
+      <button type="button" class="add-card" (click)="openAdd()" aria-label="Add credit or debit card">
         <span aria-hidden="true">+</span>
         <span class="add-card-label">Add Credit/Debit Card</span>
       </button>
     </div>
 
     <section class="wallet-layout">
-      <article class="credit-card" aria-label="Banco Industrial card">
-        <div class="card-glow" aria-hidden="true"></div>
+      <div class="card-stack">
+        @if (store.allCards.length > 1) {
+          <div class="card-selector" role="tablist" aria-label="Tus tarjetas">
+            @for (c of store.allCards; track c.id) {
+              <button
+                type="button"
+                class="card-pill"
+                [class.is-active]="c.id === card?.id"
+                (click)="selectCard(c.id)"
+                [attr.aria-selected]="c.id === card?.id"
+              >
+                <span class="pill-monogram" [style.background]="bankById(c.bankId).color">
+                  {{ bankById(c.bankId).monogram }}
+                </span>
+                <span class="pill-meta">
+                  <strong>{{ bankById(c.bankId).monogram }} · {{ c.type }}</strong>
+                  <small>···· {{ c.last4 }}</small>
+                </span>
+              </button>
+            }
+          </div>
+        }
 
-        <div class="card-top">
-          <div class="card-bank">
-            <!-- PLACEHOLDER: assets/images/bank-bi.png -->
-            <span class="bi-logo" aria-hidden="true">
-              <img [src]="biLogo" alt="" width="44" height="44" />
-            </span>
-            <div>
-              <p class="bank-name">Banco Industrial</p>
-              <p class="card-type">{{ cardType }} ···· {{ last4 }}</p>
+        @if (card) {
+          <article class="credit-card" [class.is-credit-card]="cardType === 'Credito'" aria-label="Tarjeta bancaria">
+            <div class="card-glow" aria-hidden="true"></div>
+
+            <div class="card-top">
+              <div class="card-bank">
+                <span class="bi-logo" aria-hidden="true">
+                  @if (bankCardLogo) {
+                    <img [src]="bankCardLogo" alt="" width="44" height="44" />
+                  } @else {
+                    <span class="bank-monogram" [style.background]="cardBank.color">
+                      {{ cardBank.monogram }}
+                    </span>
+                  }
+                </span>
+                <div>
+                  <p class="bank-name">{{ cardBank.name }}</p>
+                  <p class="card-type">{{ cardType }} ···· {{ cardLast4 }}</p>
+                </div>
+              </div>
+              <div class="card-top-right">
+                <img
+                  class="contactless"
+                  [src]="contactlessUrl"
+                  alt=""
+                  width="22"
+                  height="22"
+                />
+              </div>
             </div>
-          </div>
-          <div class="card-top-right">
-            <!-- PLACEHOLDER: assets/icons/contactless.png -->
-            <img
-              class="contactless"
-              [src]="contactlessUrl"
-              alt=""
-              width="22"
-              height="22"
-            />
-          </div>
-        </div>
 
-        <div class="card-chip-row">
-          <!-- PLACEHOLDER: assets/images/card-chip.png -->
-          <span class="chip" aria-hidden="true">
-            <img [src]="chipUrl" alt="" width="46" height="34" />
-          </span>
-        </div>
+            <div class="card-chip-row">
+              <span class="chip" aria-hidden="true">
+                <img [src]="chipUrl" alt="" width="46" height="34" />
+              </span>
+            </div>
 
-        <p class="card-holder-label">Titular</p>
-        <p class="card-holder">{{ holder }}</p>
+            <p class="card-holder-label">Titular</p>
+            <p class="card-holder">{{ holder }}</p>
 
-        <div class="card-bottom">
-          <div class="card-actions">
-            <button type="button" class="card-action" (click)="transfer()">TRANSFERIR</button>
-            <button type="button" class="card-action" (click)="pay()">PAGAR</button>
+            <div class="card-bottom">
+              <div class="card-actions">
+                <button type="button" class="card-action" (click)="openTx('transfer')">TRANSFERIR</button>
+                <button type="button" class="card-action" (click)="openTx('pay')">PAGAR</button>
+              </div>
+              <div class="visa">
+                <img class="visa-img" [src]="visaUrl" alt="VISA" width="70" height="28" />
+                <span class="visa-sub">{{ cardType === 'Credito' ? 'crédito' : 'débito' }}</span>
+              </div>
+            </div>
+
+            <div class="card-balance">
+              <p class="balance-label">Saldo Disponible</p>
+              <p class="balance-amount">
+                GTQ{{ balanceParts.integer }}<span class="balance-dec">.{{ balanceParts.decimals }}</span>
+              </p>
+            </div>
+
+            @if (store.allCards.length > 1) {
+              <button type="button" class="card-remove" (click)="removeActiveCard()" aria-label="Eliminar tarjeta activa">
+                Quitar tarjeta
+              </button>
+            }
+          </article>
+        } @else {
+          <div class="card-empty">
+            <p class="card-empty-title">Aún no tienes tarjetas</p>
+            <p class="card-empty-sub">
+              Agrega una tarjeta de débito o crédito para empezar a ver tu saldo y movimientos.
+            </p>
+            <button type="button" class="btn-primary" (click)="openAdd()">Agregar mi primera tarjeta</button>
           </div>
-          <div class="visa">
-            <!-- PLACEHOLDER: assets/images/visa.png -->
-            <img class="visa-img" [src]="visaUrl" alt="VISA" width="70" height="28" />
-            <span class="visa-sub">débito</span>
-          </div>
-        </div>
-
-        <div class="card-balance">
-          <p class="balance-label">Saldo Disponible</p>
-          <p class="balance-amount">
-            GTQ{{ balance }}<span class="balance-dec">.{{ balanceDecimals }}</span>
-          </p>
-        </div>
-      </article>
+        }
+      </div>
 
       <aside class="quick-panel card">
         <h2>Quick actions</h2>
         <div class="quick-grid">
-          <button type="button" class="quick" (click)="transfer()">
+          <button type="button" class="quick" (click)="openTx('transfer')">
             <span class="quick-icon" aria-hidden="true">
               <img [src]="quickIcons.transfer" alt="" width="20" height="20" />
             </span>
             Transfer
           </button>
-          <button type="button" class="quick" (click)="pay()">
+          <button type="button" class="quick" (click)="openTx('request')">
             <span class="quick-icon" aria-hidden="true">
               <img [src]="quickIcons.request" alt="" width="20" height="20" />
             </span>
             Request
           </button>
-          <button type="button" class="quick" (click)="pay()">
+          <button type="button" class="quick" (click)="openTx('pay')">
             <span class="quick-icon" aria-hidden="true">
               <img [src]="quickIcons.pay" alt="" width="20" height="20" />
             </span>
             Pay bill
           </button>
-          <button type="button" class="quick" (click)="addCard()">
+          <button type="button" class="quick" (click)="openAdd()">
             <span class="quick-icon" aria-hidden="true">
               <img [src]="quickIcons.add" alt="" width="20" height="20" />
             </span>
@@ -122,11 +164,11 @@
       </div>
 
       <ul class="movement-list">
-        @for (m of movements; track m.title + m.date) {
+        @for (m of movements; track m.id) {
           <li class="movement">
             <div class="movement-info">
               <p class="movement-title">{{ m.title }}</p>
-              <p class="movement-meta">{{ m.date }} — {{ m.origin }}</p>
+              <p class="movement-meta">{{ m.date }} — card ···· {{ m.origin }}</p>
             </div>
             <div class="movement-right">
               <span class="movement-kind" [class.is-credit]="m.kind === 'Credito'">{{ m.kind }}</span>
@@ -141,4 +183,123 @@
       </ul>
     </section>
   </main>
+
+  @if (toast) {
+    <div class="toast" role="status">{{ toast }}</div>
+  }
 </div>
+
+<!-- Modal: Agregar tarjeta -->
+@if (addOpen) {
+  <div class="modal-backdrop" (click)="closeAdd()">
+    <div class="modal card-modal" role="dialog" aria-modal="true" aria-label="Agregar tarjeta" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h2>Add Credit/Debit Card</h2>
+        <button type="button" class="modal-close" (click)="closeAdd()" aria-label="Cerrar">×</button>
+      </div>
+
+      @if (addStep === 'bank') {
+        <p class="modal-step-label">PASO 1 DE 2 — ELIGE TU BANCO</p>
+        <div class="bank-grid">
+          @for (bank of banks; track bank.id) {
+            <button
+              type="button"
+              class="bank-option"
+              [class.is-selected]="bank.id === selectedBankId"
+              (click)="chooseBank(bank.id)"
+            >
+              <span class="bank-option-logo" [style.background]="bank.color">
+                @if (bank.logo) {
+                  <img [src]="bank.logo" alt="" width="34" height="34" />
+                } @else {
+                  {{ bank.monogram }}
+                }
+              </span>
+              <span class="bank-option-name">{{ bank.name }}</span>
+            </button>
+          }
+        </div>
+      }
+
+      @if (addStep === 'kind') {
+        <p class="modal-step-label">PASO 2 DE 2 — {{ bankById(selectedBankId).name }}</p>
+
+        <div class="kind-grid" role="radiogroup" aria-label="Tipo de tarjeta">
+          <button
+            type="button"
+            class="kind-option"
+            [class.is-selected]="selectedKind === 'Debito'"
+            (click)="chooseKind('Debito')"
+          >
+            <span class="kind-name">Débito</span>
+            <span class="kind-sub">Fondos de tu cuenta</span>
+          </button>
+          <button
+            type="button"
+            class="kind-option"
+            [class.is-selected]="selectedKind === 'Credito'"
+            (click)="chooseKind('Credito')"
+          >
+            <span class="kind-name">Crédito</span>
+            <span class="kind-sub">Línea de crédito</span>
+          </button>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-ghost" (click)="backToBanks()">Volver</button>
+          <button
+            type="button"
+            class="btn-primary"
+            [disabled]="!selectedBankId"
+            (click)="confirmAddCard()"
+          >
+            Agregar tarjeta
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- Modal: Transacciones -->
+@if (txOpen) {
+  <div class="modal-backdrop" (click)="closeTx()">
+    <div class="modal tx-modal" role="dialog" aria-modal="true" [attr.aria-label]="txTitleLabel" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h2>{{ txTitleLabel }}</h2>
+        <button type="button" class="modal-close" (click)="closeTx()" aria-label="Cerrar">×</button>
+      </div>
+
+      <div class="tx-card-preview"
+        [style.background]="'linear-gradient(145deg, ' + cardBank.from + ' 0%, ' + cardBank.to + ' 100%)'">
+        <span>{{ cardBank.monogram }} · {{ cardType }}</span>
+        <strong>···· {{ cardLast4 }}</strong>
+      </div>
+
+      <label class="tx-field">
+        <span>Monto (Q)</span>
+        <input
+          type="number"
+          min="0.01"
+          step="0.01"
+          placeholder="0.00"
+          [(ngModel)]="txAmount"
+        />
+      </label>
+
+      <label class="tx-field">
+        <span>Descripción</span>
+        <input
+          type="text"
+          placeholder="{{ txKind === 'request' ? 'Por ejemplo: merienda' : 'Por ejemplo: renta' }}"
+          [(ngModel)]="txTitle"
+        />
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" (click)="closeTx()">Cancelar</button>
+        <button type="button" class="btn-primary" (click)="confirmTx()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+}
