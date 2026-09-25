@@ -55,7 +55,10 @@ export class WalletCardService {
 
   private get storageKey(): string {
     const u = this.session.currentUser;
-    const namespace = u?.id_user && u?.username ? `${u.id_user}.${encodeURIComponent(u.username)}` : String(u?.id_user || 0);
+    const namespace =
+      u?.id_user && u?.username
+        ? `${u.id_user}.${encodeURIComponent(u.username)}`
+        : String(u?.id_user || 0);
     return `curbi.wallet.v2.${namespace}`;
   }
 

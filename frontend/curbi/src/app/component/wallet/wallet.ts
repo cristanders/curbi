@@ -62,15 +62,27 @@ export class Wallet implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.holder = this.session.currentUser.name || '';
-    console.log('WALLET-DEBUG pre-load ' + JSON.stringify({
-      idUser: this.session.idUser,
-      cards: this.store.allCards,
-    }));
+    console.log(
+      'WALLET-DEBUG pre-load ' +
+        JSON.stringify({
+          idUser: this.session.idUser,
+          cards: this.store.allCards,
+        }),
+    );
     await this.store.load();
-    console.log('WALLET-DEBUG post-load ' + JSON.stringify({
-      cards: this.store.allCards,
-      active: this.store.activeCard ? { id: this.store.activeCard.id, last4: this.store.activeCard.last4, balance: this.store.activeCard.balance } : null,
-    }));
+    console.log(
+      'WALLET-DEBUG post-load ' +
+        JSON.stringify({
+          cards: this.store.allCards,
+          active: this.store.activeCard
+            ? {
+                id: this.store.activeCard.id,
+                last4: this.store.activeCard.last4,
+                balance: this.store.activeCard.balance,
+              }
+            : null,
+        }),
+    );
     this.applyState();
   }
 
@@ -207,7 +219,9 @@ export class Wallet implements OnInit {
     this.txOpen = false;
     this.applyState();
     this.bus.emit();
-    this.showToast(`${this.txKindLabel === 'Credito' ? 'Ingreso' : 'Movimiento'} registrado: Q${amount.toFixed(2)}`);
+    this.showToast(
+      `${this.txKindLabel === 'Credito' ? 'Ingreso' : 'Movimiento'} registrado: Q${amount.toFixed(2)}`,
+    );
   }
 
   private defaultTitle(kind: TxKind): string {

@@ -4,9 +4,6 @@
   <main class="content">
     <div class="page-head">
       <h1 class="page-title">My saves</h1>
-      <span class="source-chip" [class.is-demo]="source === 'demo'">
-        {{ source === 'api' ? 'Backend conectado' : 'Sin conexión al backend' }} · {{ lastUpdate }}
-      </span>
     </div>
 
     <section class="stats" aria-label="Savings summary">
@@ -20,7 +17,10 @@
       </article>
       <article class="stat-card">
         <p class="stat-label">INTERESES GENERADOS</p>
-        <p class="stat-amount">(GTQ{{ interest }}<span class="dec">.{{ interestDecimals }}</span>)</p>
+        <p class="stat-amount">
+          (GTQ{{ interest }}<span class="dec">.{{ interestDecimals }}</span
+          >)
+        </p>
       </article>
     </section>
 
@@ -47,8 +47,12 @@
           </div>
 
           <div class="goal-actions">
-            <button type="button" class="btn-details" (click)="viewDetails(goal)">Ver detalles</button>
-            <button type="button" class="btn-contribute" (click)="contribute(goal)">Aportar $</button>
+            <button type="button" class="btn-details" (click)="viewDetails(goal)">
+              Ver detalles
+            </button>
+            <button type="button" class="btn-contribute" (click)="contribute(goal)">
+              Aportar $
+            </button>
           </div>
         </article>
       }

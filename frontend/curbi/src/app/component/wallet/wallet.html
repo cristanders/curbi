@@ -10,7 +10,12 @@
           actualizado {{ lastUpdate }}
         </p>
       </div>
-      <button type="button" class="add-card" (click)="openAdd()" aria-label="Add credit or debit card">
+      <button
+        type="button"
+        class="add-card"
+        (click)="openAdd()"
+        aria-label="Add credit or debit card"
+      >
         <span aria-hidden="true">+</span>
         <span class="add-card-label">Add Credit/Debit Card</span>
       </button>
@@ -41,7 +46,11 @@
         }
 
         @if (card) {
-          <article class="credit-card" [class.is-credit-card]="cardType === 'Credito'" aria-label="Tarjeta bancaria">
+          <article
+            class="credit-card"
+            [class.is-credit-card]="cardType === 'Credito'"
+            aria-label="Tarjeta bancaria"
+          >
             <div class="card-glow" aria-hidden="true"></div>
 
             <div class="card-top">
@@ -61,13 +70,7 @@
                 </div>
               </div>
               <div class="card-top-right">
-                <img
-                  class="contactless"
-                  [src]="contactlessUrl"
-                  alt=""
-                  width="22"
-                  height="22"
-                />
+                <img class="contactless" [src]="contactlessUrl" alt="" width="22" height="22" />
               </div>
             </div>
 
@@ -82,7 +85,9 @@
 
             <div class="card-bottom">
               <div class="card-actions">
-                <button type="button" class="card-action" (click)="openTx('transfer')">TRANSFERIR</button>
+                <button type="button" class="card-action" (click)="openTx('transfer')">
+                  TRANSFERIR
+                </button>
                 <button type="button" class="card-action" (click)="openTx('pay')">PAGAR</button>
               </div>
               <div class="visa">
@@ -94,12 +99,18 @@
             <div class="card-balance">
               <p class="balance-label">Saldo Disponible</p>
               <p class="balance-amount">
-                GTQ{{ balanceParts.integer }}<span class="balance-dec">.{{ balanceParts.decimals }}</span>
+                GTQ{{ balanceParts.integer
+                }}<span class="balance-dec">.{{ balanceParts.decimals }}</span>
               </p>
             </div>
 
             @if (store.allCards.length > 1) {
-              <button type="button" class="card-remove" (click)="removeActiveCard()" aria-label="Eliminar tarjeta activa">
+              <button
+                type="button"
+                class="card-remove"
+                (click)="removeActiveCard()"
+                aria-label="Eliminar tarjeta activa"
+              >
                 Quitar tarjeta
               </button>
             }
@@ -110,7 +121,9 @@
             <p class="card-empty-sub">
               Agrega una tarjeta de débito o crédito para empezar a ver tu saldo y movimientos.
             </p>
-            <button type="button" class="btn-primary" (click)="openAdd()">Agregar mi primera tarjeta</button>
+            <button type="button" class="btn-primary" (click)="openAdd()">
+              Agregar mi primera tarjeta
+            </button>
           </div>
         }
       </div>
@@ -171,7 +184,9 @@
               <p class="movement-meta">{{ m.date }} — card ···· {{ m.origin }}</p>
             </div>
             <div class="movement-right">
-              <span class="movement-kind" [class.is-credit]="m.kind === 'Credito'">{{ m.kind }}</span>
+              <span class="movement-kind" [class.is-credit]="m.kind === 'Credito'">{{
+                m.kind
+              }}</span>
               <span class="movement-amount" [class.is-credit]="m.kind === 'Credito'">
                 {{ m.sign }} GTQ{{ m.amount }}
               </span>
@@ -192,10 +207,18 @@
 <!-- Modal: Agregar tarjeta -->
 @if (addOpen) {
   <div class="modal-backdrop" (click)="closeAdd()">
-    <div class="modal card-modal" role="dialog" aria-modal="true" aria-label="Agregar tarjeta" (click)="$event.stopPropagation()">
+    <div
+      class="modal card-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Agregar tarjeta"
+      (click)="$event.stopPropagation()"
+    >
       <div class="modal-head">
         <h2>Add Credit/Debit Card</h2>
-        <button type="button" class="modal-close" (click)="closeAdd()" aria-label="Cerrar">×</button>
+        <button type="button" class="modal-close" (click)="closeAdd()" aria-label="Cerrar">
+          ×
+        </button>
       </div>
 
       @if (addStep === 'bank') {
@@ -264,27 +287,31 @@
 <!-- Modal: Transacciones -->
 @if (txOpen) {
   <div class="modal-backdrop" (click)="closeTx()">
-    <div class="modal tx-modal" role="dialog" aria-modal="true" [attr.aria-label]="txTitleLabel" (click)="$event.stopPropagation()">
+    <div
+      class="modal tx-modal"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="txTitleLabel"
+      (click)="$event.stopPropagation()"
+    >
       <div class="modal-head">
         <h2>{{ txTitleLabel }}</h2>
         <button type="button" class="modal-close" (click)="closeTx()" aria-label="Cerrar">×</button>
       </div>
 
-      <div class="tx-card-preview"
-        [style.background]="'linear-gradient(145deg, ' + cardBank.from + ' 0%, ' + cardBank.to + ' 100%)'">
+      <div
+        class="tx-card-preview"
+        [style.background]="
+          'linear-gradient(145deg, ' + cardBank.from + ' 0%, ' + cardBank.to + ' 100%)'
+        "
+      >
         <span>{{ cardBank.monogram }} · {{ cardType }}</span>
         <strong>···· {{ cardLast4 }}</strong>
       </div>
 
       <label class="tx-field">
         <span>Monto (Q)</span>
-        <input
-          type="number"
-          min="0.01"
-          step="0.01"
-          placeholder="0.00"
-          [(ngModel)]="txAmount"
-        />
+        <input type="number" min="0.01" step="0.01" placeholder="0.00" [(ngModel)]="txAmount" />
       </label>
 
       <label class="tx-field">
