@@ -16,6 +16,19 @@
   </nav>
 
   <a
+    routerLink="/notifications"
+    class="app-bell"
+    [class.is-active]="active === 'notifications'"
+    title="Notificaciones"
+    aria-label="Notificaciones"
+  >
+    <span class="app-bell-icon" aria-hidden="true">🔔</span>
+    @if (unread > 0) {
+      <span class="app-bell-badge">{{ unread > 9 ? '9+' : unread }}</span>
+    }
+  </a>
+
+  <a
     routerLink="/profile"
     class="app-avatar"
     [class.is-active]="active === 'profile'"

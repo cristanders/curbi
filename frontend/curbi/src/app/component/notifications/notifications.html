@@ -1,0 +1,78 @@
+<div class="page">
+  <app-topbar [active]="active" />
+
+  <main class="content">
+    <div class="page-head">
+      <div>
+        <h1>Notificaciones</h1>
+        <p class="page-sub">Hola {{ user }}, aquí te avisamos de tus movimientos y aprobaciones.</p>
+      </div>
+      <div class="head-actions">
+        <button type="button" class="btn-ghost" (click)="refresh()" [disabled]="loading()">
+          {{ loading() ? 'Actualizando...' : 'Actualizar' }}
+        </button>
+        @if (unread() > 0) {
+          <button type="button" class="btn-primary" (click)="markAllRead()">Marcar leídas</button>
+        }
+      </div>
+    </div>
+
+    <div class="filters" role="tablist" aria-label="Filtrar notificaciones">
+      <button
+        type="button"
+        class="filter"
+        [class.is-active]="filter() === 'todas'"
+        (click)="setFilter('todas')"
+        role="tab"
+        [attr.aria-selected]="filter() === 'todas'"
+      >
+        Todas
+      </button>
+      <button
+        type="button"
+        class="filter"
+        [class.is-active]="filter() === 'no-leidas'"
+        (click)="setFilter('no-leidas')"
+        role="tab"
+        [attr.aria-selected]="filter() === 'no-leidas'"
+      >
+        No leídas
+        @if (unread() > 0) {
+          <span class="filter-count">{{ unread() }}</span>
+        }
+      </button>
+    </div>
+
+    @if (rows().length === 0) {
+      <div class="empty">
+        <span class="empty-glyph" aria-hidden="true">🔔</span>
+        <h2>{{ filter() === 'no-leidas' ? 'No tienes nada pendiente' : 'Aún no hay avisos' }}</h2>
+        <p>
+          Aquí verás cuando alguien te deposite, cuando aprueben tu cupo de crédito
+          y cuando pagues una factura.
+        </p>
+      </div>
+    } @else {
+      <ul class="feed">
+        @for (n of rows(); track n.id) {
+          <li class="item" [class.is-unread]="!n.read">
+            <span class="item-glyph" [style.background]="n.color" aria-hidden="true">
+              {{ n.glyph }}
+            </span>
+            <div class="item-body">
+              <div class="item-top">
+                <strong>{{ n.title }}</strong>
+                <span class="item-when">{{ n.when }}</span>
+              </div>
+              <p class="item-message">{{ n.message }}</p>
+              <span class="item-type">{{ n.type }}</span>
+            </div>
+            @if (n.amount !== undefined) {
+              <span class="item-amount">{{ money(n.amount) }}</span>
+            }
+          </li>
+        }
+      </ul>
+    }
+  </main>
+</div>

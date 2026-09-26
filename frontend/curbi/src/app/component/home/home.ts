@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID, computed, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { Topbar } from '../shell/topbar';
@@ -50,26 +50,22 @@ export class Home implements OnInit, OnDestroy {
 
   user = '';
   bankCode = '';
-  balance = '0';
-  balanceDecimals = '00';
-  savings = '0';
-  savingsDecimals = '00';
-  lastUpdate = 'just now';
+  readonly lastUpdate = signal('just now');
 
-  source: 'api' | 'demo' = 'demo';
-  loading = true;
+  readonly source = signal<'api' | 'demo'>('demo');
+  readonly loading = signal(true);
 
-  transactions: TxView[] = [];
+  readonly transactions = computed<TxView[]>(() => this.buildTransactions());
 
   /* ----- selector de banco para las gráficas ----- */
   selectedBankId = 'all';
 
   /* ----- tutorial de primera vez ----- */
-  tourOpen = false;
+  readonly tourOpen = signal(false);
   tourStep = 0;
   readonly tourSteps = [0, 1, 2, 3, 4];
 
-  private data: DashboardPayload | null = null;
+  private readonly data = signal<DashboardPayload | null>(null);
   private busy = false;
   private unsubMarket: (() => void) | null = null;
   private busSub: Subscription | null = null;
@@ -103,7 +99,7 @@ export class Home implements OnInit, OnDestroy {
   }
 
   closeTour(): void {
-    this.tourOpen = false;
+    this.tourOpen.set(false);
     if (isPlatformBrowser(this.platformId)) {
       try {
         localStorage.removeItem('curbi.tour.done');
@@ -135,15 +131,29 @@ export class Home implements OnInit, OnDestroy {
     }
     try {
       if (!localStorage.getItem(this.tourDoneKey)) {
-        this.tourOpen = true;
+        this.tourOpen.set(true);
       }
     } catch {
       /* sin persistencia: abrir igual */
     }
   }
 
+  readonly summary = computed<DashboardPayload['summary']>(
+    () => this.data()?.summary ?? this.walletSummary(),
+  );
+
+  private readonly balanceMoney = computed(() =>
+    this.market.formatMoney(this.summary().totalBalance),
+  );
+  readonly balance = computed(() => this.balanceMoney().integer);
+  readonly balanceDecimals = computed(() => this.balanceMoney().decimals);
+
+  private readonly savingsMoney = computed(() => this.market.formatMoney(this.summary().totalSaved));
+  readonly savings = computed(() => this.savingsMoney().integer);
+  readonly savingsDecimals = computed(() => this.savingsMoney().decimals);
+
   get totalBalance() {
-    return this.summary.totalBalance;
+    return this.summary().totalBalance;
   }
 
   get totalChange(): number {
@@ -151,7 +161,7 @@ export class Home implements OnInit, OnDestroy {
   }
 
   get spendNow() {
-    return this.summary.expense;
+    return this.summary().expense;
   }
 
   get spendChange(): number {
@@ -186,48 +196,34 @@ export class Home implements OnInit, OnDestroy {
     return this.market.toPoints(this.market.spendPoints, 300, 120, 8);
   }
 
-  get summary(): DashboardPayload['summary'] {
-    return this.data?.summary ?? this.walletSummary();
-  }
-
   /** Cuando no hay backend, el dashboard refleja las tarjetas/movimientos locales. */
   private walletSummary(): DashboardPayload['summary'] {
     return {
-      totalBalance: this.store.totalBalance,
+      totalBalance: this.store.totalBalance(),
       totalSaved: 0,
-      income: this.store.income,
-      expense: this.store.expense,
-      net: this.store.income - this.store.expense,
-      accountCount: this.store.allCards.length,
-      transactionCount: this.store.allMovements.length,
+      income: this.store.income(),
+      expense: this.store.expense(),
+      net: this.store.income() - this.store.expense(),
+      accountCount: this.store.allCards().length,
+      transactionCount: this.store.allMovements().length,
       goalCount: 0,
     };
   }
 
   get sourceLabel(): string {
-    return this.source === 'api' ? 'Backend conectado' : 'Sin conexión al backend';
+    return this.source() === 'api' ? 'Backend conectado' : 'Sin conexión al backend';
   }
 
   async ngOnInit(): Promise<void> {
     this.user = this.session.currentUser.name || '';
 
-    console.log('HOME-DEBUG init ' + JSON.stringify({
-      hasBus: !!this.bus,
-      busType: typeof this.bus,
-      hasChanges: !!(this.bus as any)?.changes$,
-      hasSubscribe: typeof (this.bus as any)?.changes$?.subscribe,
-      busCtor: (this.bus as any)?.constructor?.name ?? null,
-      busIdsWarningOk: true,
-    }));
-
-    this.loading = true;
+    this.loading.set(true);
     this.maybeOpenTour();
     await this.refresh();
-    this.loading = false;
+    this.loading.set(false);
 
     this.unsubMarket = this.market.subscribe(() => {
-      this.lastUpdate = 'just now';
-      this.applySummary();
+      this.lastUpdate.set('just now');
     });
 
     this.busSub = this.bus.changes$.subscribe(() => void this.refresh());
@@ -251,51 +247,40 @@ export class Home implements OnInit, OnDestroy {
     this.busy = true;
     try {
       await this.store.load();
-      this.market.setBanksFromWallet(this.store.allCards.map((c) => this.walletToBankInput(c)));
+      this.market.setBanksFromWallet(
+        this.store.allCards().map((c) => this.walletToBankInput(c)),
+      );
       const { data } = await this.api.dashboard(this.session.idUser);
-      this.data = data;
+      this.data.set(data);
       if (data) {
-        this.source = 'api';
+        this.source.set('api');
       }
-      this.lastUpdate = 'just now';
-      this.applySummary();
-      this.buildTransactions();
+      this.lastUpdate.set('just now');
       this.market.syncSpend(this.spendSources());
     } finally {
       this.busy = false;
     }
   }
 
-  private applySummary(): void {
-    const s = this.summary;
-    const total = this.market.formatMoney(s.totalBalance);
-    this.balance = total.integer;
-    this.balanceDecimals = total.decimals;
-
-    const sav = this.market.formatMoney(s.totalSaved);
-    this.savings = sav.integer;
-    this.savingsDecimals = sav.decimals;
-  }
-
   private spendSources(): SpendSource[] {
-    const apiRows: SpendSource[] = (this.data?.transactions ?? []).map((t) => ({
+    const apiRows: SpendSource[] = (this.data()?.transactions ?? []).map((t) => ({
       amount: Number(t.amount) || 0,
       type_transacion: t.type_transacion === 'Ingreso' ? 'Ingreso' : 'Gasto',
     }));
-    const walletRows: SpendSource[] = this.store.allMovements.map((m) => ({
+    const walletRows: SpendSource[] = this.store.allMovements().map((m) => ({
       amount: Number(m.amount) || 0,
       type_transacion: m.kind === 'Credito' ? 'Ingreso' : 'Gasto',
     }));
     return [...apiRows, ...walletRows];
   }
 
-  private buildTransactions(): void {
+  private buildTransactions(): TxView[] {
     const icons: Record<number, string> = {
       1: 'assets/images/tx-efootball.png',
       2: 'assets/images/tx-monoposto.png',
     };
 
-    const apiList = (this.data?.transactions ?? []).slice(0, 3).map((t, index) => {
+    const apiList = (this.data()?.transactions ?? []).slice(0, 3).map((t, index) => {
       const desc = String(t.description ?? '').split('|');
       const title = (desc[0] ?? 'Transacción').trim();
       const detail = (desc[1] ?? `Categoría #${t.id_category}`).trim();
@@ -309,9 +294,9 @@ export class Home implements OnInit, OnDestroy {
       };
     });
 
-    const walletList = this.store.allMovements.slice(0, 3).map((m) => this.walletToView(m));
+    const walletList = this.store.allMovements().slice(0, 3).map((m) => this.walletToView(m));
 
-    this.transactions = [...apiList, ...walletList].slice(0, 6);
+    return [...apiList, ...walletList].slice(0, 6);
   }
 
   private walletToBankInput(c: WalletCard): WalletCardInput {

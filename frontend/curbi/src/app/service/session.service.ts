@@ -1,4 +1,4 @@
-import { Injectable, Inject, Optional, PLATFORM_ID, REQUEST } from '@angular/core';
+import { Injectable, Inject, Optional, PLATFORM_ID, REQUEST, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { User } from './api.service';
 
@@ -25,8 +25,8 @@ interface SessionPayload {
  */
 @Injectable({ providedIn: 'root' })
 export class SessionService {
-  private user: User = EMPTY_USER;
-  private demo = false;
+  private readonly userState = signal<User>(EMPTY_USER);
+  private readonly demoState = signal(false);
 
   constructor(
     @Inject(PLATFORM_ID) private readonly platformId: object,
@@ -61,8 +61,8 @@ export class SessionService {
     try {
       const parsed = JSON.parse(decodeURIComponent(raw)) as SessionPayload;
       if (parsed?.user?.id_user) {
-        this.user = parsed.user;
-        this.demo = !!parsed.demo;
+        this.userState.set(parsed.user);
+        this.demoState.set(!!parsed.demo);
       }
     } catch {
       /* cookie inválida: se queda en usuario vacío */
@@ -98,7 +98,9 @@ export class SessionService {
   }
 
   private write(): void {
-    const payload = encodeURIComponent(JSON.stringify({ user: this.user, demo: this.demo }));
+    const payload = encodeURIComponent(
+      JSON.stringify({ user: this.userState(), demo: this.demoState() }),
+    );
     if (this.isBrowser) {
       try {
         document.cookie = `${STORAGE_KEY}=${payload}; path=/; samesite=Lax; max-age=31536000`;
@@ -110,28 +112,28 @@ export class SessionService {
   }
 
   get currentUser(): User {
-    return this.user;
+    return this.userState();
   }
 
   get hasUser(): boolean {
-    return Boolean(this.user?.id_user);
+    return Boolean(this.userState()?.id_user);
   }
 
   get avatar(): string {
-    return this.user?.avatar || '';
+    return this.userState()?.avatar || '';
   }
 
   setAvatar(avatar: string): void {
-    this.user = { ...this.user, avatar };
+    this.userState.set({ ...this.userState(), avatar });
     this.write();
   }
 
   get idUser(): number {
-    return this.user?.id_user || 0;
+    return this.userState()?.id_user || 0;
   }
 
   get initials(): string {
-    const parts = String(this.user?.name ?? '')
+    const parts = String(this.userState()?.name ?? '')
       .trim()
       .split(/\s+/)
       .filter(Boolean);
@@ -145,18 +147,18 @@ export class SessionService {
   }
 
   get isDemo(): boolean {
-    return this.demo;
+    return this.demoState();
   }
 
   set(user: User, demo: boolean): void {
-    this.user = user;
-    this.demo = demo;
+    this.userState.set(user);
+    this.demoState.set(demo);
     this.write();
   }
 
   clear(): void {
-    this.user = EMPTY_USER;
-    this.demo = false;
+    this.userState.set(EMPTY_USER);
+    this.demoState.set(false);
     if (this.isBrowser) {
       try {
         document.cookie = `${STORAGE_KEY}=; path=/; max-age=0; samesite=Lax`;

@@ -41,8 +41,8 @@
         <p class="hero-subtitle">Pick up where you get off, and keep things moving</p>
       </div>
 
-      @if (error) {
-        <p class="form-error" role="alert">{{ error }}</p>
+      @if (error()) {
+        <p class="form-error" role="alert">{{ error() }}</p>
       }
 
       <form class="login-form" (ngSubmit)="onSubmit()">
@@ -68,8 +68,8 @@
           />
         </label>
 
-        <button type="submit" class="signin-btn" [disabled]="loading">
-          {{ loading ? 'Signing in…' : 'Sign in' }}
+        <button type="submit" class="signin-btn" [disabled]="loading()">
+          {{ loading() ? 'Signing in…' : 'Sign in' }}
         </button>
 
         <a href="#" class="forgot">Forgot password?</a>
