@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { BusinessError } from '../model/errors';
 import { TransactionService } from '../service/transactionService';
 
 export class TransactionController {
@@ -19,12 +20,20 @@ export class TransactionController {
     }
   };
 
+  /** POST /api/transactions: movimiento + saldo del servidor en una sola operacion. */
   createTransaction = async (req: Request, res: Response): Promise<any> => {
     try {
-      const newTransaction = await this.transactionService.crearTransaccion(req.body);
-      return res.status(201).json(newTransaction);
+      const result = await this.transactionService.crearTransaccion(req.body);
+      return res.status(201).json(result);
     } catch (error: any) {
-      return res.status(400).json({ error: error.message });
+      if (error instanceof BusinessError) {
+        return res.status(error.status).json({
+          error: error.message,
+          code: error.code,
+          details: error.details,
+        });
+      }
+      return res.status(500).json({ error: error.message });
     }
   };
 }

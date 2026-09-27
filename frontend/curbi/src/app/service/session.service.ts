@@ -156,6 +156,16 @@ export class SessionService {
     this.write();
   }
 
+  /**
+   * Reemplaza solo los campos que cambio el backend (por ejemplo al guardar el
+   * perfil) y mantiene el resto de la sesion, incluido el avatar que se cargo
+   * aparte como data URL.
+   */
+  patch(changes: Partial<User>): void {
+    this.userState.set({ ...this.userState(), ...changes });
+    this.write();
+  }
+
   clear(): void {
     this.userState.set(EMPTY_USER);
     this.demoState.set(false);

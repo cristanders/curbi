@@ -575,3 +575,140 @@
     align-items: flex-start;
   }
 }
+
+/* Panel de familia */
+.family {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.family-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #14505f;
+}
+
+.family-empty {
+  margin: 0;
+  font-size: 13px;
+  color: #6b8291;
+}
+
+.family-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.family-item {
+  border: 1px solid #e6eef3;
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.family-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.family-item-head strong {
+  color: #14505f;
+  font-size: 14px;
+}
+
+.family-role {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #2fa8ae;
+}
+
+.family-meta {
+  margin: 0;
+  font-size: 12px;
+  color: #6b8291;
+}
+
+.family-members {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.family-members li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  background: #f2f7f9;
+  border-radius: 999px;
+  padding: 3px 9px;
+  color: #4a6270;
+}
+
+.family-badge {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #2fa8ae;
+}
+
+.family-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.family-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 170px;
+}
+
+.family-field span {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b8291;
+}
+
+.family-field input {
+  border: 1px solid #d7e3ea;
+  border-radius: 10px;
+  padding: 9px 10px;
+  font-size: 13px;
+  width: 100%;
+}
+
+.family-field input:focus {
+  outline: 2px solid #4ec8cd;
+  outline-offset: 1px;
+}
+
+.family-error {
+  margin: 0;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: #fdecec;
+  color: #a32020;
+  font-size: 12px;
+  font-weight: 600;
+}

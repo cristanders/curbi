@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { ExpenditureAttemptService } from '../service/expeditureService';
+import { AttemptResult } from '../model/expediture';
+import { BusinessError } from '../model/errors';
 
 export class ExpenditureAttemptController {
   private attemptService = new ExpenditureAttemptService();
@@ -19,11 +21,20 @@ export class ExpenditureAttemptController {
     }
   };
 
+  /**
+   * Un intento frenado NO es un error: es una respuesta valida con la decision del
+   * freno. Por eso el 201 llega tambien cuando el gasto se frena, y el frontend
+   * muestra el motivo. Un error de verdad (no hay saldo, monto invalido) si se
+   * devuelve como error.
+   */
   createAttempt = async (req: Request, res: Response): Promise<any> => {
     try {
-      const newAttempt = await this.attemptService.crearIntentoGasto(req.body);
-      return res.status(201).json(newAttempt);
+      const result: AttemptResult = await this.attemptService.crearIntentoGasto(req.body);
+      return res.status(201).json(result);
     } catch (error: any) {
+      if (error instanceof BusinessError) {
+        return res.status(error.status).json({ error: error.message, code: error.code });
+      }
       return res.status(400).json({ error: error.message });
     }
   };

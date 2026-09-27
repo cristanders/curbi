@@ -1,0 +1,14 @@
+{
+  "name": "curbi",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CURBI - billetera digital. Un solo comando levanta la API y el frontend.",
+  "scripts": {
+    "start": "npm --prefix frontend/curbi start",
+    "dev": "npm --prefix frontend/curbi start",
+    "start:api": "npm --prefix backend start",
+    "start:web": "npm --prefix frontend/curbi run start:web",
+    "build": "npm --prefix frontend/curbi run build",
+    "test": "npm --prefix frontend/curbi run test"
+  }
+}
