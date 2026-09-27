@@ -1,0 +1,534 @@
+<div class="page">
+  <app-topbar active="home" />
+
+  <main class="content">
+    <section class="status-bar" aria-live="polite">
+      <div class="status-chip" [class.is-demo]="source() === 'demo'">
+        <span class="status-dot" [class.is-live]="source() === 'api'"></span>
+        {{ sourceLabel }}
+      </div>
+      <div class="status-chip status-chip--trend" [attr.data-trend]="status">
+        Tendencia:
+        {{ status === 'up' ? '▲ subiendo' : status === 'down' ? '▼ bajando' : '■ estable' }}
+      </div>
+      <div class="status-chip">Última actualización: {{ lastUpdate() }}</div>
+    </section>
+
+    <!-- Estado actual del usuario -->
+    <section class="kpi-grid" aria-label="Estado actual">
+      <article class="kpi">
+        <p class="kpi-label">SALDO TOTAL</p>
+        <p class="kpi-value">Q{{ money(totalBalance) }}</p>
+        <p class="kpi-delta" [attr.data-trend]="totalChange >= 0 ? 'up' : 'down'">
+          {{ totalChange >= 0 ? '▲' : '▼' }} {{ totalChange.toFixed(2) }}% en la sesión
+        </p>
+      </article>
+      <article class="kpi">
+        <p class="kpi-label">AHORRO TOTAL</p>
+        <p class="kpi-value">Q{{ money(summary().totalSaved) }}</p>
+        <p class="kpi-delta kpi-delta--muted">{{ summary().goalCount }} metas activas</p>
+      </article>
+      <article class="kpi">
+        <p class="kpi-label">GASTOS DEL MES</p>
+        <p class="kpi-value">Q{{ money(spendNow) }}</p>
+        <p class="kpi-delta" [attr.data-trend]="spendChange > 0 ? 'down' : 'up'">
+          {{ spendChange >= 0 ? '▲' : '▼' }} {{ spendChange.toFixed(2) }}% vs. inicio
+        </p>
+      </article>
+      <article class="kpi">
+        <p class="kpi-label">INGRESOS vs GASTOS</p>
+        <p class="kpi-value">
+          Q{{ money(summary().income) }} <span class="kpi-sep">/</span> Q{{ money(summary().expense) }}
+        </p>
+        <p class="kpi-delta" [attr.data-trend]="summary().net >= 0 ? 'up' : 'down'">
+          Balance neto Q{{ money(summary().net) }}
+        </p>
+      </article>
+    </section>
+
+    <!-- Grafica principal en vivo -->
+    <section class="chart-card">
+      <div class="chart-head">
+        <h2>
+          EVOLUCIÓN DEL SALDO
+          @if (selectedBank) {
+            — {{ selectedBank.monogram }}
+          }
+        </h2>
+        <span class="chart-live"><span class="live-dot"></span> actualiza cada 3s</span>
+      </div>
+
+      <!-- Selector de banco para las gráficas -->
+      <div class="bank-tabs" role="tablist" aria-label="Banco a graficar">
+        <button
+          type="button"
+          class="bank-tab"
+          [class.is-active]="selectedBankId() === 'all'"
+          role="tab"
+          [attr.aria-selected]="selectedBankId() === 'all'"
+          (click)="selectBank('all')"
+        >
+          <span class="bank-tab-monogram all">◈</span>
+          <span>Todos</span>
+        </button>
+        @for (bank of banks; track bank.id) {
+          <button
+            type="button"
+            class="bank-tab"
+            [class.is-active]="selectedBankId() === bank.monogramClass"
+            role="tab"
+            [attr.aria-selected]="selectedBankId() === bank.monogramClass"
+            (click)="selectBank(bank.monogramClass)"
+            title="{{ bank.name }}"
+          >
+            <span class="bank-tab-monogram" [style.background]="bank.color || '#0f2748'">
+              @if (bank.logo) {
+                <img [src]="bank.logo" alt="" width="20" height="20" />
+              } @else {
+                {{ bank.monogram }}
+              }
+            </span>
+            <span>{{ bank.monogram }}</span>
+          </button>
+        }
+      </div>
+
+      <div class="chart-stage">
+        <svg viewBox="0 0 640 200" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="gradTotal" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4ec8cd" stop-opacity="0.45" />
+              <stop offset="100%" stop-color="#4ec8cd" stop-opacity="0.02" />
+            </linearGradient>
+          </defs>
+          <line class="grid-line" x1="0" y1="50" x2="640" y2="50" />
+          <line class="grid-line" x1="0" y1="100" x2="640" y2="100" />
+          <line class="grid-line" x1="0" y1="150" x2="640" y2="150" />
+          <polygon [attr.points]="totalArea" fill="url(#gradTotal)" />
+          <polyline
+            [attr.points]="totalLine"
+            fill="none"
+            stroke="#2fa8ae"
+            stroke-width="3"
+            stroke-linejoin="round"
+            stroke-linecap="round"
+          />
+        </svg>
+      </div>
+
+      <div class="chart-foot">
+        <span>Q{{ money(totalPoints[0]) }}</span>
+        <span class="chart-current">
+          @if (selectedBank) {
+            {{ selectedBank.monogram }}: Q{{ money(totalBalance) }}
+          } @else {
+            Actual: Q{{ money(totalBalance) }}
+          }
+        </span>
+        <span>Q{{ money(totalPoints[totalPoints.length - 1]) }}</span>
+      </div>
+    </section>
+
+    <section class="bank-grid" aria-label="Bank accounts">
+      @for (bank of visibleBanks; track bank.id) {
+        <article class="bank-card">
+          <div class="bank-card-top">
+            <div class="bank-id">
+              <span class="bank-logo" [style.background]="bank.color || '#f4f7fb'">
+                @if (bank.logo) {
+                  <img [src]="bank.logo" alt="" width="40" height="40" />
+                } @else {
+                  <span class="bank-monogram" [style.color]="bank.name ? '#fff' : ''">
+                    {{ bank.monogram }}
+                  </span>
+                }
+              </span>
+              <div class="bank-meta">
+                <span class="bank-label">Saldo en vivo</span>
+                <span class="bank-name">{{ bank.name }}</span>
+              </div>
+            </div>
+            <button type="button" class="bank-expand" aria-label="Ver gráfica de {{ bank.name }}" (click)="selectBank(bank.monogramClass)">
+              <img src="assets/icons/chevron-right.svg" alt="" width="14" height="14" />
+            </button>
+          </div>
+
+          <div class="bank-chart" aria-hidden="true">
+            <svg viewBox="0 0 240 80" preserveAspectRatio="none">
+              <defs>
+                <linearGradient
+                  [attr.id]="'grad-' + bank.id"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop offset="0%" stop-color="#4ec8cd" stop-opacity="0.45" />
+                  <stop offset="100%" stop-color="#4ec8cd" stop-opacity="0.02" />
+                </linearGradient>
+              </defs>
+              <polygon
+                [attr.points]="bankArea(bank)"
+                [attr.fill]="'url(#grad-' + bank.id + ')'"
+              />
+              <polyline
+                [attr.points]="bankLine(bank)"
+                fill="none"
+                stroke="#2fa8ae"
+                stroke-width="2.5"
+                stroke-linejoin="round"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+
+          <div class="bank-card-bottom">
+            <span class="bank-change" [attr.data-trend]="bank.change >= 0 ? 'up' : 'down'">
+              {{ bank.change >= 0 ? '+' : '' }}{{ bank.change.toFixed(1) }}%
+            </span>
+            <span class="bank-active">
+              <span class="bank-active-label">Activo:</span>
+              Q{{ money(bank.balance) }}
+            </span>
+          </div>
+        </article>
+      }
+    </section>
+
+    <section class="wallet-section">
+      <h2 class="section-title">
+        YOUR ACTIVE WALLETS
+        <img [src]="walletTitleIcon" alt="" width="16" height="16" />
+      </h2>
+
+      <article class="wallet-card">
+        <div class="wallet-main">
+          <p class="wallet-updated">Last Update — {{ lastUpdate() }}</p>
+
+          <div class="wallet-head">
+            <div>
+              <h3 class="wallet-holder">
+                {{ user() }}
+                @if (bankCode()) {
+                  <span class="wallet-bank">({{ bankCode() }})</span>
+                }
+              </h3>
+              <p class="wallet-balance-label">Current balance (GTQ)</p>
+              <p class="wallet-balance">
+                Q{{ balance() }}<span class="wallet-decimals">.{{ balanceDecimals() }}</span>
+              </p>
+            </div>
+
+            <aside class="savings-box">
+              <p class="savings-title">
+                <img [src]="savingsIcon" alt="" width="14" height="14" />
+                YOUR SAVINGS ON THIS CARD
+              </p>
+              <p class="savings-range">6 Months</p>
+              <p class="savings-amount">
+                Q{{ savings() }}<span class="wallet-decimals">.{{ savingsDecimals() }}</span>
+              </p>
+            </aside>
+          </div>
+
+          <div class="spending">
+            <div class="spending-head">
+              <h4>Recent spending — This Month</h4>
+              <span class="spending-badge">Q{{ money(spendNow) }}</span>
+            </div>
+
+            <div class="spend-chart" aria-hidden="true">
+              <svg viewBox="0 0 300 120" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="gradSpend" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.4" />
+                    <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.02" />
+                  </linearGradient>
+                </defs>
+                <polygon [attr.points]="spendArea" fill="url(#gradSpend)" />
+                <polyline
+                  [attr.points]="spendLine"
+                  fill="none"
+                  stroke="#d97706"
+                  stroke-width="2.5"
+                  stroke-linejoin="round"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+
+            <ul class="tx-list">
+              @for (tx of transactions(); track $index) {
+                <li class="tx-item">
+                  <span class="tx-icon" aria-hidden="true">
+                    <img [src]="tx.icon" alt="" width="44" height="44" />
+                  </span>
+                  <div class="tx-body">
+                    <span class="tx-when">{{ tx.when }}</span>
+                    <span class="tx-title">{{ tx.title }}</span>
+                    <span class="tx-detail">{{ tx.detail }}</span>
+                  </div>
+                  <span class="tx-amount">{{ tx.amount }}</span>
+                </li>
+              } @empty {
+                <li class="tx-empty">Aún no hay movimientos.</li>
+              }
+            </ul>
+          </div>
+        </div>
+      </article>
+    </section>
+    <section class="spend-control" aria-label="Control de gastos">
+      <header class="spend-head">
+        <div>
+          <h2 class="section-title">Control de gastos</h2>
+          <p class="spend-sub">
+            Presupuestos de {{ period }} y el freno de compras.
+          </p>
+        </div>
+      </header>
+
+      <div class="spend-grid">
+        <div class="spend-col">
+          <h3 class="spend-col-title">Presupuestos</h3>
+
+          @if (budgets().length === 0) {
+            <p class="spend-empty">
+              Todavía no tienes límites. Ponle uno a una categoría para que el freno
+              tenga contra qué decidir.
+            </p>
+          }
+
+          <ul class="budget-list">
+            @for (b of budgets(); track b.id_budget) {
+              <li class="budget-item">
+                <div class="budget-row">
+                  <span class="budget-name">{{ b.category_name }}</span>
+                  <span class="budget-amount">
+                    Q{{ b.spent.toFixed(2) }} / Q{{ b.amount.toFixed(2) }}
+                  </span>
+                  <button
+                    type="button"
+                    class="budget-remove"
+                    [attr.aria-label]="'Quitar el presupuesto de ' + b.category_name"
+                    (click)="removeBudget(b)"
+                  >
+                    ×
+                  </button>
+                </div>
+                <div
+                  class="budget-bar"
+                  role="progressbar"
+                  [attr.aria-valuenow]="b.percent"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  [attr.aria-label]="'Gastado de ' + b.category_name"
+                >
+                  <span
+                    class="budget-fill"
+                    [class.is-over]="b.exceeded"
+                    [style.width.%]="b.percent"
+                  ></span>
+                </div>
+                <p class="budget-note">
+                  @if (b.exceeded) {
+                    Te pasaste por Q{{ (b.spent - b.amount).toFixed(2) }}
+                  } @else {
+                    Te quedan Q{{ b.remaining.toFixed(2) }}
+                  }
+                </p>
+              </li>
+            }
+          </ul>
+
+          <div class="budget-form">
+            <label class="spend-field">
+              <span>Categoría</span>
+              <select name="budgetCategory" [(ngModel)]="budgetForm.id_category">
+                @for (c of categories(); track c.id_category) {
+                  <option [ngValue]="c.id_category">{{ c.type_category }}</option>
+                }
+              </select>
+            </label>
+            <label class="spend-field">
+              <span>Límite del mes</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                name="budgetAmount"
+                placeholder="0.00"
+                [(ngModel)]="budgetForm.amount"
+              />
+            </label>
+            <button
+              type="button"
+              class="spend-btn"
+              [disabled]="budgetSaving()"
+              (click)="saveBudget()"
+            >
+              {{ budgetSaving() ? 'Guardando…' : 'Poner límite' }}
+            </button>
+          </div>
+
+          @if (budgetError()) {
+            <p class="spend-error" role="alert">{{ budgetError() }}</p>
+          }
+        </div>
+
+        <div class="spend-col">
+          <h3 class="spend-col-title">Freno de compras</h3>
+          <p class="spend-sub">
+            Pide el gasto antes de hacerlo. Si te pasas de tu límite, queda frenado y
+            no se descuenta nada.
+          </p>
+
+          <div class="budget-form">
+            <label class="spend-field">
+              <span>Qué quieres comprar</span>
+              <input
+                type="text"
+                name="productName"
+                placeholder="Ej. Audífonos"
+                [(ngModel)]="attemptForm.product_name"
+              />
+            </label>
+            <label class="spend-field">
+              <span>Monto</span>
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                name="estimatedAmount"
+                placeholder="0.00"
+                [(ngModel)]="attemptForm.estimated_amount"
+              />
+            </label>
+            <label class="spend-field">
+              <span>Categoría</span>
+              <select name="attemptCategory" [(ngModel)]="attemptForm.id_category">
+                @for (c of categories(); track c.id_category) {
+                  <option [ngValue]="c.id_category">{{ c.type_category }}</option>
+                }
+              </select>
+            </label>
+            <label class="spend-field">
+              <span>Cuenta</span>
+              <select name="attemptAccount" [(ngModel)]="attemptForm.id_financial">
+                <option [ngValue]="0">Elige una cuenta</option>
+                @for (a of spendAccounts(); track a.id_financial) {
+                  <option [ngValue]="a.id_financial">
+                    {{ a.account_name }} · Q{{ a.balance.toFixed(2) }}
+                  </option>
+                }
+              </select>
+            </label>
+            <button
+              type="button"
+              class="spend-btn"
+              [disabled]="attemptSaving()"
+              (click)="requestPurchase()"
+            >
+              {{ attemptSaving() ? 'Consultando…' : 'Pedir compra' }}
+            </button>
+          </div>
+
+          @if (attemptError()) {
+            <p class="spend-error" role="alert">{{ attemptError() }}</p>
+          }
+
+          @if (lastDecision(); as decision) {
+            <p
+              class="spend-verdict"
+              [class.is-frenado]="decision === 'Frenado'"
+              role="status"
+            >
+              @if (decision === 'Frenado') {
+                <strong>Frenado.</strong> {{ lastReason() }}
+              } @else {
+                <strong>Aprobado.</strong>
+                @if (lastReason()) {
+                  {{ lastReason() }}
+                } @else {
+                  Se descontó de la cuenta.
+                }
+              }
+            </p>
+          }
+
+          @if (attempts().length > 0) {
+            <h3 class="spend-col-title">Intentos recientes</h3>
+            <ul class="attempt-list">
+              @for (t of attempts().slice(0, 5); track t.id_expediture) {
+                <li class="attempt-item">
+                  <span class="attempt-name">{{ t.product_name }}</span>
+                  <span class="attempt-amount">Q{{ t.estimated_amount.toFixed(2) }}</span>
+                  <span
+                    class="attempt-status"
+                    [class.is-frenado]="t.status === 'Frenado'"
+                  >{{ t.status }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Tutorial de primera vez -->
+  @if (tourOpen()) {
+    <div class="tour-backdrop" role="dialog" aria-modal="true" aria-label="Tutorial de CURBI">
+      <div class="tour-modal">
+        <button type="button" class="tour-close" (click)="closeTour()" aria-label="Cerrar tutorial">×</button>
+
+        @if (tourStep() === 0) {
+          <h2 class="tour-title">¡Bienvenido a CURBI! 👋</h2>
+          <p class="tour-text">
+            Esta es tu <strong>Dashboard</strong>: aquí ves tu saldo total y tus gráficas
+            en vivo. Sigue este mini tutorial para conocer la aplicación.
+          </p>
+          <img class="tour-img" src="assets/icons/curbi-mascot.png" alt="" width="120" height="120" />
+        } @else if (tourStep() === 1) {
+          <h2 class="tour-title">Gráficas por banco</h2>
+          <p class="tour-text">
+            En <strong>Dashboard</strong> hay pestañas para elegir de qué banco quieres
+            ver las gráficas. Presiona el banco y solo se mostrará su evolución.
+          </p>
+        } @else if (tourStep() === 2) {
+          <h2 class="tour-title">Tu Wallet (billetera)</h2>
+          <p class="tour-text">
+            En <strong>Wallet</strong> agregas tarjetas de débito o crédito de tu banco,
+            transfieres, pagas facturas y solicitas dinero. Tus movimientos se guardan
+            aquí y en el Dashboard.
+          </p>
+        } @else if (tourStep() === 3) {
+          <h2 class="tour-title">Saves y Transactions</h2>
+          <p class="tour-text">
+            <strong>Saves</strong> guarda tus metas de ahorro y <strong>Transactions</strong>
+            muestra el historial completo con filtros.
+          </p>
+        } @else {
+          <h2 class="tour-title">¡Listo! 🎉</h2>
+          <p class="tour-text">
+            Explora cada sección desde el menú superior. Puedes cerrar este tutorial
+            cuando quieras.
+          </p>
+        }
+
+        <div class="tour-dots" aria-hidden="true">
+          @for (s of tourSteps; track s) {
+            <span class="tour-dot" [class.is-active]="s === tourStep()"></span>
+          }
+        </div>
+
+        <div class="tour-actions">
+          <button type="button" class="btn-ghost" (click)="closeTour()">Saltar</button>
+          <button type="button" class="btn-primary" (click)="nextTour()">
+            {{ tourStep() === 4 ? 'Entendido' : 'Siguiente' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

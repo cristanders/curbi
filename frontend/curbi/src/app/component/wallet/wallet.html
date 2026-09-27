@@ -1,0 +1,632 @@
+﻿<div class="page">
+  <app-topbar active="wallet" />
+
+  <main class="content">
+    <div class="page-head">
+      <div>
+        <h1>My Wallets</h1>
+        <p class="page-sub">
+          {{ source() === 'api' ? 'Sincronizado con el backend' : 'Sin conexión al backend' }} ·
+          actualizado {{ lastUpdate() }}
+        </p>
+      </div>
+      <button type="button" class="add-card" (click)="openAdd()" aria-label="Add credit or debit card">
+        <span aria-hidden="true">+</span>
+        <span class="add-card-label">Add Credit/Debit Card</span>
+      </button>
+    </div>
+
+    <section class="wallet-layout">
+      <div class="card-stack">
+        @if (store.allCards().length > 1) {
+          <div class="card-selector" role="tablist" aria-label="Tus tarjetas">
+            @for (c of store.allCards(); track c.id) {
+              <button
+                type="button"
+                class="card-pill"
+                [class.is-active]="c.id === card()?.id"
+                (click)="selectCard(c.id)"
+                [attr.aria-selected]="c.id === card()?.id"
+              >
+                <span class="pill-monogram" [style.background]="bankById(c.bankId).color">
+                  {{ bankById(c.bankId).monogram }}
+                </span>
+                <span class="pill-meta">
+                  <strong>{{ bankById(c.bankId).monogram }} · {{ c.type }}</strong>
+                  <small>···· {{ c.last4 }}</small>
+                </span>
+              </button>
+            }
+          </div>
+        }
+
+        @if (card(); as activeCard) {
+          <article
+            class="credit-card"
+            [style.background]="cardGradient"
+            [style.box-shadow]="'0 18px 40px ' + cardBank.color + '59'"
+            aria-label="Tarjeta bancaria"
+          >
+            <div class="card-glow" aria-hidden="true"></div>
+
+            <div class="card-top">
+              <div class="card-bank">
+                <span class="bi-logo" aria-hidden="true">
+                  @if (bankCardLogo) {
+                    <img [src]="bankCardLogo" alt="" width="44" height="44" />
+                  } @else {
+                    <span class="bank-monogram" [style.background]="cardBank.color">
+                      {{ cardBank.monogram }}
+                    </span>
+                  }
+                </span>
+                <div>
+                  <p class="bank-name">{{ cardBank.name }}</p>
+                  <p class="card-type">{{ cardType }} ···· {{ cardLast4 }}</p>
+                </div>
+              </div>
+              <div class="card-top-right">
+                <img
+                  class="contactless"
+                  [src]="contactlessUrl"
+                  alt=""
+                  width="22"
+                  height="22"
+                />
+              </div>
+            </div>
+
+            <div class="card-chip-row">
+              <span class="chip" aria-hidden="true">
+                <img [src]="chipUrl" alt="" width="46" height="34" />
+              </span>
+            </div>
+
+            <p class="card-holder-label">Titular</p>
+            <p class="card-holder">{{ activeCard.holder }}</p>
+
+            <div class="card-bottom">
+              <p class="card-expiry">
+                <span>Vigencia</span>
+                <strong>{{ activeCardExpiry || '··/··' }}</strong>
+              </p>
+              <div class="card-network">
+                @if (cardBrandLogo) {
+                  <img class="card-network-img" [src]="cardBrandLogo" [alt]="cardBrandLabel" />
+                } @else {
+                  <span class="card-network-name">{{ cardBrandLabel }}</span>
+                }
+                <span class="card-network-sub">{{ cardType === 'Credito' ? 'crédito' : 'débito' }}</span>
+              </div>
+            </div>
+
+            <div class="card-balance">
+              <p class="balance-label">Saldo Disponible</p>
+              <p class="balance-amount">
+                GTQ{{ balanceParts.integer }}<span class="balance-dec">.{{ balanceParts.decimals }}</span>
+              </p>
+            </div>
+
+            @if (store.allCards().length > 1) {
+              <button type="button" class="card-remove" (click)="removeActiveCard()" aria-label="Eliminar tarjeta activa">
+                Quitar tarjeta
+              </button>
+            }
+          </article>
+
+          @if (accountNumberLabel) {
+            <div class="account-number">
+              <div class="account-number-info">
+                <span>Número de cuenta para que te depositen</span>
+                <strong>{{ accountNumberLabel }}</strong>
+              </div>
+              <button
+                type="button"
+                class="copy-number"
+                [class.is-copied]="accountCopied()"
+                (click)="copyAccountNumber()"
+              >
+                {{ accountCopied() ? '¡Copiado!' : 'Copiar' }}
+              </button>
+            </div>
+          }
+        } @else {
+          <div class="card-empty">
+            <p class="card-empty-title">Aún no tienes tarjetas</p>
+            <p class="card-empty-sub">
+              Agrega una tarjeta de débito o crédito para empezar a ver tu saldo y movimientos.
+            </p>
+            <button type="button" class="btn-primary" (click)="openAdd()">Agregar mi primera tarjeta</button>
+          </div>
+        }
+      </div>
+
+      <aside class="quick-panel card">
+        <h2>Quick actions</h2>
+        <div class="quick-grid">
+          <button type="button" class="quick" (click)="openTx('transfer')">
+            <span class="quick-icon" aria-hidden="true">
+              <img [src]="quickIcons.transfer" alt="" width="20" height="20" />
+            </span>
+            Transfer
+          </button>
+          <button type="button" class="quick" (click)="openTx('request')">
+            <span class="quick-icon" aria-hidden="true">
+              <img [src]="quickIcons.request" alt="" width="20" height="20" />
+            </span>
+            Request
+          </button>
+          <button type="button" class="quick" (click)="openTx('pay')">
+            <span class="quick-icon" aria-hidden="true">
+              <img [src]="quickIcons.pay" alt="" width="20" height="20" />
+            </span>
+            Pay bill
+          </button>
+          <button type="button" class="quick" (click)="openAdd()">
+            <span class="quick-icon" aria-hidden="true">
+              <img [src]="quickIcons.add" alt="" width="20" height="20" />
+            </span>
+            Add card
+          </button>
+        </div>
+
+        <div class="mini-stats">
+          <div class="mini-stat">
+            <span>Ingresos (mes)</span>
+            <strong class="positive">Q{{ income() }}</strong>
+          </div>
+          <div class="mini-stat">
+            <span>Gastos (mes)</span>
+            <strong class="negative">Q{{ expense() }}</strong>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="card movements">
+      <div class="movements-head">
+        <h2>ÚLTIMOS MOVIMIENTOS</h2>
+        <a routerLink="/transactions" class="see-all">Ver todos</a>
+      </div>
+
+      <ul class="movement-list">
+        @for (m of movements(); track m.id) {
+          <li class="movement">
+            <div class="movement-info">
+              <p class="movement-title">{{ m.title }}</p>
+              <p class="movement-meta">{{ m.date }} — card ···· {{ m.origin }}</p>
+            </div>
+            <div class="movement-right">
+              <span class="movement-kind" [class.is-credit]="m.kind === 'Credito'">{{ m.kind }}</span>
+              <span class="movement-amount" [class.is-credit]="m.kind === 'Credito'">
+                {{ m.sign }} GTQ{{ m.amount }}
+              </span>
+            </div>
+          </li>
+        } @empty {
+          <li class="movement-empty">Aún no hay movimientos.</li>
+        }
+      </ul>
+    </section>
+  </main>
+
+  @if (toast()) {
+    <div class="toast" role="status">{{ toast() }}</div>
+  }
+</div>
+
+<!-- Modal: Agregar tarjeta -->
+@if (addOpen()) {
+  <div class="modal-backdrop" (click)="closeAdd()">
+    <div class="modal card-modal" role="dialog" aria-modal="true" aria-label="Agregar tarjeta" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h2>Add Credit/Debit Card</h2>
+        <button type="button" class="modal-close" (click)="closeAdd()" aria-label="Cerrar">×</button>
+      </div>
+
+      @if (addStep === 'bank') {
+        <p class="modal-step-label">PASO 1 DE 3 — ELIGE TU BANCO</p>
+        <div class="bank-grid">
+          @for (bank of banks; track bank.id) {
+            <button
+              type="button"
+              class="bank-option"
+              [class.is-selected]="bank.id === selectedBankId"
+              (click)="chooseBank(bank.id)"
+            >
+              <span class="bank-option-logo" [style.background]="bank.color">
+                @if (bank.logo) {
+                  <img [src]="bank.logo" alt="" width="34" height="34" />
+                } @else {
+                  {{ bank.monogram }}
+                }
+              </span>
+              <span class="bank-option-name">{{ bank.name }}</span>
+            </button>
+          }
+        </div>
+      }
+
+      @if (addStep === 'kind') {
+        <p class="modal-step-label">PASO 2 DE 3 — {{ bankById(selectedBankId).name }}</p>
+
+        <div class="kind-grid" role="radiogroup" aria-label="Tipo de tarjeta">
+          <button
+            type="button"
+            class="kind-option"
+            [class.is-selected]="selectedKind === 'Debito'"
+            (click)="chooseKind('Debito')"
+          >
+            <span class="kind-name">Débito</span>
+            <span class="kind-sub">Fondos de tu cuenta</span>
+          </button>
+          <button
+            type="button"
+            class="kind-option"
+            [class.is-selected]="selectedKind === 'Credito'"
+            (click)="chooseKind('Credito')"
+          >
+            <span class="kind-name">Crédito</span>
+            <span class="kind-sub">Línea de crédito</span>
+          </button>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-ghost" (click)="backToBanks()">Volver</button>
+          <button
+            type="button"
+            class="btn-primary"
+            [disabled]="!selectedBankId"
+            (click)="nextToCardData()"
+          >
+            Continuar
+          </button>
+        </div>
+      }
+
+      @if (addStep === 'data') {
+        <p class="modal-step-label">PASO 3 DE 3 — DATOS DE LA TARJETA</p>
+
+        <div class="card-preview" [style.background]="bankById(selectedBankId).from">
+          <span>{{ bankById(selectedBankId).monogram }} · {{ selectedKind }}</span>
+          <strong>···· {{ cardLast4Draft }}</strong>
+          <span class="card-preview-brand">
+            @if (draftBrandLogo) {
+              <img [src]="draftBrandLogo" [alt]="draftBrandLabel" />
+            } @else {
+              {{ draftBrandLabel }}
+            }
+          </span>
+        </div>
+
+        <label class="tx-field">
+          <span>Número de tarjeta</span>
+          <input
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="0000 0000 0000 0000"
+            [ngModel]="cardNumber"
+            (ngModelChange)="onCardNumberInput($event)"
+          />
+        </label>
+
+        <label class="tx-field">
+          <span>Titular</span>
+          <input
+            type="text"
+            autocomplete="off"
+            placeholder="Nombre como aparece en la tarjeta"
+            [ngModel]="cardHolder"
+            (ngModelChange)="cardHolder = $event"
+          />
+        </label>
+
+        <div class="field-row">
+          <label class="tx-field">
+            <span>Vigencia</span>
+            <input
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="MM/AA"
+              [ngModel]="cardExpiry"
+              (ngModelChange)="onCardExpiryInput($event)"
+            />
+          </label>
+
+          <label class="tx-field">
+            <span>CVV</span>
+            <input
+              type="password"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="123"
+              maxlength="4"
+              [ngModel]="cardCvv"
+              (ngModelChange)="cardCvv = $event"
+            />
+          </label>
+        </div>
+
+        @if (cardNumber.length > 0) {
+          <p class="field-hint" [class.is-error]="!cardNumberValid">
+            @if (cardNumberValid) {
+              {{ draftBrandLabel }} detectada
+            } @else {
+              El número de tarjeta no es válido
+            }
+          </p>
+        }
+
+        @if (addError()) {
+          <p class="field-hint is-error">{{ addError() }}</p>
+        }
+
+        <div class="modal-actions">
+          <button type="button" class="btn-ghost" (click)="backToKinds()">Volver</button>
+          <button
+            type="button"
+            class="btn-primary"
+            [disabled]="!canSaveCard"
+            (click)="confirmAddCard()"
+          >
+            Agregar tarjeta
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- Modal: Transacciones -->
+@if (txOpen()) {
+  <div class="modal-backdrop" (click)="closeTx()">
+    <div class="modal tx-modal" role="dialog" aria-modal="true" [attr.aria-label]="txTitleLabel" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h2>{{ txTitleLabel }}</h2>
+        <button type="button" class="modal-close" (click)="closeTx()" aria-label="Cerrar">×</button>
+      </div>
+
+      <div class="tx-card-preview" [style.background]="cardGradient">
+        <span>{{ cardBank.monogram }} · {{ cardType }}</span>
+        <strong>···· {{ cardLast4 }}</strong>
+      </div>
+
+      @if (txReceipt(); as recibo) {
+        <div class="tx-success">
+          <div class="tx-success-mark" aria-hidden="true">✓</div>
+          <h3>Transferencia enviada</h3>
+          <p class="tx-success-amount">Q{{ recibo.amount.toFixed(2) }}</p>
+          <p class="field-hint">
+            Para {{ recibo.destination.account_holder }} · cuenta
+            {{ recibo.destination.account_number }}
+          </p>
+
+          <dl class="tx-success-detail">
+            <div>
+              <dt>Concepto</dt>
+              <dd>{{ recibo.description || 'Transferencia' }}</dd>
+            </div>
+            <div>
+              <dt>Saldo restante</dt>
+              <dd>Q{{ recibo.balance.toFixed(2) }}</dd>
+            </div>
+            <div>
+              <dt>Movimiento</dt>
+              <dd>#{{ recibo.transaction.id_transaction }}</dd>
+            </div>
+          </dl>
+
+          <p class="field-hint">
+            Descarga el comprobante para tenerlo como respaldo de este pago.
+          </p>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-ghost" (click)="closeTx()">Cerrar</button>
+          <button type="button" class="btn-primary" (click)="downloadReceipt()">
+            Descargar comprobante
+          </button>
+        </div>
+      } @else {
+      <div class="tx-available">
+        <span>Disponible</span>
+        <strong>{{ availableLabel }}</strong>
+        @if (isCredit()) {
+          <small>incluye tu cupo de crédito</small>
+        }
+      </div>
+
+      @if (isTransfer) {
+        <label class="tx-field">
+          <span>Cuenta de destino</span>
+          <input
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="0000-0000-0000"
+            [ngModel]="txAccountNumber"
+            (ngModelChange)="onAccountInput($event)"
+            (blur)="lookupDestination()"
+          />
+        </label>
+
+        @if (txAccount(); as txAccount) {
+          <p class="field-hint is-ok">
+            {{ txAccount.account_holder }} · {{ txAccount.bank_name }} · {{ txAccount.account_type }}
+          </p>
+        } @else if (txAccountError()) {
+          <p class="field-hint is-error">{{ txAccountError() }}</p>
+        }
+
+        @if (accountNumberLabel) {
+          <p class="field-hint share-hint">
+            Para que te depositen a ti, comparte tu número de cuenta
+            <strong>{{ accountNumberLabel }}</strong>
+          </p>
+        }
+      }
+
+      @if (isPay) {
+        <span class="tx-field-label">¿A quién le vas a pagar?</span>
+        <div class="service-grid" role="radiogroup" aria-label="Entidad de servicio">
+          @for (s of services; track s.code) {
+            <button
+              type="button"
+              class="service-option"
+              [class.is-selected]="txProvider?.code === s.code"
+              (click)="chooseProvider(s)"
+              role="radio"
+              [attr.aria-checked]="txProvider?.code === s.code"
+            >
+              <span class="service-glyph" [style.background]="s.color">{{ s.glyph }}</span>
+              <span class="service-name">{{ s.name }}</span>
+              <span class="service-cat">{{ s.category }}</span>
+            </button>
+          }
+        </div>
+
+        @if (txProvider; as p) {
+          <label class="tx-field">
+            <span>{{ p.referenceLabel }}</span>
+            <input
+              type="text"
+              autocomplete="off"
+              [placeholder]="p.placeholder"
+              [ngModel]="txReference"
+              (ngModelChange)="txReference = $event"
+            />
+          </label>
+        } @else {
+          <p class="field-hint">Elige la entidad para ver qué dato pide tu factura.</p>
+        }
+      }
+
+      <label class="tx-field">
+        <span>Monto (Q)</span>
+        <input
+          type="number"
+          min="0.01"
+          step="0.01"
+          placeholder="0.00"
+          [(ngModel)]="txAmount"
+        />
+      </label>
+
+      @if (lacksFunds) {
+        <div class="funds-warning">
+          <p class="field-hint is-error">
+            Saldo insuficiente: te faltan Q{{ shortfall.toFixed(2) }}.
+            @if (isCredit()) {
+              Puedes pedir más cupo a tu tarjeta de crédito.
+            } @else {
+              Pide a alguien que te haga una transferencia para tener saldo.
+            }
+          </p>
+          @if (isCredit()) {
+            <button type="button" class="btn-ghost btn-ghost--inline" (click)="openCredit()">
+              Pedir cupo
+            </button>
+          }
+        </div>
+      }
+
+      @if (isTransfer || !isPay) {
+        <label class="tx-field">
+          <span>{{ isTransfer ? 'Concepto (opcional)' : 'Descripción' }}</span>
+          <input
+            type="text"
+            placeholder="{{ txKind === 'request' ? 'Por ejemplo: merienda' : 'Por ejemplo: renta' }}"
+            [(ngModel)]="txTitle"
+          />
+        </label>
+      }
+
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" (click)="closeTx()">Cancelar</button>
+        <button
+          type="button"
+          class="btn-primary"
+          [disabled]="!canConfirmTx"
+          (click)="confirmTx()"
+        >
+          {{ txBusy() ? 'Enviando...' : isPay ? 'Pagar factura' : 'Confirmar' }}
+        </button>
+      </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- Modal: Pedir cupo a la tarjeta de crédito -->
+@if (creditOpen()) {
+  <div class="modal-backdrop" (click)="closeCredit()">
+    <div class="modal credit-modal" role="dialog" aria-modal="true" aria-label="Pedir cupo" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h2>Pedir cupo de crédito</h2>
+        <button type="button" class="modal-close" (click)="closeCredit()" aria-label="Cerrar">×</button>
+      </div>
+
+      @if (creditPending(); as pending) {
+        <div class="credit-pending">
+          <span class="credit-spinner" aria-hidden="true"></span>
+          <h3>Esperando aprobación</h3>
+          <p>
+            Tu solicitud de Q{{ pending.amount.toFixed(2) }} fue enviada. La banca
+            responde entre 1 y 2 minutos.
+          </p>
+          <strong class="credit-countdown">{{ creditCountdown }}</strong>
+          <p class="field-hint">Te avisamos en notificaciones apenas la aprueben.</p>
+        </div>
+      } @else if (creditDone()) {
+        <div class="credit-pending">
+          <h3>Cupo aprobado</h3>
+          <p>Ya puedes usarlo para transferir o pagar facturas.</p>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-primary" (click)="closeCredit()">Entendido</button>
+        </div>
+      } @else {
+        @if (isCredit()) {
+          <p class="credit-hint">
+            Tu tarjeta es de crédito, así que puedes pedir saldo extra. La banca
+            responde entre 1 y 2 minutos.
+          </p>
+        } @else {
+          <p class="field-hint is-error">
+            Esta tarjeta es de débito: no tiene cupo. Necesitas que alguien te
+            haga una transferencia para tener saldo.
+          </p>
+        }
+
+        <label class="tx-field">
+          <span>Monto del cupo (Q)</span>
+          <input
+            type="number"
+            min="0.01"
+            step="0.01"
+            placeholder="0.00"
+            [(ngModel)]="creditAmount"
+          />
+        </label>
+
+        @if (creditError()) {
+          <p class="field-hint is-error">{{ creditError() }}</p>
+        }
+
+        <div class="modal-actions">
+          <button type="button" class="btn-ghost" (click)="closeCredit()">Cancelar</button>
+          <button
+            type="button"
+            class="btn-primary"
+            [disabled]="!canRequestCredit"
+            (click)="confirmCredit()"
+          >
+            {{ creditBusy() ? 'Enviando...' : 'Solicitar cupo' }}
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}

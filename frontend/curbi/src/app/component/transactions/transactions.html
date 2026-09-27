@@ -1,0 +1,170 @@
+<div class="page">
+  <app-topbar active="transactions" />
+
+  <main class="content">
+    <div class="page-head">
+      <div>
+        <h1>Transactions</h1>
+        <p class="page-sub">
+          {{ source() === 'api' ? 'Sincronizado con el backend' : 'Sin conexión al backend' }} ·
+          actualizado {{ lastUpdate() }}
+        </p>
+      </div>
+      <button
+        type="button"
+        class="btn-primary"
+        [attr.aria-expanded]="showForm()"
+        (click)="showForm.set(!showForm())"
+      >
+        {{ showForm() ? 'Cerrar' : '+ Nueva transacción' }}
+      </button>
+    </div>
+
+    @if (showForm()) {
+      <section class="card form-card" aria-label="Nueva transacción">
+        <h2 class="form-title">Nueva transacción</h2>
+
+        <div class="form-grid">
+          <label class="filter">
+            <span>Descripción</span>
+            <input
+              type="text"
+              name="description"
+              placeholder="Ej. Supermercado"
+              [(ngModel)]="form.description"
+            />
+          </label>
+
+          <label class="filter">
+            <span>Monto</span>
+            <input
+              type="number"
+              name="amount"
+              min="0"
+              step="0.01"
+              placeholder="0.00"
+              [(ngModel)]="form.amount"
+            />
+          </label>
+
+          <label class="filter">
+            <span>Tipo</span>
+            <select name="formType" [(ngModel)]="form.type">
+              <option value="Gasto">Gasto</option>
+              <option value="Ingreso">Ingreso</option>
+            </select>
+          </label>
+
+          <label class="filter">
+            <span>Categoría</span>
+            <select name="formCategory" [(ngModel)]="form.id_category">
+              @for (c of categories(); track c.id_category) {
+                <option [ngValue]="c.id_category">{{ c.type_category }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="filter">
+            <span>Cuenta</span>
+            <select name="formAccount" [(ngModel)]="form.id_financial">
+              <option [ngValue]="0">Elige una cuenta</option>
+              @for (a of accounts(); track a.id_financial) {
+                <option [ngValue]="a.id_financial">
+                  {{ a.account_name }} · Q{{ a.balance.toFixed(2) }}
+                </option>
+              }
+            </select>
+          </label>
+        </div>
+
+        @if (formError()) {
+          <p class="form-error" role="alert">{{ formError() }}</p>
+        }
+
+        <div class="form-actions">
+          <button type="button" class="btn-ghost" (click)="resetForm()">Limpiar</button>
+          <button
+            type="button"
+            class="btn-primary"
+            [disabled]="saving()"
+            (click)="submit()"
+          >
+            {{ saving() ? 'Guardando…' : 'Guardar movimiento' }}
+          </button>
+        </div>
+      </section>
+    }
+
+    <section class="stats" aria-label="Resumen de transacciones">
+      <article class="stat-card">
+        <p class="stat-label">INGRESOS</p>
+        <p class="stat-amount positive">Q{{ incomeTotal() }}</p>
+      </article>
+      <article class="stat-card">
+        <p class="stat-label">GASTOS</p>
+        <p class="stat-amount negative">Q{{ expenseTotal() }}</p>
+      </article>
+      <article class="stat-card">
+        <p class="stat-label">TOTAL MOVIMIENTOS</p>
+        <p class="stat-amount">{{ filtered().length }}</p>
+      </article>
+    </section>
+
+    <section class="card filters">
+      <label class="filter">
+        <span>Buscar</span>
+        <input
+          type="search"
+          name="search"
+          placeholder="Descripción o categoría"
+          [(ngModel)]="search"
+          (ngModelChange)="applyFilter()"
+        />
+      </label>
+
+      <label class="filter">
+        <span>Tipo</span>
+        <select name="type" [(ngModel)]="typeFilter" (ngModelChange)="applyFilter()">
+          <option value="todas">Todas</option>
+          <option value="Ingreso">Ingresos</option>
+          <option value="Gasto">Gastos</option>
+        </select>
+      </label>
+
+      <label class="filter">
+        <span>Categoría</span>
+        <select name="category" [(ngModel)]="categoryId" (ngModelChange)="applyFilter()">
+          <option [ngValue]="0">Todas</option>
+          @for (c of categories(); track c.id_category) {
+            <option [ngValue]="c.id_category">{{ c.type_category }}</option>
+          }
+        </select>
+      </label>
+
+      <button type="button" class="btn-ghost" (click)="reset()">Limpiar</button>
+    </section>
+
+    <section class="card">
+      <ul class="tx-table">
+        @for (row of filtered(); track row.id) {
+          <li class="tx-row">
+            <span class="tx-date">{{ row.date }}</span>
+            <span class="tx-icon" aria-hidden="true">
+              <img [src]="defaultIcon" alt="" width="36" height="36" />
+            </span>
+            <span class="tx-info">
+              <strong>{{ row.description }}</strong>
+              <small>{{ row.category }}</small>
+            </span>
+            <span class="tx-type" [class.is-income]="row.type === 'Ingreso'">{{ row.type }}</span>
+            <span class="tx-value" [class.is-income]="row.type === 'Ingreso'">
+              {{ row.type === 'Ingreso' ? '+' : '-' }}Q{{ row.amount.toFixed(2) }}
+            </span>
+          </li>
+        } @empty {
+          <li class="tx-empty">No hay transacciones con esos filtros.</li>
+        }
+      </ul>
+    </section>
+  </main>
+</div>

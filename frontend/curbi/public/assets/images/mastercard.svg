@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 60" role="img" aria-label="mastercard">
+  <defs>
+    <clipPath id="mc-left">
+      <circle cx="40" cy="30" r="28" />
+    </clipPath>
+  </defs>
+  <circle cx="40" cy="30" r="28" fill="#EB001B" />
+  <circle cx="60" cy="30" r="28" fill="#F79E1B" />
+  <g clip-path="url(#mc-left)">
+    <circle cx="60" cy="30" r="28" fill="#FF5F00" />
+  </g>
+  <text
+    x="98"
+    y="38"
+    fill="#ffffff"
+    font-family="Helvetica, Arial, sans-serif"
+    font-size="22"
+    font-weight="700"
+    letter-spacing="-0.4"
+  >
+    mastercard
+  </text>
+</svg>
