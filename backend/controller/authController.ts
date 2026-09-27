@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { UserService } from '../service/userService';
+import { BusinessError } from '../model/errors';
 
 export class AuthController {
   private userService = new UserService();
@@ -28,17 +29,10 @@ export class AuthController {
         return res.status(200).json({ user: safe, demo: false });
       }
 
-      // Sin BD / sin coincidencia: modo demo para no bloquear la demo del proyecto
-      return res.status(200).json({
-        demo: true,
-        user: {
-          id_user: user?.id_user ?? 1,
-          name: user?.name ?? 'BRAYAN CAMPA',
-          username: user?.username ?? 'brayancampa',
-          email: user?.email ?? identifier,
-          phone: user?.phone ?? '+502 5555-1234',
-        },
-      });
+      // Sin BD / sin coincidencia: login inválido, no se inventan datos de otro usuario
+      return res
+        .status(401)
+        .json({ error: 'Usuario o contraseña incorrectos. Revisa tus credenciales.' });
     } catch (error: any) {
       return res.status(500).json({ error: error.message });
     }
@@ -63,6 +57,15 @@ export class AuthController {
         const { password: _omit, ...safe } = created as any;
         return res.status(201).json({ user: safe, demo: false });
       } catch (dbError: any) {
+        // Solo un rechazo de negocio se responde como rechazo. Si el nombre de
+        // usuario ya existe el frontend tiene que saberlo, no inventarle una
+        // sesion: un id_user 1 falso dejaria al usuario viendo (y escribiendo en)
+        // los datos de otra cuenta.
+        if (dbError instanceof BusinessError) {
+          return res
+            .status(dbError.status)
+            .json({ error: dbError.message, code: dbError.code, details: dbError.details });
+        }
         // BD no disponible: registra en modo demo
         return res.status(201).json({
           demo: true,

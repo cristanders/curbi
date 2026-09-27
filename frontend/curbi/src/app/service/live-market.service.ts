@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, computed, signal } from '@angular/core';
 
 export interface BankSerie {
   id: number;
@@ -40,6 +40,9 @@ export interface SpendSource {
  * - Las graficas de saldo/bancos se mueven constantemente (random walk acotado).
  * - La grafica "Recent spending" NO se mueve sola: solo avanza cuando llegan
  *   movimientos reales (gastos o ingresos) de la cuenta.
+ *
+ * Todo el estado de las graficas vive en signals: la app es zoneless, asi que
+ * un `setInterval` solo repinta si escribe una signal que el template lee.
  */
 @Injectable({ providedIn: 'root' })
 export class LiveMarketService {
@@ -47,17 +50,17 @@ export class LiveMarketService {
   readonly pointsPerSerie = 24;
 
   /** Sin datos reales no hay feed demo: las graficas parten de cero. */
-  banks: BankSerie[] = [];
+  readonly banks = signal<BankSerie[]>([]);
 
   /** Serie principal del dashboard (saldo total en vivo) */
-  totalPoints: number[] = [];
-  totalBalance = 0;
-  totalChange = 0;
+  readonly totalPoints = signal<number[]>([0]);
+  readonly totalBalance = signal(0);
+  readonly totalChange = signal(0);
 
   /** Gastos del mes: se construye SOLO con movimientos reales de la cuenta. */
-  readonly spendPoints: number[] = [];
-  spendNow = 0;
-  spendChange = 0;
+  readonly spendPoints = signal<number[]>([0]);
+  readonly spendNow = signal(0);
+  readonly spendChange = signal(0);
 
   private readonly listeners = new Set<() => void>();
   private timer: ReturnType<typeof setInterval> | null = null;
@@ -65,11 +68,11 @@ export class LiveMarketService {
   private started = false;
 
   constructor() {
-    this.totalPoints = this.seed(0, 0);
-    this.totalBalance = 0;
-    this.totalChange = 0;
-    this.spendPoints = this.seed(0, 0);
-    this.spendNow = 0;
+    this.totalPoints.set(this.seed(0, 0));
+    this.totalBalance.set(0);
+    this.totalChange.set(0);
+    this.spendPoints.set(this.seed(0, 0));
+    this.spendNow.set(0);
   }
 
   private seed(endValue: number, changePct: number): number[] {
@@ -120,22 +123,29 @@ export class LiveMarketService {
   tick(): void {
     this.tickCount++;
 
-    for (const bank of this.banks) {
-      const delta = this.step(bank.balance, bank.base);
-      bank.balance = Number(delta.toFixed(2));
-      bank.points.push(bank.balance);
-      bank.points.shift();
-      bank.change = Number(
-        (((bank.balance - bank.base) / bank.base) * 100 + bank.change * 0.98).toFixed(1),
-      );
-    }
+    // Se crean objetos y arrays nuevos en cada paso: mutar los anteriores en
+    // lugar de reemplazarlos haria que la signal no notifique el cambio.
+    const banks = this.banks().map((bank) => {
+      const balance = Number(this.step(bank.balance, bank.base).toFixed(2));
+      return {
+        ...bank,
+        balance,
+        points: [...bank.points, balance].slice(-this.pointsPerSerie),
+        change: Number(
+          (((balance - bank.base) / bank.base) * 100 + bank.change * 0.98).toFixed(1),
+        ),
+      };
+    });
+    this.banks.set(banks);
 
-    const newTotal = this.banks.reduce((s, b) => s + b.balance, 0);
-    this.totalPoints.push(Number(newTotal.toFixed(2)));
-    this.totalPoints.shift();
-    const first = this.totalPoints[0];
-    this.totalBalance = Number(newTotal.toFixed(2));
-    this.totalChange = Number((((newTotal - first) / first) * 100).toFixed(2));
+    const newTotal = banks.reduce((s, b) => s + b.balance, 0);
+    const totalPoints = [...this.totalPoints(), Number(newTotal.toFixed(2))].slice(
+      -this.pointsPerSerie,
+    );
+    const first = totalPoints[0];
+    this.totalPoints.set(totalPoints);
+    this.totalBalance.set(Number(newTotal.toFixed(2)));
+    this.totalChange.set(first ? Number((((newTotal - first) / first) * 100).toFixed(2)) : 0);
 
     for (const fn of this.listeners) {
       fn();
@@ -149,10 +159,10 @@ export class LiveMarketService {
    */
   setBanksFromWallet(cards: WalletCardInput[]): void {
     if (!cards || cards.length === 0) {
-      this.banks = [];
-      this.totalPoints = this.seed(0, 0);
-      this.totalBalance = 0;
-      this.totalChange = 0;
+      this.banks.set([]);
+      this.totalPoints.set(this.seed(0, 0));
+      this.totalBalance.set(0);
+      this.totalChange.set(0);
       for (const fn of this.listeners) {
         fn();
       }
@@ -173,12 +183,11 @@ export class LiveMarketService {
       color: c.color,
     }));
 
-    this.banks = series;
-
     const total = Number(sum(series.map((b) => b.base)).toFixed(2));
-    this.totalPoints = this.seed(total, 0);
-    this.totalBalance = total;
-    this.totalChange = 0;
+    this.banks.set(series);
+    this.totalPoints.set(this.seed(total, 0));
+    this.totalBalance.set(total);
+    this.totalChange.set(0);
 
     for (const fn of this.listeners) {
       fn();
@@ -208,13 +217,12 @@ export class LiveMarketService {
       }
     }
 
-    for (let i = 0; i < n; i++) {
-      this.spendPoints[i] = out[i];
-    }
-    const previous = this.spendNow;
-    this.spendNow = Number(out[n - 1].toFixed(2));
-    this.spendChange =
-      previous !== 0 ? Number((((this.spendNow - previous) / previous) * 100).toFixed(2)) : 0;
+    const previous = this.spendNow();
+    this.spendPoints.set(out);
+    this.spendNow.set(Number(out[n - 1].toFixed(2)));
+    this.spendChange.set(
+      previous !== 0 ? Number((((this.spendNow() - previous) / previous) * 100).toFixed(2)) : 0,
+    );
 
     for (const fn of this.listeners) {
       fn();
@@ -228,15 +236,16 @@ export class LiveMarketService {
     return Math.max(0, current + drift + noise);
   }
 
-  get status(): 'up' | 'down' | 'flat' {
-    if (this.totalChange > 0.15) {
+  readonly status = computed<'up' | 'down' | 'flat'>(() => {
+    const change = this.totalChange();
+    if (change > 0.15) {
       return 'up';
     }
-    if (this.totalChange < -0.15) {
+    if (change < -0.15) {
       return 'down';
     }
     return 'flat';
-  }
+  });
 
   get lastTickLabel(): string {
     return `tick #${this.tickCount}`;

@@ -4,37 +4,48 @@
   <main class="content">
     <div class="page-head">
       <h1 class="page-title">My saves</h1>
-      <span class="source-chip" [class.is-demo]="source === 'demo'">
-        {{ source === 'api' ? 'Backend conectado' : 'Sin conexión al backend' }} · {{ lastUpdate }}
+      <span class="source-chip" [class.is-demo]="source() === 'demo'">
+        {{ source() === 'api' ? 'Backend conectado' : 'Sin conexión al backend' }} · {{ lastUpdate() }}
       </span>
     </div>
 
     <section class="stats" aria-label="Savings summary">
       <article class="stat-card">
         <p class="stat-label">SALDO TOTAL AHORRADO</p>
-        <p class="stat-amount">(GTQ{{ totalSaved }}<span class="dec">.00</span>)</p>
+        <p class="stat-amount">(GTQ{{ totalSaved() }}<span class="dec">.00</span>)</p>
       </article>
       <article class="stat-card">
         <p class="stat-label">CASHBACK ACUMULADO</p>
-        <p class="stat-amount">(GTQ{{ cashback }}<span class="dec">.00</span>)</p>
+        <p class="stat-amount">(GTQ{{ cashback() }}<span class="dec">.00</span>)</p>
       </article>
       <article class="stat-card">
         <p class="stat-label">INTERESES GENERADOS</p>
-        <p class="stat-amount">(GTQ{{ interest }}<span class="dec">.{{ interestDecimals }}</span>)</p>
+        <p class="stat-amount">(GTQ{{ interest() }}<span class="dec">.{{ interestDecimals() }}</span>)</p>
       </article>
     </section>
 
-    <h2 class="section-title">Your saves goals</h2>
+    <div class="section-head">
+      <h2 class="section-title">Your saves goals</h2>
+      <button type="button" class="btn-new-goal" (click)="openNewGoal()">+ Nueva meta</button>
+    </div>
+
+    @if (goals().length === 0) {
+      <section class="goals-empty">
+        <img src="assets/icons/savings-pig.svg" alt="" width="56" height="56" />
+        <h3>Aun no tenes metas de ahorro</h3>
+        <p>Crea tu primera meta y empezar a aportar hasta completarla.</p>
+        <button type="button" class="btn-primary" (click)="openNewGoal()">Crear mi primera meta</button>
+      </section>
+    }
 
     <section class="goals" aria-label="Savings goals">
-      @for (goal of goals; track goal.id) {
+      @for (goal of goals(); track goal.id) {
         <article class="goal-card">
           <div class="goal-head">
             <div class="goal-text">
               <h3 class="goal-name">{{ goal.name }}</h3>
               <p class="goal-nums">Q{{ fmt(goal.current) }}/Q{{ fmt(goal.target) }}</p>
             </div>
-            <!-- PLACEHOLDER: assets/icons/goal-plane.svg | goal-lock.svg | goal-screen.svg -->
             <span class="goal-icon" aria-hidden="true">
               <img [src]="goal.icon" alt="" width="40" height="40" />
             </span>
@@ -48,10 +59,213 @@
 
           <div class="goal-actions">
             <button type="button" class="btn-details" (click)="viewDetails(goal)">Ver detalles</button>
-            <button type="button" class="btn-contribute" (click)="contribute(goal)">Aportar $</button>
+            <button
+              type="button"
+              class="btn-contribute"
+              [class.is-done]="isCompleted(goal)"
+              [disabled]="isCompleted(goal)"
+              (click)="openContribute(goal)"
+            >
+              {{ isCompleted(goal) ? 'Meta completa' : 'Aportar $' }}
+            </button>
           </div>
         </article>
       }
     </section>
   </main>
 </div>
+
+@if (toast()) {
+  <div class="toast" role="status">{{ toast() }}</div>
+}
+
+<!-- Modal: nueva meta -->
+@if (newGoalOpen()) {
+  <div class="modal-backdrop" (click)="closeNewGoal()">
+    <div
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Nueva meta de ahorro"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-head">
+        <h2>Nueva meta de ahorro</h2>
+        <button type="button" class="modal-close" (click)="closeNewGoal()" aria-label="Cerrar">×</button>
+      </div>
+
+      <label class="goal-field">
+        <span>¿Para que ahorras?</span>
+        <input
+          type="text"
+          maxlength="70"
+          placeholder="Ej. Viaje a Antigua"
+          [disabled]="newGoalBusy()"
+          [ngModel]="newGoalName()"
+          (ngModelChange)="onGoalNameInput($event)"
+        />
+      </label>
+
+      <div class="category-picker">
+        <span class="category-picker-label" id="category-label">Categoria</span>
+        <div class="category-grid" role="radiogroup" aria-labelledby="category-label">
+          @for (option of categories; track option.id) {
+            <button
+              type="button"
+              class="category-option"
+              role="radio"
+              [attr.aria-checked]="newGoalCategory() === option.id"
+              [class.is-selected]="newGoalCategory() === option.id"
+              [disabled]="newGoalBusy()"
+              [title]="option.label"
+              (click)="setNewGoalCategory(option.id)"
+            >
+              <img [src]="option.icon" alt="" width="26" height="26" />
+              <span>{{ option.label }}</span>
+            </button>
+          }
+        </div>
+        <p class="field-hint">El icono de la tarjeta sale de la categoria que elijas.</p>
+      </div>
+
+      <label class="goal-field">
+        <span>Monto objetivo (Q)</span>
+        <input
+          type="number"
+          min="0.01"
+          step="0.01"
+          placeholder="0.00"
+          [disabled]="newGoalBusy()"
+          [ngModel]="newGoalTarget()"
+          (ngModelChange)="newGoalTarget.set($event); newGoalError.set('')"
+        />
+      </label>
+
+      <p class="field-hint">La meta empieza en Q0.00 y vas sumando aportes hasta llegar al objetivo.</p>
+
+      @if (newGoalError()) {
+        <p class="field-hint is-error">{{ newGoalError() }}</p>
+      }
+
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" (click)="closeNewGoal()">Cancelar</button>
+        <button
+          type="button"
+          class="btn-primary"
+          [disabled]="!canCreateGoal() || newGoalBusy()"
+          (click)="confirmNewGoal()"
+        >
+          {{ newGoalBusy() ? 'Creando...' : 'Crear meta' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal: aportar a una meta -->
+@if (contributeOpen() && selectedGoal(); as goal) {
+  <div class="modal-backdrop" (click)="closeContribute()">
+    <div
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="'Aportar a ' + goal.name"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-head">
+        <h2>Aportar a {{ goal.name }}</h2>
+        <button type="button" class="modal-close" (click)="closeContribute()" aria-label="Cerrar">×</button>
+      </div>
+
+      <div class="goal-preview">
+        <span>{{ progressOf(goal) }}% Completado</span>
+        <strong>Q{{ fmt(goal.current) }} / Q{{ fmt(goal.target) }}</strong>
+      </div>
+
+      <div class="progress is-preview" aria-hidden="true">
+        <span [style.width.%]="projectedProgress()"></span>
+      </div>
+
+      <label class="goal-field">
+        <span>Monto del aporte (Q)</span>
+        <input
+          type="number"
+          min="0.01"
+          [max]="maxAffordable()"
+          step="0.01"
+          placeholder="0.00"
+          [disabled]="contributeBusy()"
+          [ngModel]="contributeAmount()"
+          (ngModelChange)="contributeAmount.set($event); contributeError.set('')"
+        />
+      </label>
+
+      <div class="quick-amounts">
+        @for (quick of quickAmounts(); track quick) {
+          <button
+            type="button"
+            class="quick-btn"
+            [disabled]="contributeBusy()"
+            (click)="setAmount(quick)"
+          >
+            Q{{ fmt(quick) }}
+          </button>
+        }
+      </div>
+
+      @if (contributeCards().length > 0) {
+        <div class="card-picker">
+          <span class="card-picker-label">Pagar con</span>
+          <div class="card-picker-list" role="radiogroup" aria-label="Tarjeta para el aporte">
+            @for (card of contributeCards(); track card.id) {
+              <button
+                type="button"
+                class="card-option"
+                role="radio"
+                [attr.aria-checked]="selectedCard()?.id === card.id"
+                [class.is-selected]="selectedCard()?.id === card.id"
+                [disabled]="contributeBusy()"
+                (click)="setContributeCard(card.id)"
+              >
+                <strong>{{ bankName(card) }} ···· {{ card.last4 }}</strong>
+                <span class="card-option-balance">Q{{ fmt(card.balance) }}</span>
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (contributeCards().length > 0) {
+        <p class="field-hint">
+          Tienes Q{{ availableOnCard().toFixed(2) }} en esta tarjeta.
+          @if (availableOnCard() < remaining()) {
+            Para completar la meta faltan Q{{ (remaining() - availableOnCard()).toFixed(2) }}.
+          }
+        </p>
+      } @else {
+        <p class="field-hint is-error">
+          Agrega una tarjeta en My Wallets para poder aportar: el dinero sale de tu saldo.
+        </p>
+      }
+
+      @if (contributeError()) {
+        <p class="field-hint is-error">{{ contributeError() }}</p>
+      }
+
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" (click)="completeGoal()" [disabled]="contributeBusy()">
+          Completar meta
+        </button>
+        <button type="button" class="btn-ghost" (click)="closeContribute()">Cancelar</button>
+        <button
+          type="button"
+          class="btn-primary"
+          [disabled]="!canContribute()"
+          (click)="confirmContribute()"
+        >
+          {{ contributeBusy() ? 'Guardando...' : 'Aportar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

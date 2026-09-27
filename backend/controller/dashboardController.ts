@@ -32,7 +32,7 @@ export class DashboardController {
       safe(() => this.accountService.obtenerCuentasPorUsuario(idUser), []),
       safe(() => this.transactionService.obtenerTransaccionesPorUsuario(idUser), []),
       safe(() => this.goalService.obtenerMetasPorUsuario(idUser), []),
-      safe(() => this.budgetService.obtenerPresupuestosPorUsuario(idUser), []),
+      safe(() => this.budgetService.obtenerPresupuestos(idUser), []),
     ]);
 
     const totalBalance = accounts.reduce(

@@ -1,6 +1,15 @@
-import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  Inject,
+  OnDestroy,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Topbar } from '../shell/topbar';
 import { LiveMarketService } from '../../service/live-market.service';
 import { SessionService } from '../../service/session.service';
@@ -19,9 +28,12 @@ import {
   last4Of,
   luhnValid,
 } from '../../service/bank-catalog';
-import { BankAccount, ApiBusinessError } from '../../service/api.service';
+import { BankAccount, ApiBusinessError, TransferResult } from '../../service/api.service';
+import { ReceiptService } from '../../service/receipt.service';
 import { RefreshBusService } from '../../service/refresh-bus.service';
 import { SERVICE_PROVIDERS, ServiceProvider } from '../../service/service-catalog';
+import { isPlatformBrowser } from '@angular/common';
+import { PLATFORM_ID } from '@angular/core';
 
 type TxKind = 'transfer' | 'request' | 'pay';
 type AddStep = 'bank' | 'kind' | 'data';
@@ -45,7 +57,7 @@ export class Wallet implements OnInit, OnDestroy {
     add: 'assets/icons/quick-add.svg',
   };
 
-  holder = '';
+  readonly holder = signal('');
 
   /** Estado de sincronizacion con el backend, para el subtitulo de la pagina. */
   readonly source = signal<'api' | 'demo'>('demo');
@@ -78,6 +90,17 @@ export class Wallet implements OnInit, OnDestroy {
   readonly txAccount = signal<BankAccount | null>(null);
   readonly txAccountError = signal('');
   readonly txBusy = signal(false);
+  /**
+   * Comprobante de la ultima transferencia. While it's set the modal shows the
+   * success panel with the download button instead of the form, so the user can
+   * guardar el respaldo antes de cerrar.
+   */
+  readonly txReceipt = signal<TransferResult | null>(null);
+
+  /* ----- numero de cuenta ----- */
+  /** Confirmacion visual de que el numero se copio al portapapeles. */
+  readonly accountCopied = signal(false);
+  private copyTimer: ReturnType<typeof setTimeout> | null = null;
 
   /* ----- pago de facturas: entidad y referencia ----- */
   txProvider: ServiceProvider | null = null;
@@ -98,23 +121,37 @@ export class Wallet implements OnInit, OnDestroy {
 
   readonly toast = signal('');
 
+  private busSub: Subscription | null = null;
+
   constructor(
     readonly market: LiveMarketService,
     private readonly session: SessionService,
     private readonly bus: RefreshBusService,
+    private readonly receipts: ReceiptService,
+    @Inject(PLATFORM_ID) private readonly platformId: object,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    this.holder = this.session.currentUser.name || '';
+    this.holder.set(this.session.currentUser.name || '');
     await this.store.load();
-    if (this.store.allCards().length > 0) {
-      this.source.set('api');
-    }
+    this.source.set(this.store.allCards().length > 0 ? 'api' : 'demo');
     this.lastUpdate.set('just now');
+
+    // La vista se queda escuchando al bus: si otra pantalla mueve el saldo, las
+    // tarjetas de esta se actualizan sin que haya que recargar.
+    this.busSub = this.bus.changes$.subscribe(() => void this.syncFromApi());
   }
 
   ngOnDestroy(): void {
     this.stopCreditTicker();
+    this.busSub?.unsubscribe();
+  }
+
+  /** Vuelve a leer cuentas y movimientos del backend. */
+  private async syncFromApi(): Promise<void> {
+    await this.store.load();
+    this.source.set(this.store.allCards().length > 0 ? 'api' : 'demo');
+    this.lastUpdate.set('just now');
   }
 
   private sumByKind(kind: 'Debito' | 'Credito'): number {
@@ -166,6 +203,83 @@ export class Wallet implements OnInit, OnDestroy {
     return this.market.formatMoney(this.card()?.balance ?? 0);
   }
 
+  /* ------------------ numero de cuenta ------------------ */
+
+  /**
+   * Numero con el que le depositan a esta tarjeta, agrupado en bloques de cuatro
+   * para que sea facil de leer y de dictar al otro lado.
+   */
+  get accountNumberLabel(): string {
+    const numero = (this.card()?.accountNumber ?? '').replace(/\D/g, '');
+    if (!numero) {
+      return '';
+    }
+    return numero.replace(/(\d{4})(?=\d)/g, '$1-');
+  }
+
+  /**
+   * Copia el numero de cuenta al portapapeles. Se usa navigator.clipboard cuando
+   * existe; en http://localhost o en navegadores viejos cae a un textarea
+   * temporal, porque sin ese respaldo el boton no haria nada.
+   */
+  async copyAccountNumber(): Promise<void> {
+    const numero = this.accountNumberLabel;
+    if (!numero) {
+      return;
+    }
+    const copiado = await this.copiarAlPortapapeles(numero);
+    if (copiado) {
+      this.accountCopied.set(true);
+      if (this.copyTimer) {
+        clearTimeout(this.copyTimer);
+      }
+      this.copyTimer = setTimeout(() => this.accountCopied.set(false), 2000);
+    } else {
+      this.showToast('No se pudo copiar. Copia el número manualmente.');
+    }
+  }
+
+  private async copiarAlPortapapeles(texto: string): Promise<boolean> {
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
+    }
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(texto);
+        return true;
+      }
+    } catch {
+      // Sin permiso o sin contexto seguro: se intenta el respaldo de abajo.
+    }
+    try {
+      const area = document.createElement('textarea');
+      area.value = texto;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(area);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+
+  /** Descarga el comprobante de la ultima transferencia. */
+  downloadReceipt(): void {
+    const resultado = this.txReceipt();
+    if (!resultado) {
+      return;
+    }
+    this.receipts.descargarTransferencia(resultado, {
+      titular: this.holder() || this.session.currentUser?.name || '',
+      numeroOrigen: this.accountNumberLabel,
+      bancoOrigen: this.cardBank.name,
+    });
+  }
+
   /* ---------------------- tarjetas ---------------------- */
 
   selectCard(id: string): void {
@@ -177,7 +291,7 @@ export class Wallet implements OnInit, OnDestroy {
     this.selectedBankId = this.card()?.bankId ?? 'bi';
     this.selectedKind = 'Debito';
     this.cardNumber = '';
-    this.cardHolder = this.holder;
+    this.cardHolder = this.holder();
     this.cardExpiry = '';
     this.cardCvv = '';
     this.addError.set('');
@@ -269,6 +383,10 @@ export class Wallet implements OnInit, OnDestroy {
         expiry: this.cardExpiry,
         cvv: this.cardCvv,
       });
+      // La tarjeta nueva nace con el regalo de bienvenida de Curbi. Sin este
+      // refresco `available` seguia en Q0 y el modal de transferencia se
+      // bloqueaba con "saldo insuficiente" hasta recargar la pagina.
+      await this.refreshAccountState();
       this.addOpen.set(false);
       this.bus.emit();
       this.showToast('Tarjeta agregada correctamente');
@@ -298,6 +416,9 @@ export class Wallet implements OnInit, OnDestroy {
     this.txReference = '';
     this.txAccount.set(null);
     this.txAccountError.set('');
+    // Cada aperture arranca limpio: el comprobante de la transferencia anterior
+    // no debe quedar colgando si el usuario viene a hacer otra cosa.
+    this.txReceipt.set(null);
     this.txOpen.set(true);
     void this.refreshAccountState();
   }
@@ -305,6 +426,7 @@ export class Wallet implements OnInit, OnDestroy {
   closeTx(): void {
     this.txOpen.set(false);
     this.txAccountError.set('');
+    this.txReceipt.set(null);
   }
 
   /** El backend es quien sabe cuanto hay disponible y si hay cupo en espera. */
@@ -453,12 +575,14 @@ export class Wallet implements OnInit, OnDestroy {
           accountNumber: this.txAccountNumber,
           description: this.txTitle.trim(),
         });
-        this.closeTx();
         this.bus.emit();
         this.showToast(
           `Transferencia enviada a ${result.destination.account_holder}: Q${amount.toFixed(2)}`,
         );
         void this.refreshAccountState();
+        // No se cierra el modal: se muestra el panel de exito para que el usuario
+        // pueda descargar el comprobante antes de salir.
+        this.txReceipt.set(result);
       } catch (error: unknown) {
         this.txAccountError.set(this.errorMessage(error));
       } finally {
@@ -500,15 +624,27 @@ export class Wallet implements OnInit, OnDestroy {
     }
 
     const title = this.txTitle.trim() || this.defaultTitle(this.txKind);
-    await this.store.addMovement({
-      cardId: this.card()?.id ?? '',
-      kind: this.txKindLabel,
-      amount,
-      title,
-    });
-    this.closeTx();
-    this.bus.emit();
-    this.showToast(`${this.txKindLabel === 'Credito' ? 'Ingreso' : 'Movimiento'} registrado: Q${amount.toFixed(2)}`);
+    this.txBusy.set(true);
+    try {
+      await this.store.addMovement({
+        cardId: this.card()?.id ?? '',
+        kind: this.txKindLabel,
+        amount,
+        title,
+      });
+      this.closeTx();
+      this.bus.emit();
+      this.showToast(
+        `${this.txKindLabel === 'Credito' ? 'Ingreso' : 'Movimiento'} registrado: Q${amount.toFixed(2)}`,
+      );
+    } catch (error: unknown) {
+      // El backend pudo rechazarlo por saldo o por cuenta ajena: se queda el
+      // modal abierto con el motivo en vez de cerrar y confirmar un gasto que
+      // nunca se guardo.
+      this.txAccountError.set(this.errorMessage(error));
+    } finally {
+      this.txBusy.set(false);
+    }
   }
 
   private errorMessage(error: unknown): string {

@@ -7,7 +7,7 @@
         <div class="avatar-wrap">
           <!-- PLACEHOLDER: assets/images/avatar.png -->
           <div class="big-avatar" aria-hidden="true">
-            <img [src]="avatarUrl" alt="" width="84" height="84" />
+            <img [src]="avatarUrl()" alt="" width="84" height="84" />
           </div>
           <label class="photo-btn" title="Cambiar foto de perfil">
             <img src="assets/icons/camera.svg" alt="" width="14" height="14" />
@@ -16,19 +16,19 @@
         </div>
         <div class="hero-id">
           <div class="name-row">
-            <h1 class="full-name">{{ fullName }}</h1>
+            <h1 class="full-name">{{ fullName() }}</h1>
             <span class="verified" title="Verified account" aria-label="Verified">
               <img [src]="verifiedUrl" alt="" width="18" height="18" />
             </span>
           </div>
-          <p class="handle">{{ username }}</p>
+          <p class="handle">{{ username() }}</p>
           <div class="badges">
-            <span class="rank-badge">{{ rank }}</span>
-            @if (memberSince) {
-              <span class="member-badge">Member since {{ memberSince }}</span>
+            <span class="rank-badge">{{ rank() }}</span>
+            @if (memberSince()) {
+              <span class="member-badge">Member since {{ memberSince() }}</span>
             }
-            <span class="source-badge" [class.is-demo]="source === 'demo'">
-              {{ source === 'api' ? 'Backend conectado' : 'Sin conexión al backend' }}
+            <span class="source-badge" [class.is-demo]="source() === 'demo'">
+              {{ source() === 'api' ? 'Backend conectado' : 'Sin conexión al backend' }}
             </span>
           </div>
           @if (session.avatar) {
@@ -40,9 +40,21 @@
       </div>
 
       <div class="hero-actions">
-        <button type="button" class="btn btn--teal">Add to Family</button>
-        <button type="button" class="btn btn--dark" (click)="toggleEdit()">
-          {{ editMode ? 'Save changes' : 'Edit profile' }}
+        <button
+          type="button"
+          class="btn btn--teal"
+          [attr.aria-expanded]="familyOpen()"
+          (click)="toggleFamily()"
+        >
+          {{ familyOpen() ? 'Cerrar familia' : 'Add to Family' }}
+        </button>
+        <button
+          type="button"
+          class="btn btn--dark"
+          (click)="toggleEdit()"
+          [disabled]="saving"
+        >
+          {{ saving ? 'Guardando...' : editMode ? 'Save changes' : 'Edit profile' }}
         </button>
         <button *ngIf="editMode" type="button" class="btn btn--ghost" (click)="cancelEdit()">
           Cancel
@@ -52,6 +64,107 @@
 
     @if (savedMessage) {
       <p class="saved-toast" role="status">{{ savedMessage }}</p>
+    }
+
+    @if (familyOpen()) {
+      <section class="card family" aria-label="Familia">
+        <h2 class="family-title">Mi familia</h2>
+
+        @if (houses().length === 0) {
+          <p class="family-empty">
+            Todavía no estás en ningún grupo. Crea uno abajo o únete al de alguien
+            escribiendo su username.
+          </p>
+        }
+
+        <ul class="family-list">
+          @for (h of houses(); track h.id_house) {
+            <li class="family-item">
+              <div class="family-item-head">
+                <strong>{{ h.name }}</strong>
+                <span class="family-role">{{ h.role === 'Admin' ? 'Admin' : 'Miembro' }}</span>
+              </div>
+              <p class="family-meta">
+                @{{ h.username }} · {{ h.member_count }}
+                {{ h.member_count === 1 ? 'persona' : 'personas' }}
+              </p>
+              <ul class="family-members">
+                @for (m of h.members; track m.id_member) {
+                  <li>@{{ m.username }}<span class="family-badge">{{ m.role }}</span></li>
+                }
+              </ul>
+            </li>
+          }
+        </ul>
+
+        <div class="family-form">
+          <label class="family-field">
+            <span>Crear un grupo</span>
+            <input
+              type="text"
+              name="familyName"
+              placeholder="Ej. Casa Ruiz"
+              [(ngModel)]="familyName"
+            />
+          </label>
+          <button
+            type="button"
+            class="btn btn--teal"
+            [disabled]="familyBusy()"
+            (click)="createHouse()"
+          >
+            {{ familyBusy() ? 'Un momento...' : 'Crear' }}
+          </button>
+        </div>
+
+        <div class="family-form">
+          <label class="family-field">
+            <span>Unirme con un username</span>
+            <input
+              type="text"
+              name="familySearch"
+              placeholder="Ej. luis"
+              [(ngModel)]="familySearch"
+            />
+          </label>
+          <button
+            type="button"
+            class="btn btn--dark"
+            [disabled]="familyBusy()"
+            (click)="searchHouses()"
+          >
+            Buscar
+          </button>
+        </div>
+
+        @if (joinable().length > 0) {
+          <ul class="family-list">
+            @for (h of joinable(); track h.id_house) {
+              <li class="family-item">
+                <div class="family-item-head">
+                  <strong>{{ h.name }}</strong>
+                  <button
+                    type="button"
+                    class="btn btn--teal"
+                    [disabled]="familyBusy()"
+                    (click)="joinHouse(h)"
+                  >
+                    Unirme
+                  </button>
+                </div>
+                <p class="family-meta">
+                  De @{{ h.username }} · {{ h.member_count }}
+                  {{ h.member_count === 1 ? 'persona' : 'personas' }}
+                </p>
+              </li>
+            }
+          </ul>
+        }
+
+        @if (familyError()) {
+          <p class="family-error" role="alert">{{ familyError() }}</p>
+        }
+      </section>
     }
 
     <div class="grid">
@@ -114,15 +227,15 @@
               <img [src]="savingsIconUrl" alt="" width="16" height="16" />
               YOUR SAVINGS ON THIS CARD
             </p>
-            <span class="savings-range">{{ savingsRange }}</span>
+            <span class="savings-range">{{ savingsRange() }}</span>
           </div>
           <p class="savings-amount">
-            Q{{ savings }}<span class="decimals">.{{ savingsDecimals }}</span>
+            Q{{ savings() }}<span class="decimals">.{{ savingsDecimals() }}</span>
           </p>
           <div class="savings-bar" aria-hidden="true">
-            <span [style.width.%]="savingsProgress"></span>
+            <span [style.width.%]="savingsProgress()"></span>
           </div>
-          <p class="savings-note">{{ savingsGoal }} goal · {{ savingsProgress }}% completed</p>
+          <p class="savings-note">{{ savingsGoal() }} goal · {{ savingsProgress() }}% completed</p>
         </section>
 
         <section class="card">
@@ -132,15 +245,15 @@
           <ul class="stats">
             <li>
               <span class="stat-label">Active balance</span>
-              <strong>Q{{ accountBalance }}<span class="decimals-sm">.{{ accountDecimals }}</span></strong>
+              <strong>Q{{ accountBalance() }}<span class="decimals-sm">.{{ accountDecimals() }}</span></strong>
             </li>
             <li>
               <span class="stat-label">Spent this month</span>
-              <strong>Q{{ totalSpent }}</strong>
+              <strong>Q{{ totalSpent() }}</strong>
             </li>
             <li>
               <span class="stat-label">Active wallets</span>
-              <strong>{{ activeWallets }}</strong>
+              <strong>{{ activeWallets() }}</strong>
             </li>
           </ul>
         </section>

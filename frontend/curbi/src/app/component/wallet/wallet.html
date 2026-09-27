@@ -113,6 +113,23 @@
               </button>
             }
           </article>
+
+          @if (accountNumberLabel) {
+            <div class="account-number">
+              <div class="account-number-info">
+                <span>Número de cuenta para que te depositen</span>
+                <strong>{{ accountNumberLabel }}</strong>
+              </div>
+              <button
+                type="button"
+                class="copy-number"
+                [class.is-copied]="accountCopied()"
+                (click)="copyAccountNumber()"
+              >
+                {{ accountCopied() ? '¡Copiado!' : 'Copiar' }}
+              </button>
+            </div>
+          }
         } @else {
           <div class="card-empty">
             <p class="card-empty-title">Aún no tienes tarjetas</p>
@@ -376,6 +393,43 @@
         <strong>···· {{ cardLast4 }}</strong>
       </div>
 
+      @if (txReceipt(); as recibo) {
+        <div class="tx-success">
+          <div class="tx-success-mark" aria-hidden="true">✓</div>
+          <h3>Transferencia enviada</h3>
+          <p class="tx-success-amount">Q{{ recibo.amount.toFixed(2) }}</p>
+          <p class="field-hint">
+            Para {{ recibo.destination.account_holder }} · cuenta
+            {{ recibo.destination.account_number }}
+          </p>
+
+          <dl class="tx-success-detail">
+            <div>
+              <dt>Concepto</dt>
+              <dd>{{ recibo.description || 'Transferencia' }}</dd>
+            </div>
+            <div>
+              <dt>Saldo restante</dt>
+              <dd>Q{{ recibo.balance.toFixed(2) }}</dd>
+            </div>
+            <div>
+              <dt>Movimiento</dt>
+              <dd>#{{ recibo.transaction.id_transaction }}</dd>
+            </div>
+          </dl>
+
+          <p class="field-hint">
+            Descarga el comprobante para tenerlo como respaldo de este pago.
+          </p>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-ghost" (click)="closeTx()">Cerrar</button>
+          <button type="button" class="btn-primary" (click)="downloadReceipt()">
+            Descargar comprobante
+          </button>
+        </div>
+      } @else {
       <div class="tx-available">
         <span>Disponible</span>
         <strong>{{ availableLabel }}</strong>
@@ -404,6 +458,13 @@
           </p>
         } @else if (txAccountError()) {
           <p class="field-hint is-error">{{ txAccountError() }}</p>
+        }
+
+        @if (accountNumberLabel) {
+          <p class="field-hint share-hint">
+            Para que te depositen a ti, comparte tu número de cuenta
+            <strong>{{ accountNumberLabel }}</strong>
+          </p>
         }
       }
 
@@ -493,6 +554,7 @@
           {{ txBusy() ? 'Enviando...' : isPay ? 'Pagar factura' : 'Confirmar' }}
         </button>
       </div>
+      }
     </div>
   </div>
 }

@@ -14,6 +14,8 @@ import { ExpenditureAttemptController } from './controller/expeditureController'
 import { HouseController } from './controller/houseController';
 import { AuthController } from './controller/authController';
 import { DashboardController } from './controller/dashboardController';
+import { BillController } from './controller/billController';
+import { NotificationController } from './controller/notificationController';
 
 const app = express();
 const PORT = Number(process.env.PORT || process.env.API_PORT || 4000);
@@ -36,6 +38,8 @@ const accounts = new FinancialAccountController();
 const expenditures = new ExpenditureAttemptController();
 const houses = new HouseController();
 const dashboard = new DashboardController();
+const bills = new BillController();
+const notifications = new NotificationController();
 
 app.get('/api/health', (_req: Request, res: Response) => {
   res.status(200).json({ status: 'ok', service: 'curbi-api', time: new Date().toISOString() });
@@ -48,6 +52,8 @@ app.post('/api/auth/register', auth.register);
 // Users
 app.get('/api/users', users.getUsers);
 app.post('/api/users', users.createUser);
+app.put('/api/users/:id', users.updateProfile);
+app.post('/api/users/:id/avatar', users.updateAvatar);
 
 // Customers
 app.get('/api/customers', customers.getCustomers);
@@ -64,22 +70,40 @@ app.post('/api/transactions', transactions.createTransaction);
 // Budgets
 app.get('/api/budgets/user/:idUser', budgets.getBudgetsByUser);
 app.post('/api/budgets', budgets.createBudget);
+app.delete('/api/budgets/:idBudget/user/:idUser', budgets.deleteBudget);
 
 // Savings goals
 app.get('/api/savings/user/:idUser', savings.getGoalsByUser);
 app.post('/api/savings', savings.createGoal);
+app.post('/api/savings/:idSaving/contribute', savings.contribute);
 
 // Financial accounts
 app.get('/api/accounts/user/:idUser', accounts.getAccountsByUser);
 app.post('/api/accounts', accounts.createAccount);
+// El estado se registra despues de /user/:idUser para que Express no lo tome
+// como un id de usuario.
+app.get('/api/accounts/:idFinancial/state', accounts.getAccountState);
+
+// Flujo de dinero: catalogo de destinos, transferencias y cupo
+app.get('/api/bank-accounts', accounts.getBankAccounts);
+app.post('/api/transfers', accounts.createTransfer);
+app.post('/api/credit-requests', accounts.createCreditRequest);
+
+// Pago de servicios (luz, agua, telefonia, internet, salud)
+app.post('/api/bills/pay', bills.payBill);
+
+// Avisos del usuario: los generan los flujos de dinero de arriba
+app.get('/api/notifications/user/:idUser', notifications.getNotifications);
+app.post('/api/notifications/user/:idUser/read-all', notifications.markAllRead);
 
 // Expenditure attempts
 app.get('/api/expenditures/user/:idUser', expenditures.getAttemptsByUser);
 app.post('/api/expenditures', expenditures.createAttempt);
 
-// Houses
+// Houses (grupos de familia)
 app.get('/api/houses/user/:username', houses.getHousesByUsername);
 app.post('/api/houses', houses.createHouse);
+app.post('/api/houses/:idHouse/join', houses.joinHouse);
 
 // Dashboard agregado (combina cuentas + transacciones + metas del usuario)
 app.get('/api/dashboard/user/:idUser', dashboard.getDashboard);

@@ -16,6 +16,7 @@ export interface User {
   username: string;
   email: string;
   phone?: string;
+  location?: string;
   avatar?: string;
 }
 
@@ -26,6 +27,8 @@ export interface FinancialAccount {
   id_user?: number;
   /** Numero con el que la cuenta recibe Depositos. */
   account_number?: string;
+  /** Monograma del banco al que pertenece la cuenta (bi, banrural...). */
+  bank_code?: string;
   card_type?: 'Debito' | 'Credito';
   credit_limit?: number;
 }
@@ -36,7 +39,23 @@ export interface Transaction {
   type_transacion?: 'Ingreso' | 'Gasto';
   description?: string;
   id_user: number;
+  id_financial?: number | null;
   id_category: number;
+  /**
+   * Fecha real del movimiento, la pone el servidor. Si no se usa, la tabla la
+   * inventa a partir de la posicion de la fila y por eso dos movimientos del mismo
+   * dia parecian de dias distintos.
+   */
+  created_at?: string;
+}
+
+/**
+ * Respuesta de crear un movimiento: el asiento y el saldo que quedo en la
+ * cuenta. `balance` es null cuando el movimiento no toco ninguna cuenta.
+ */
+export interface CreateTransactionResponse {
+  transaction: Transaction;
+  balance: number | null;
 }
 
 export interface SavingsGoal {
@@ -44,13 +63,40 @@ export interface SavingsGoal {
   goal_name?: string;
   target_amount: number;
   current_amount?: number;
+  /** Categoria de ahorro; es la que decide el icono de la meta. */
+  category?: string;
   id_user: number;
+}
+
+/**
+ * Resultado de aportar a una meta: la meta ya actualizada y el saldo que quedo
+ * en la tarjeta que pago el aporte.
+ */
+export interface SavingsContribution {
+  goal: SavingsGoal;
+  balance: number;
 }
 
 export interface Budget {
   id_budget: number;
   amount: number;
   id_user: number;
+  id_category: number;
+  /** Mes al que aplica, en formato YYYY-MM. */
+  period_month: string;
+  created_at?: string;
+}
+
+/**
+ * Un presupuesto con lo ya gastado. `spent`, `remaining` y `percent` los calcula
+ * el servidor sumando los movimientos reales del mes; el frontend solo los pinta.
+ */
+export interface BudgetProgress extends Budget {
+  category_name: string;
+  spent: number;
+  remaining: number;
+  percent: number;
+  exceeded: boolean;
 }
 
 export interface Category {
@@ -58,10 +104,29 @@ export interface Category {
   type_category: 'Fijo' | 'Personal' | 'Ahorro';
 }
 
+export type HouseRole = 'Admin' | 'Miembro';
+
+export interface HouseMember {
+  id_member: number;
+  id_house: number;
+  id_user: number;
+  username: string;
+  role: HouseRole;
+  created_at?: string;
+}
+
 export interface House {
   id_house: number;
   name: string;
+  /** Username de quien creo el grupo. */
   username: string;
+  created_at?: string;
+  /** Miembros del grupo, con el usuario que mira la lista. */
+  members: HouseMember[];
+  /** Rol del usuario que pidio la lista, no el del dueno. */
+  role: HouseRole | null;
+  member_count: number;
+  is_member: boolean;
 }
 
 export interface Bank {
@@ -103,6 +168,18 @@ export type ApiErrorCode =
   | 'REFERENCIA_INVALIDA'
   | 'NO_ES_CREDITO'
   | 'YA_PENDIENTE'
+  | 'META_INEXISTENTE'
+  | 'META_COMPLETA'
+  | 'MOVIMIENTO_INVALIDO'
+  | 'CATEGORIA_INVALIDA'
+  | 'PERIODO_INVALIDO'
+  | 'PRESUPUESTO_INEXISTENTE'
+  | 'PRODUCTO_INVALIDO'
+  | 'CASA_INVALIDA'
+  | 'CASA_INEXISTENTE'
+  | 'YA_ES_MIEMBRO'
+  | 'CATEGORIA_INVALIDA'
+  | 'PERFIL_INVALIDO'
   | 'ERROR';
 
 /** Error que la API devuelve con codigo de negocio. */
@@ -175,6 +252,24 @@ export interface ExpenditureAttempt {
   estimated_amount: number;
   status?: 'Frenado' | 'Aprobado' | 'Pendiente';
   id_user: number;
+  id_category?: number;
+  /** Quedo registrado como movimiento real? Solo si el backend lo aprobó. */
+  id_transaction?: number | null;
+  /** Por que quedo Frenado, para poder explicarle el caso al usuario. */
+  reason?: string | null;
+  created_at?: string;
+}
+
+/**
+ * Respuesta de pedir un gasto. `status` es la decision del freno: un intento
+ * frenado NO es un error, es una respuesta valida con su motivo en `reason`.
+ */
+export interface AttemptResult {
+  attempt: ExpenditureAttempt;
+  status: 'Frenado' | 'Aprobado' | 'Pendiente';
+  reason: string | null;
+  balance: number | null;
+  transaction: { id_transaction: number } | null;
 }
 
 export interface DashboardPayload {
@@ -183,7 +278,7 @@ export interface DashboardPayload {
   accounts: FinancialAccount[];
   transactions: Transaction[];
   savingsGoals: SavingsGoal[];
-  budgets: Budget[];
+  budgets: BudgetProgress[];
   summary: {
     totalBalance: number;
     totalSaved: number;
@@ -216,11 +311,26 @@ export class ApiService {
     return isPlatformBrowser(this.platformId);
   }
 
-  private async call<T>(method: 'get' | 'post', url: string, body?: unknown, ms = 4000): Promise<T> {
+  /**
+   * `put` existe para PUT /api/users/:id (guardar el perfil). Los demas metodos
+   * siguen usando post aunque el recurso se cree o se lea, porque es lo que ya
+   * espera el resto de la API.
+   */
+  private async call<T>(
+    method: 'get' | 'post' | 'put' | 'delete',
+    url: string,
+    body?: unknown,
+    ms = 4000,
+  ): Promise<T> {
+    const full = `${this.baseUrl}${url}`;
     const req =
       method === 'get'
-        ? this.http.get<T>(`${this.baseUrl}${url}`)
-        : this.http.post<T>(`${this.baseUrl}${url}`, body ?? {});
+        ? this.http.get<T>(full)
+        : method === 'put'
+          ? this.http.put<T>(full, body ?? {})
+          : method === 'delete'
+            ? this.http.delete<T>(full)
+            : this.http.post<T>(full, body ?? {});
     return await firstValueFrom(req.pipe(timeout(ms)));
   }
 
@@ -280,7 +390,13 @@ export class ApiService {
     try {
       const data = await this.call<AuthResponse>('post', '/auth/register', payload, 6000);
       return { data, ok: true };
-    } catch {
+    } catch (e: unknown) {
+      // El backend responde 409 con el motivo (por ejemplo, username repetido).
+      // Mostrar "no se pudo conectar" en ese caso seria mentirle al usuario.
+      const status = (e as { status?: number })?.status;
+      if (typeof status === 'number' && status >= 400 && status < 500) {
+        return { data: null, ok: false, error: messageOf(e) };
+      }
       return { data: null, ok: false, error: 'No se pudo conectar con el servidor. Inténtalo de nuevo.' };
     }
   }
@@ -310,16 +426,48 @@ export class ApiService {
     return this.try(() => this.call<SavingsGoal[]>('get', `/savings/user/${idUser}`), []);
   }
 
-  budgets(idUser: number): Promise<{ data: Budget[]; ok: boolean }> {
-    return this.try(() => this.call<Budget[]>('get', `/budgets/user/${idUser}`), []);
+  /** Presupuestos del mes con lo gastado. `periodo` es YYYY-MM; si no, el actual. */
+  budgets(idUser: number, periodo?: string): Promise<{ data: BudgetProgress[]; ok: boolean }> {
+    const query = periodo ? `?periodo=${encodeURIComponent(periodo)}` : '';
+    return this.try(
+      () => this.call<BudgetProgress[]>('get', `/budgets/user/${idUser}${query}`),
+      [],
+    );
   }
 
   categories(): Promise<{ data: Category[]; ok: boolean }> {
     return this.try(() => this.call<Category[]>('get', '/categories'), []);
   }
 
-  houses(username: string): Promise<{ data: House[]; ok: boolean }> {
-    return this.try(() => this.call<House[]>('get', `/houses/user/${username}`), []);
+  /**
+   * Grupos de `username`. Con el username propio son "mi familia"; con el de otra
+   * persona, los grupos donde esa persona es dueña, que es como se descubre a quién
+   * unirse. `viewerId` va aparte porque el rol y la pertenencia dependen de quien
+   * pregunta, no de de quién son los grupos.
+   *
+   * A diferencia del resto de lecturas, esta propaga el error: el formulario de
+   * unirse necesita el motivo (ese usuario no existe) y no un `[]` mudo.
+   */
+  async houses(
+    username: string,
+    viewerId: number,
+  ): Promise<{ data: House[]; ok: boolean; error?: ApiBusinessError }> {
+    if (!this.isBrowser) {
+      return {
+        data: [],
+        ok: false,
+        error: new ApiBusinessError('ERROR', 'No se pudo conectar con el servidor.'),
+      };
+    }
+    try {
+      const data = await this.call<House[]>(
+        'get',
+        `/houses/user/${encodeURIComponent(username)}?viewer=${viewerId}`,
+      );
+      return { data, ok: true };
+    } catch (e: unknown) {
+      return { data: [], ok: false, error: toBusinessError(e) };
+    }
   }
 
   banks(): Promise<{ data: Bank[]; ok: boolean }> {
@@ -338,11 +486,23 @@ export class ApiService {
     );
   }
 
-  createTransaction(payload: Partial<Transaction>): Promise<{ data: Transaction | null; ok: boolean }> {
-    return this.try<Transaction | null>(
-      () => this.call<Transaction>('post', '/transactions', payload),
-      null,
-    );
+  /**
+   * Registra un movimiento. Igual que createTransfer no se come el error: si el
+   * backend rechaza por saldo o por cuenta ajena, la UI necesita el codigo para
+   * explicar que paso en vez de fingir que se registro.
+   */
+  async createTransaction(
+    payload: Partial<Transaction>,
+  ): Promise<{ data: CreateTransactionResponse | null; ok: boolean; error?: ApiBusinessError }> {
+    if (!this.isBrowser) {
+      return { data: null, ok: false, error: new ApiBusinessError('ERROR', 'No se pudo conectar con el servidor.') };
+    }
+    try {
+      const data = await this.call<CreateTransactionResponse>('post', '/transactions', payload, 6000);
+      return { data, ok: true };
+    } catch (e: unknown) {
+      return { data: null, ok: false, error: toBusinessError(e) };
+    }
   }
 
   /**
@@ -430,11 +590,50 @@ export class ApiService {
     return this.try(() => this.call('post', `/notifications/user/${idUser}/read-all`), { ok: true });
   }
 
-  createSavingsGoal(payload: Partial<SavingsGoal>): Promise<{ data: SavingsGoal | null; ok: boolean }> {
-    return this.try<SavingsGoal | null>(
-      () => this.call<SavingsGoal>('post', '/savings', payload),
-      null,
-    );
+  async createSavingsGoal(
+    payload: Partial<SavingsGoal>,
+  ): Promise<{ data: SavingsGoal | null; ok: boolean; error?: string }> {
+    if (!this.isBrowser) {
+      return { data: null, ok: false, error: 'No se pudo conectar con el servidor.' };
+    }
+    try {
+      const data = await this.call<SavingsGoal>('post', '/savings', payload, 6000);
+      return { data, ok: true };
+    } catch (e: unknown) {
+      return { data: null, ok: false, error: messageOf(e) };
+    }
+  }
+
+  /**
+   * Aporta dinero a una meta ya existente. El saldo lo descuenta el backend de
+   * la tarjeta indicada y devuelve cuanto quedo, asi que el wallet no recarga.
+   *
+   * No se come el error: la UI necesita el codigo de negocio (saldo
+   * insuficiente, meta completa) para explicarle al usuario por que no se
+   * acepto el aporte en vez de mostrar un fallo generico.
+   */
+  async contributeSavings(
+    idSaving: number,
+    payload: { amount: number; id_user: number; id_financial: number },
+  ): Promise<{ data: SavingsContribution | null; ok: boolean; error?: ApiBusinessError }> {
+    if (!this.isBrowser) {
+      return {
+        data: null,
+        ok: false,
+        error: new ApiBusinessError('ERROR', 'No se pudo conectar con el servidor.'),
+      };
+    }
+    try {
+      const data = await this.call<SavingsContribution>(
+        'post',
+        `/savings/${idSaving}/contribute`,
+        payload,
+        6000,
+      );
+      return { data, ok: true };
+    } catch (e: unknown) {
+      return { data: null, ok: false, error: toBusinessError(e) };
+    }
   }
 
   createAccount(payload: Partial<FinancialAccount>): Promise<{ data: FinancialAccount | null; ok: boolean }> {
@@ -444,12 +643,145 @@ export class ApiService {
     );
   }
 
-  createBudget(payload: Partial<Budget>): Promise<{ data: Budget | null; ok: boolean }> {
-    return this.try<Budget | null>(() => this.call<Budget>('post', '/budgets', payload), null);
+  /**
+   * Guarda el limite de una categoria. El backend responde 200 tanto si lo creo
+   * como si actualizo el que ya existia para esa categoria y mes, asi que el
+   * cliente no tiene que distinguir los dos casos.
+   */
+  async createBudget(payload: {
+    amount: number;
+    id_category: number;
+    period_month: string;
+    id_user: number;
+  }): Promise<{ data: Budget | null; ok: boolean; error?: ApiBusinessError }> {
+    if (!this.isBrowser) {
+      return {
+        data: null,
+        ok: false,
+        error: new ApiBusinessError('ERROR', 'No se pudo conectar con el servidor.'),
+      };
+    }
+    try {
+      const data = await this.call<Budget>('post', '/budgets', payload);
+      return { data, ok: true };
+    } catch (e: unknown) {
+      return { data: null, ok: false, error: toBusinessError(e) };
+    }
+  }
+
+  async deleteBudget(
+    idBudget: number,
+    idUser: number,
+  ): Promise<{ data: null; ok: boolean; error?: ApiBusinessError }> {
+    if (!this.isBrowser) {
+      return {
+        data: null,
+        ok: false,
+        error: new ApiBusinessError('ERROR', 'No se pudo conectar con el servidor.'),
+      };
+    }
+    try {
+      await this.call<{ eliminado: boolean }>(
+        'delete',
+        `/budgets/${idBudget}/user/${idUser}`,
+      );
+      return { data: null, ok: true };
+    } catch (e: unknown) {
+      return { data: null, ok: false, error: toBusinessError(e) };
+    }
+  }
+
+  /**
+   * Pide un gasto y deja que el servidor decida. Un intento frenado llega como
+   * `ok: true` con `status: 'Frenado'`: frenado no es un error, es la respuesta.
+   * Solo un 4xx real (no hay saldo, monto invalido) viene con `ok: false`.
+   */
+  async createExpenditureAttempt(payload: {
+    product_name: string;
+    estimated_amount: number;
+    id_user: number;
+    id_category: number;
+    id_financial?: number | null;
+  }): Promise<{ data: AttemptResult | null; ok: boolean; error?: ApiBusinessError }> {
+    if (!this.isBrowser) {
+      return {
+        data: null,
+        ok: false,
+        error: new ApiBusinessError('ERROR', 'No se pudo conectar con el servidor.'),
+      };
+    }
+    try {
+      const data = await this.call<AttemptResult>('post', '/expenditures', payload);
+      return { data, ok: true };
+    } catch (e: unknown) {
+      return { data: null, ok: false, error: toBusinessError(e) };
+    }
+  }
+
+  /** Crea un grupo de familia y registra al usuario actual como Admin. */
+  async createHouse(
+    name: string,
+    username: string,
+    idUser: number,
+  ): Promise<{ data: House | null; ok: boolean; error?: ApiBusinessError }> {
+    if (!this.isBrowser) {
+      return {
+        data: null,
+        ok: false,
+        error: new ApiBusinessError('ERROR', 'No se pudo conectar con el servidor.'),
+      };
+    }
+    try {
+      const data = await this.call<House>('post', '/houses', { name, username, id_user: idUser });
+      return { data, ok: true };
+    } catch (e: unknown) {
+      return { data: null, ok: false, error: toBusinessError(e) };
+    }
+  }
+
+  /** Une al usuario actual a un grupo existente. */
+  async joinHouse(
+    idHouse: number,
+    username: string,
+    idUser: number,
+  ): Promise<{ data: House | null; ok: boolean; error?: ApiBusinessError }> {
+    if (!this.isBrowser) {
+      return {
+        data: null,
+        ok: false,
+        error: new ApiBusinessError('ERROR', 'No se pudo conectar con el servidor.'),
+      };
+    }
+    try {
+      const data = await this.call<House>('post', `/houses/${idHouse}/join`, { username, id_user: idUser });
+      return { data, ok: true };
+    } catch (e: unknown) {
+      return { data: null, ok: false, error: toBusinessError(e) };
+    }
   }
 
   updateAvatar(idUser: number, avatar: string): Promise<{ data: User | null; ok: boolean }> {
     return this.try<User | null>(() => this.call<User>('post', `/users/${idUser}/avatar`, { avatar }), null);
+  }
+
+  /**
+   * Guarda el perfil. A diferencia del resto no se come el error: el backend
+   * responde 400 con el motivo (correo invalido, nombre muy corto, correo ya
+   * usado) y la pantalla de Perfil necesita mostrarlo junto al campo culpable.
+   */
+  async updateProfile(
+    idUser: number,
+    payload: { name?: string; email?: string; phone?: string; location?: string },
+  ): Promise<{ data: User | null; ok: boolean; error?: ApiBusinessError }> {
+    if (!this.isBrowser) {
+      return { data: null, ok: false, error: new ApiBusinessError('ERROR', 'No se pudo conectar con el servidor.') };
+    }
+    try {
+      const data = await this.call<{ user: User }>('put', `/users/${idUser}`, payload, 6000);
+      return { data: data.user, ok: true };
+    } catch (e: unknown) {
+      return { data: null, ok: false, error: toBusinessError(e) };
+    }
   }
 }
 
@@ -464,4 +796,20 @@ function toBusinessError(e: unknown): ApiBusinessError {
     return new ApiBusinessError(body.code ?? 'ERROR', body.error, body.details ?? {});
   }
   return new ApiBusinessError('ERROR', 'No se pudo completar la operacion.');
+}
+
+/**
+ * Lee el mensaje de error que devuelve el backend en sus rutas simples
+ * (`{ error: '...' }`), a diferencia de toBusinessError que espera el codigo de
+ * negocio anidado.
+ */
+function messageOf(e: unknown): string {
+  const body = (e as { error?: { error?: string } | string })?.error;
+  if (typeof body === 'string') {
+    return body || 'No se pudo completar la operacion.';
+  }
+  if (body && body.error) {
+    return body.error;
+  }
+  return 'No se pudo completar la operacion.';
 }

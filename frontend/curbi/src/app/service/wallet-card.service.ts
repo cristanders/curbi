@@ -1,4 +1,4 @@
-import { Injectable, computed, inject, PLATFORM_ID, signal } from '@angular/core';
+﻿import { Injectable, computed, inject, PLATFORM_ID, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import {
   AccountState,
@@ -8,6 +8,7 @@ import {
   BillPaymentResult,
   CreditRequest,
   FinancialAccount,
+  SavingsContribution,
   Transaction,
   TransferResult,
 } from './api.service';
@@ -71,7 +72,7 @@ interface WalletStore {
 }
 
 /**
- * Representa los "active wallets" del usuario: tarjetas de débito/crédito y sus
+ * Representa los "active wallets" del usuario: tarjetas de dÃ©bito/crÃ©dito y sus
  * movimientos. Persiste en localStorage (sobrevive recargas) e intenta
  * sincronizar con el backend (best-effort: si la API falla, sigue en local).
  */
@@ -82,6 +83,13 @@ export class WalletCardService {
   private readonly movementsState = signal<WalletMovement[]>([]);
   /** Cuentas de prueba, se cargan una vez para validar transferencias. */
   private accountCatalog: BankAccount[] | null = null;
+  /** Carga en curso: evita que dos llamadas se pisen y vacien la pantalla. */
+  private loading = false;
+  private pending: Promise<void> | null = null;
+  /** El store ya se sembro desde localStorage. */
+  private seeded = false;
+  /** Clave de localStorage a la que pertenece el store en memoria. */
+  private namespace: string | null = null;
 
   readonly allCards = this.cardsState.asReadonly();
   readonly allMovements = computed(() => this.movementsState().slice(0, 8));
@@ -118,10 +126,46 @@ export class WalletCardService {
     return `curbi.wallet.v3.${namespace}`;
   }
 
-  /** Lista las tarjetas, intentando completar con las cuentas del backend. */
-  async load(): Promise<void> {
-    this.loadLocal();
+  /**
+   * Descarta el store cuando cambia el usuario en sesion. El servicio vive en
+   * root, asi que sin esto las tarjetas del usuario anterior quedarian visibles
+   * al entrar con otra cuenta.
+   */
+  private syncNamespace(): void {
+    const namespace = this.storageKey;
+    if (this.namespace === namespace) {
+      return;
+    }
+    this.namespace = namespace;
+    this.seeded = false;
+    this.cardsState.set([]);
+    this.activeCardIdState.set(null);
+    this.movementsState.set([]);
+  }
 
+  /**
+   * Lista las tarjetas y sus movimientos.
+   *
+   * Es idempotente y segura para llamadas concurrentes: el dashboard la invoca
+   * en cada sondeo y la pantalla de tarjetas al entrar, asi que dos cargas no
+   * pueden pisarse ni vaciar la lista mientras la otra espera al backend.
+   */
+  async load(): Promise<void> {
+    this.syncNamespace();
+    if (this.pending) {
+      return this.pending;
+    }
+    this.loading = true;
+    this.seedFromStorage();
+    const pending = this.loadFromApi().finally(() => {
+      this.loading = false;
+      this.pending = null;
+    });
+    this.pending = pending;
+    return pending;
+  }
+
+  private async loadFromApi(): Promise<void> {
     if (this.cardsState().length === 0) {
       const acc = await this.api.accounts(this.session.idUser);
       const cards = (acc.data ?? []).map((a): WalletCard => ({
@@ -149,29 +193,44 @@ export class WalletCardService {
       await this.syncBalances();
     }
 
-    if (this.movementsState().length === 0) {
-      const tx = await this.api.transactions(this.session.idUser);
-      const movements = (tx.data ?? []).map((t): WalletMovement => {
-        const credit = t.type_transacion === 'Ingreso';
-        const d = new Date(t.id_transaction ? Date.now() - t.id_transaction * 3600000 : Date.now());
-        return {
-          id: `tx-${t.id_transaction}`,
-          title: (t.description ?? 'MOVIMIENTO').split('|')[0].trim().toUpperCase(),
-          date: this.shortDate(d),
-          origin: `ID #${t.id_transaction}`,
-          kind: credit ? 'Credito' : 'Debito',
-          amount: Number(t.amount).toFixed(2),
-          sign: credit ? '+' : '-',
-          at: d.getTime(),
-          syncedToApi: true,
-        };
-      });
-      movements.sort((a, b) => b.at - a.at);
-      if (movements.length > 0) {
-        this.movementsState.set(movements);
-        this.saveLocal();
-      }
+    await this.syncMovements();
+  }
+
+  /**
+   * Reemplaza los movimientos locales por los del backend. Se llama en cada
+   * carga para que un movimiento hecho en otra pestana aparezca sin recargar.
+   */
+  private async syncMovements(): Promise<void> {
+    const tx = await this.api.transactions(this.session.idUser);
+    if (!tx.ok) {
+      return;
     }
+    const movements = (tx.data ?? []).map((t): WalletMovement => {
+      const credit = t.type_transacion === 'Ingreso';
+      const d = new Date(t.id_transaction ? Date.now() - t.id_transaction * 3600000 : Date.now());
+      return {
+        id: `tx-${t.id_transaction}`,
+        title: (t.description ?? 'MOVIMIENTO').split('|')[0].trim().toUpperCase(),
+        date: this.shortDate(d),
+        origin: `ID #${t.id_transaction}`,
+        kind: credit ? 'Credito' : 'Debito',
+        amount: Number(t.amount).toFixed(2),
+        sign: credit ? '+' : '-',
+        at: d.getTime(),
+        syncedToApi: true,
+      };
+    });
+    movements.sort((a, b) => b.at - a.at);
+
+    const previa = this.movementsState();
+    const misma =
+      previa.length === movements.length &&
+      previa.every((m, i) => m.id === movements[i].id && m.amount === movements[i].amount);
+    if (misma) {
+      return;
+    }
+    this.movementsState.set(movements);
+    this.saveLocal();
   }
 
   /**
@@ -211,13 +270,15 @@ export class WalletCardService {
     }
   }
 
-  private loadLocal(): void {
-    this.cardsState.set([]);
-    this.activeCardIdState.set(null);
-    this.movementsState.set([]);
-    if (!this.isBrowser) {
+  /**
+   * Siembra el store desde localStorage la primera vez. Nunca vacia un store ya
+   * poblado: hacerlo dejaba la pantalla sin tarjetas durante cada sondeo.
+   */
+  private seedFromStorage(): void {
+    if (this.seeded || !this.isBrowser) {
       return;
     }
+    this.seeded = true;
     try {
       const raw = localStorage.getItem(this.storageKey);
       if (raw) {
@@ -243,7 +304,7 @@ export class WalletCardService {
       };
       localStorage.setItem(this.storageKey, JSON.stringify(store));
     } catch {
-      /* sin persistencia: no crítico */
+      /* sin persistencia: no crÃ­tico */
     }
   }
 
@@ -255,7 +316,7 @@ export class WalletCardService {
   }
 
   /**
-   * Agrega una tarjeta a partir de los datos reales del plástico. El numero
+   * Agrega una tarjeta a partir de los datos reales del plÃ¡stico. El numero
    * completo y el cvv no se guardan: solo el brand deduced y los ultimos 4.
    */
   async addCard(data: NewCardData): Promise<WalletCard> {
@@ -280,16 +341,30 @@ export class WalletCardService {
 
     // Se registra en el backend para que la tarjeta tenga saldo real. El id que
     // devuelve se guarda en la tarjeta: es lo que permite transferir despues.
+    // El saldo lo asigna el servidor (regalo de bienvenida de Curbi), asi que la
+    // tarjeta local adopta el valor que respondio y no un 0 optimista.
+    // bank_code viaja para que el backend sepa a que banco pertenece la cuenta;
+    // account_number lo genera el servidor y se usa para recibir depositos.
     const creada = await this.api.createAccount({
-      account_name: `${bank.name} ${data.kind} ···· ${card.last4}`,
+      account_name: `${bank.name} ${data.kind} Â·Â·Â·Â· ${card.last4}`,
+      bank_code: bank.id,
       balance: 0,
       card_type: data.kind,
       id_user: this.session.idUser,
     });
     if (creada.ok && creada.data) {
       const id = creada.data.id_financial;
+      const balance = Number(creada.data.balance ?? 0);
+      const creditLimit = Number(creada.data.credit_limit ?? 0);
+      // El numero de cuenta lo asigna el servidor: es lo que el usuario comparte
+      // para que le depositen, asi que se guarda apenas se crea la tarjeta.
+      const accountNumber = creada.data.account_number ?? undefined;
       this.cardsState.update((cards) =>
-        cards.map((c) => (c.id === card.id ? { ...c, financialId: id } : c)),
+        cards.map((c) =>
+          c.id === card.id
+            ? { ...c, financialId: id, balance, creditLimit, accountNumber }
+            : c,
+        ),
       );
       this.saveLocal();
     }
@@ -310,7 +385,16 @@ export class WalletCardService {
     this.saveLocal();
   }
 
-  /** Registra un movimiento: actualiza saldo de la tarjeta y agrega al historial. */
+  /**
+   * Registra un movimiento en una tarjeta.
+   *
+   * El saldo lo descuenta o suma el backend dentro de la misma operacion que
+   * guarda el movimiento: antes se restaba aqui y se mandaba el POST sin
+   * await, asi que al recargar la pagina el movimiento seguia en el historial
+   * pero el saldo volvia al valor viejo. Ahora se refleja el saldo que devuelve
+   * el servidor y, si el rechaza, se propaga el error para que el modal lo
+   * muestre en vez de confirmar un gasto que no ocurrio.
+   */
   async addMovement(opts: {
     cardId: string;
     kind: 'Debito' | 'Credito';
@@ -318,17 +402,32 @@ export class WalletCardService {
     title: string;
   }): Promise<void> {
     const amount = Number(opts.amount) || 0;
-    if (!this.recordMovement(opts.cardId, opts.kind, amount, opts.title)) {
-      return;
+    if (amount <= 0) {
+      throw new ApiBusinessError('MONTO_INVALIDO', 'Ingresa un monto valido');
     }
 
-    void this.api.createTransaction({
+    const card = this.cardsState().find((c) => c.id === opts.cardId) ?? this.activeCard();
+    if (!card?.financialId) {
+      throw new ApiBusinessError(
+        'CUENTA_INVALIDA',
+        'Esta tarjeta todavia no esta registrada en el servidor.',
+      );
+    }
+
+    const res = await this.api.createTransaction({
       amount,
       type_transacion: opts.kind === 'Credito' ? 'Ingreso' : 'Gasto',
       description: opts.title,
       id_user: this.session.idUser,
+      id_financial: card.financialId,
       id_category: 1,
     });
+    if (!res.ok || !res.data) {
+      throw res.error ?? new ApiBusinessError('ERROR', 'No se pudo registrar el movimiento');
+    }
+
+    this.setBalance(card.financialId, res.data.balance ?? card.balance);
+    this.pushMovement(card, opts.kind, amount, opts.title);
   }
 
   /**
@@ -420,7 +519,7 @@ export class WalletCardService {
       card,
       'Debito',
       amount,
-      `Pago ${res.data.provider_name} · ref ${res.data.reference}`,
+      `Pago ${res.data.provider_name} Â· ref ${res.data.reference}`,
     );
     return res.data;
   }
@@ -446,6 +545,52 @@ export class WalletCardService {
     if (!res.ok || !res.data) {
       throw res.error ?? new ApiBusinessError('ERROR', 'No se pudo solicitar el cupo');
     }
+    return res.data;
+  }
+
+  /**
+   * Aporta a una meta de ahorro con el saldo de una tarjeta. Igual que la
+   * transferencia, el backend descuenta el saldo y aumenta la meta en una sola
+   * transaccion y devuelve el saldo que quedo: aqui solo se refleja ese valor.
+   *
+   * No se valida el saldo en el cliente a proposito. La unica fuente de verdad es
+   * el servidor, para que un aporte no dependa de que la UI esteja al dia.
+   */
+  async contributeToSavings(opts: {
+    cardId: string;
+    goalId: number;
+    goalName?: string;
+    amount: number;
+  }): Promise<SavingsContribution> {
+    const amount = Number(opts.amount) || 0;
+    if (amount <= 0) {
+      throw new ApiBusinessError('MONTO_INVALIDO', 'Ingresa un monto valido');
+    }
+
+    const card = this.cardsState().find((c) => c.id === opts.cardId) ?? this.activeCard();
+    if (!card?.financialId) {
+      throw new ApiBusinessError(
+        'CUENTA_INVALIDA',
+        'Esta tarjeta todavia no esta registrada en el servidor.',
+      );
+    }
+
+    const res = await this.api.contributeSavings(opts.goalId, {
+      amount,
+      id_user: this.session.idUser,
+      id_financial: card.financialId,
+    });
+    if (!res.ok || !res.data) {
+      throw res.error ?? new ApiBusinessError('ERROR', 'No se pudo registrar el aporte');
+    }
+
+    this.setBalance(card.financialId, res.data.balance);
+    this.pushMovement(
+      card,
+      'Debito',
+      amount,
+      `Aporte a meta: ${opts.goalName ?? opts.goalId}`,
+    );
     return res.data;
   }
 
@@ -504,40 +649,6 @@ export class WalletCardService {
     this.saveLocal();
   }
 
-  /** Aplica el movimiento al estado local. `false` si no hay tarjeta o monto. */
-  private recordMovement(
-    cardId: string,
-    kind: 'Debito' | 'Credito',
-    amount: number,
-    title: string,
-  ): boolean {
-    const card = this.cardsState().find((c) => c.id === cardId) ?? this.activeCard();
-    if (!card || amount <= 0) {
-      return false;
-    }
-
-    const credit = kind === 'Credito';
-    const balance = credit ? card.balance + amount : card.balance - amount;
-    this.cardsState.update((cards) => cards.map((c) => (c.id === card.id ? { ...c, balance } : c)));
-
-    const now = new Date();
-    this.movementsState.update((movements) => [
-      {
-        id: `mv-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
-        title: title.toUpperCase(),
-        date: this.shortDate(now),
-        origin: `${card.last4}`,
-        kind,
-        amount: amount.toFixed(2),
-        sign: credit ? '+' : '-',
-        at: now.getTime(),
-      },
-      ...movements,
-    ]);
-    this.saveLocal();
-    return true;
-  }
-
   private bankIdFromName(name: string): string {
     const n = (name ?? '').toLowerCase();
     if (n.includes('banrural') || n.includes('desarrollo rural')) {
@@ -555,7 +666,7 @@ export class WalletCardService {
     if (n.includes('continental') || n.includes('g&t')) {
       return 'gt';
     }
-    if (n.includes('américa') || n.includes('america') || n.includes('bac')) {
+    if (n.includes('amÃ©rica') || n.includes('america') || n.includes('bac')) {
       return 'bac';
     }
     if (n.includes('promerica')) {
