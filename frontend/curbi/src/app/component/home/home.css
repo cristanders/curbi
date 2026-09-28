@@ -1060,3 +1060,78 @@
 .attempt-status.is-frenado {
   color: #a32020;
 }
+
+/* ---------- Banner Educativo Aprende ---------- */
+.learn-banner {
+  background: linear-gradient(135deg, #ffffff 0%, #eef7f8 100%);
+  border: 1px solid #d0e8ec;
+  border-radius: 18px;
+  padding: 22px 26px;
+  box-shadow: 0 8px 24px rgba(20, 80, 95, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.learn-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 280px;
+}
+
+.learn-banner-icon {
+  font-size: 34px;
+  width: 52px;
+  height: 52px;
+  background: rgba(78, 200, 205, 0.2);
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.learn-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.learn-banner-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: #111;
+}
+
+.learn-banner-desc {
+  margin: 0;
+  font-size: 13.5px;
+  color: #4a5568;
+  line-height: 1.45;
+}
+
+.learn-banner-btn {
+  display: inline-flex;
+  align-items: center;
+  background: #141414;
+  color: #ffffff;
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.15s ease;
+  white-space: nowrap;
+}
+
+.learn-banner-btn:hover {
+  background: #14505f;
+  transform: translateY(-1px);
+}
+
