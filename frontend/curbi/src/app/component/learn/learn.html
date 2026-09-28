@@ -1,0 +1,464 @@
+<div class="page">
+  <div class="content">
+    <app-topbar [active]="active"></app-topbar>
+
+    <header class="page-head">
+      <div class="head-info">
+        <div class="head-badge">EDUCACIÓN FINANCIERA</div>
+        <h1 class="page-title">Aprende con CURBI</h1>
+        <p class="page-subtitle">
+          Guías prácticas, calculadoras interactivas y conceptos clave para tomar decisiones financieras informadas.
+        </p>
+      </div>
+
+      <!-- Progreso del usuario -->
+      <div class="progress-card">
+        <div class="progress-header">
+          <div class="level-info">
+            <span class="level-title">{{ userLevel().title }}</span>
+            <span class="level-desc">{{ userLevel().desc }}</span>
+          </div>
+          <span class="progress-badge">{{ completedCount() }} / {{ lessons.length }} leídas</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" [style.width.%]="progressPercentage()"></div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="tab-nav" aria-label="Secciones de aprendizaje">
+      <button
+        type="button"
+        class="tab-btn"
+        [class.is-active]="activeTab() === 'lessons'"
+        (click)="setTab('lessons')"
+      >
+        Guías y Lecturas
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.is-active]="activeTab() === 'calculators'"
+        (click)="setTab('calculators')"
+      >
+        Calculadoras Prácticas
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.is-active]="activeTab() === 'glossary'"
+        (click)="setTab('glossary')"
+      >
+        Glosario Financiero
+      </button>
+    </nav>
+
+    <!--  LECTURAS    -->
+    @if (activeTab() === 'lessons') {
+      <section class="tab-section">
+        <!-- Filtro por categoría -->
+        <div class="category-filters">
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="selectedCategory() === 'all'"
+            (click)="setCategory('all')"
+          >
+            Todas ({{ lessons.length }})
+          </button>
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="selectedCategory() === 'basics'"
+            (click)="setCategory('basics')"
+          >
+            Fundamentos
+          </button>
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="selectedCategory() === 'expenses'"
+            (click)="setCategory('expenses')"
+          >
+            Control de Gastos
+          </button>
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="selectedCategory() === 'credit'"
+            (click)="setCategory('credit')"
+          >
+            Crédito y Deudas
+          </button>
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="selectedCategory() === 'future'"
+            (click)="setCategory('future')"
+          >
+            Inversión y Futuro
+          </button>
+        </div>
+
+        <!-- lecciones -->
+        <div class="lessons-grid">
+          @for (lesson of filteredLessons(); track lesson.id) {
+            <article class="lesson-card" [class.is-done]="isLessonCompleted(lesson.id)">
+              <div class="card-top">
+                <div class="lesson-num">{{ lesson.icon }}</div>
+                <div class="card-meta">
+                  <span class="category-badge">{{ lesson.categoryLabel }}</span>
+                  <span class="time-badge">{{ lesson.readTime }}</span>
+                </div>
+              </div>
+
+              <h2 class="card-title">{{ lesson.title }}</h2>
+              <p class="card-summary">{{ lesson.summary }}</p>
+
+              <div class="card-footer">
+                <button
+                  type="button"
+                  class="btn-read"
+                  (click)="openLesson(lesson)"
+                >
+                  Leer guía &rarr;
+                </button>
+                <button
+                  type="button"
+                  class="btn-check"
+                  [class.is-checked]="isLessonCompleted(lesson.id)"
+                  (click)="toggleLessonComplete(lesson.id)"
+                  [title]="isLessonCompleted(lesson.id) ? 'Marcar como pendiente' : 'Marcar como leída'"
+                >
+                  {{ isLessonCompleted(lesson.id) ? '✓ Completada' : 'Marcar leída' }}
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+    }
+
+    <!--  PRÁCTICAS    -->
+    @if (activeTab() === 'calculators') {
+      <section class="tab-section calculators-container">
+        
+        <!-- Calculadora 1: Gastos Hormiga -->
+        <div class="calc-card">
+          <div class="calc-header">
+            <div>
+              <span class="calc-tag">SIMULADOR</span>
+              <h2 class="calc-title">Calculadora de Gastos Hormiga</h2>
+              <p class="calc-subtitle">Estima el impacto acumulado de pequeños consumos regulares a mediano y largo plazo.</p>
+            </div>
+          </div>
+
+          <div class="calc-body">
+            <div class="calc-inputs">
+              <div class="form-group">
+                <label for="bugName">Concepto del gasto:</label>
+                <input
+                  id="bugName"
+                  type="text"
+                  class="form-control"
+                  [ngModel]="bugExpenseName()"
+                  (ngModelChange)="bugExpenseName.set($event)"
+                  placeholder="ej. Café, aperitivos, delivery"
+                />
+              </div>
+
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="bugAmount">Monto por día (Q):</label>
+                  <input
+                    id="bugAmount"
+                    type="number"
+                    min="1"
+                    class="form-control"
+                    [ngModel]="bugExpenseAmount()"
+                    (ngModelChange)="bugExpenseAmount.set(+$event)"
+                  />
+                </div>
+
+                <div class="form-group flex-1">
+                  <label for="bugDays">Frecuencia semanal:</label>
+                  <select
+                    id="bugDays"
+                    class="form-control"
+                    [ngModel]="bugExpenseDays()"
+                    (ngModelChange)="bugExpenseDays.set(+$event)"
+                  >
+                    <option [value]="1">1 día / semana</option>
+                    <option [value]="2">2 días / semana</option>
+                    <option [value]="3">3 días / semana</option>
+                    <option [value]="4">4 días / semana</option>
+                    <option [value]="5">5 días (Laborales)</option>
+                    <option [value]="6">6 días / semana</option>
+                    <option [value]="7">Todos los días (7)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Resultados en tiempo real -->
+            <div class="calc-results highlight-box">
+              <div class="result-item">
+                <span class="result-label">Gasto Mensual Estimado</span>
+                <span class="result-value">Q{{ bugMonthly() | number: '1.0-0' }}</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Gasto Anual Acumulado</span>
+                <span class="result-value warning">Q{{ bugYearly() | number: '1.0-0' }}</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">Proyección Ahorro a 5 años</span>
+                <span class="result-value success">Q{{ bugFiveYearsWithInterest() | number: '1.0-0' }}</span>
+              </div>
+            </div>
+
+            <div class="calc-advice">
+              <strong>Análisis CURBI:</strong> Reasignar el 50% de este gasto representaría un ahorro mensual de Q{{ bugMonthly() / 2 | number: '1.0-0' }} directo a tus metas de ahorro.
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculadora 2: Regla 50 / 30 / 20 -->
+        <div class="calc-card">
+          <div class="calc-header">
+            <div>
+              <span class="calc-tag">DISTRIBUCIÓN</span>
+              <h2 class="calc-title">Distribución de Ingresos 50 / 30 / 20</h2>
+              <p class="calc-subtitle">Ingresa tu ingreso neto mensual para obtener una estructura de presupuesto recomendada.</p>
+            </div>
+          </div>
+
+          <div class="calc-body">
+            <div class="form-group">
+              <label for="salary">Ingreso mensual neto (Q):</label>
+              <input
+                id="salary"
+                type="number"
+                min="500"
+                step="100"
+                class="form-control big-input"
+                [ngModel]="salaryInput()"
+                (ngModelChange)="salaryInput.set(+$event)"
+              />
+            </div>
+
+            <div class="rule-breakdown">
+              <!-- 50% Necesidades -->
+              <div class="rule-card needs">
+                <div class="rule-tag">50% NECESIDADES BÁSICAS</div>
+                <div class="rule-amount">Q{{ ruleNeeds() | number: '1.0-0' }}</div>
+                <p class="rule-desc">Vivienda, alimentación esencial, servicios básicos, salud y transporte.</p>
+              </div>
+
+              <!-- 30% Deseos -->
+              <div class="rule-card wants">
+                <div class="rule-tag">30% GASTOS PERSONALES</div>
+                <div class="rule-amount">Q{{ ruleWants() | number: '1.0-0' }}</div>
+                <p class="rule-desc">Entretenimiento, salidas, compras personales y suscripciones.</p>
+              </div>
+
+              <!-- 20% Ahorro -->
+              <div class="rule-card savings">
+                <div class="rule-tag">20% AHORRO Y DEUDAS</div>
+                <div class="rule-amount">Q{{ ruleSavings() | number: '1.0-0' }}</div>
+                <p class="rule-desc">Fondo de emergencia, metas en CURBI o amortización de créditos.</p>
+              </div>
+            </div>
+
+            <div class="calc-footer-action">
+              <a routerLink="/saves" class="btn-primary-link">
+                Configurar presupuestos en CURBI &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculadora 3: Fondo de Emergencia -->
+        <div class="calc-card">
+          <div class="calc-header">
+            <div>
+              <span class="calc-tag">PROTECCIÓN</span>
+              <h2 class="calc-title">Meta de Fondo de Emergencia</h2>
+              <p class="calc-subtitle">Calcula el colchón de seguridad financiero necesario en función de tus gastos esenciales.</p>
+            </div>
+          </div>
+
+          <div class="calc-body">
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="emergExp">Gastos esenciales mensuales (Q):</label>
+                <input
+                  id="emergExp"
+                  type="number"
+                  min="500"
+                  class="form-control"
+                  [ngModel]="emergencyMonthlyExpenses()"
+                  (ngModelChange)="emergencyMonthlyExpenses.set(+$event)"
+                />
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="emergMonths">Cobertura deseada:</label>
+                <select
+                  id="emergMonths"
+                  class="form-control"
+                  [ngModel]="emergencyMonths()"
+                  (ngModelChange)="emergencyMonths.set(+$event)"
+                >
+                  <option [value]="3">3 meses (Recomendado estándar)</option>
+                  <option [value]="6">6 meses (Mayor tranquilidad)</option>
+                  <option [value]="9">9 meses</option>
+                  <option [value]="12">12 meses (Independientes o freelancers)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="emergency-summary-box">
+              <div class="emerg-target">
+                <span class="emerg-label">Fondo de Emergencia Sugerido:</span>
+                <span class="emerg-value">Q{{ emergencyTarget() | number: '1.0-0' }}</span>
+              </div>
+
+              <div class="emerg-plan">
+                <label for="targetMonths">Plazo para completarlo:</label>
+                <select
+                  id="targetMonths"
+                  class="form-control small-select"
+                  [ngModel]="emergencySavingsMonthsTarget()"
+                  (ngModelChange)="emergencySavingsMonthsTarget.set(+$event)"
+                >
+                  <option [value]="6">En 6 meses (Q{{ emergencyTarget() / 6 | number: '1.0-0' }} / mes)</option>
+                  <option [value]="12">En 12 meses (Q{{ emergencyTarget() / 12 | number: '1.0-0' }} / mes)</option>
+                  <option [value]="18">En 18 meses (Q{{ emergencyTarget() / 18 | number: '1.0-0' }} / mes)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="calc-footer-action">
+              <a routerLink="/saves" class="btn-primary-link">
+                Crear Meta en CURBI &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    }
+
+    <!-- GLOSARIO FINANCIERO    -->
+    @if (activeTab() === 'glossary') {
+      <section class="tab-section">
+        <!-- Buscador -->
+        <div class="glossary-search-bar">
+          <input
+            type="text"
+            class="glossary-input"
+            [ngModel]="glossarySearch()"
+            (ngModelChange)="glossarySearch.set($event)"
+            placeholder="Buscar concepto financiero (ej. fondo, inflación, interés, crédito, liquidez)..."
+          />
+          @if (glossarySearch()) {
+            <button type="button" class="btn-clear" (click)="glossarySearch.set('')">✕</button>
+          }
+        </div>
+
+        <div class="glossary-grid">
+          @for (item of filteredTerms(); track item.term) {
+            <div class="glossary-card">
+              <div class="glossary-head">
+                <h3 class="glossary-term">{{ item.term }}</h3>
+                <span class="glossary-tag">{{ item.tag }}</span>
+              </div>
+              <p class="glossary-short">{{ item.shortDesc }}</p>
+              <div class="glossary-explanation">
+                {{ item.explanation }}
+              </div>
+              <div class="glossary-example">
+                <strong>Ejemplo práctico:</strong> {{ item.example }}
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-glossary">
+              <p>No se encontraron resultados para "{{ glossarySearch() }}".</p>
+              <button type="button" class="btn-reset" (click)="glossarySearch.set('')">
+                Ver todos los términos
+              </button>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (selectedLesson(); as lesson) {
+      <div class="modal-backdrop" (click)="closeLesson()">
+        <div class="lesson-modal" (click)="$event.stopPropagation()">
+          <header class="modal-header">
+            <div class="modal-meta">
+              <span class="category-badge">{{ lesson.categoryLabel }}</span>
+              <span class="level-pill">{{ lesson.level }}</span>
+              <span class="time-badge">{{ lesson.readTime }} de lectura</span>
+            </div>
+            <button type="button" class="btn-close" (click)="closeLesson()" aria-label="Cerrar lección">✕</button>
+          </header>
+
+          <div class="modal-body">
+            <div class="lesson-headline">
+              <div class="lesson-num-lg">{{ lesson.icon }}</div>
+              <h2 class="modal-title">{{ lesson.title }}</h2>
+            </div>
+
+            <div class="key-points-box">
+              <h3 class="box-title">Puntos clave</h3>
+              <ul class="key-points-list">
+                @for (point of lesson.keyPoints; track point) {
+                  <li>{{ point }}</li>
+                }
+              </ul>
+            </div>
+
+            <!-- Párrafos de la lectura -->
+            <div class="lesson-text">
+              @for (paragraph of lesson.content; track paragraph) {
+                <p>{{ paragraph }}</p>
+              }
+            </div>
+
+            <!-- Consejo práctico accionable -->
+            <div class="action-tip-box">
+              <div class="tip-header">Acción recomendada</div>
+              <p class="tip-text">{{ lesson.actionTip }}</p>
+            </div>
+
+            <!-- regresar a curbi -->
+            @if (lesson.curbiLink) {
+              <div class="modal-curbi-action">
+                <a [routerLink]="lesson.curbiLink.route" (click)="closeLesson()" class="curbi-action-btn">
+                  {{ lesson.curbiLink.label }} &rarr;
+                </a>
+              </div>
+            }
+          </div>
+
+          <footer class="modal-footer">
+            <button
+              type="button"
+              class="btn-toggle-read"
+              [class.is-done]="isLessonCompleted(lesson.id)"
+              (click)="toggleLessonComplete(lesson.id)"
+            >
+              {{ isLessonCompleted(lesson.id) ? '✓ Completada' : 'Marcar como leída' }}
+            </button>
+            <button type="button" class="btn-secondary" (click)="closeLesson()">
+              Cerrar
+            </button>
+          </footer>
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

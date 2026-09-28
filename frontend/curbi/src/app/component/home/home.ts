@@ -1,6 +1,7 @@
 import { Component, Inject, OnDestroy, OnInit, PLATFORM_ID, computed, signal } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Topbar } from '../shell/topbar';
 import {
@@ -46,7 +47,7 @@ const EMPTY_SUMMARY: DashboardPayload['summary'] = {
 const POLL_MS = 4000;
 
 @Component({
-  imports: [Topbar, FormsModule],
+  imports: [Topbar, FormsModule, RouterLink],
   selector: 'app-home',
   styleUrl: './home.css',
   templateUrl: './home.html',

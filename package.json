@@ -10,5 +10,19 @@
     "start:web": "npm --prefix frontend/curbi run start:web",
     "build": "npm --prefix frontend/curbi run build",
     "test": "npm --prefix frontend/curbi run test"
+  },
+  "dependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.2.1",
+    "i18n": "^0.15.4",
+    "mysql2": "^3.24.4"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/i18n": "^0.13.12",
+    "@types/node": "^26.6.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^7.0.2"
   }
 }

@@ -8,6 +8,7 @@ export type TopbarActive =
   | 'wallet'
   | 'saves'
   | 'transactions'
+  | 'learn'
   | 'notifications'
   | 'profile'
   | 'none';
