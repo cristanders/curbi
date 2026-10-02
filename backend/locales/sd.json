@@ -1,0 +1,13 @@
+{
+  "welcome": "ڪربي ۾ ڀلي ڪري آيا",
+  "route_not_found": "رستو نه مليو",
+  "server_error": "سرور جي اندروني خرابي",
+  "unauthorized": "غير مجاز",
+  "language_updated": "ٻولي ڪاميابي سان تبديل ٿي وئي",
+  "invalid_language": "اڻ سهاريل ٻولي. صحيح چونڊون: es, en, fr, pt, sd, kaq",
+  "auth": {
+    "login_success": "لاگ ان ڪامياب ٿيو",
+    "invalid_credentials": "غلط سڃاڻپ",
+    "user_not_found": "استعمال ڪندڙ نه مليو"
+  }
+}

@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { Topbar } from '../shell/topbar';
 import { ApiService, Category, FinancialAccount, Transaction } from '../../service/api.service';
@@ -17,7 +18,7 @@ interface TxRow {
 }
 
 @Component({
-  imports: [FormsModule, Topbar],
+  imports: [FormsModule, Topbar, TranslatePipe],
   selector: 'app-transactions',
   styleUrl: './transactions.css',
   templateUrl: './transactions.html',

@@ -4,10 +4,10 @@
 
     <header class="page-head">
       <div class="head-info">
-        <div class="head-badge">EDUCACIÓN FINANCIERA</div>
-        <h1 class="page-title">Aprende con CURBI</h1>
+        <div class="head-badge">{{ 'LEARN.BADGE' | translate }}</div>
+        <h1 class="page-title">{{ 'LEARN.TITLE' | translate }}</h1>
         <p class="page-subtitle">
-          Guías prácticas, calculadoras interactivas y conceptos clave para tomar decisiones financieras informadas.
+          {{ 'LEARN.SUBTITLE' | translate }}
         </p>
       </div>
 
@@ -18,7 +18,7 @@
             <span class="level-title">{{ userLevel().title }}</span>
             <span class="level-desc">{{ userLevel().desc }}</span>
           </div>
-          <span class="progress-badge">{{ completedCount() }} / {{ lessons.length }} leídas</span>
+          <span class="progress-badge">{{ completedCount() }} / {{ lessons.length }} {{ 'LEARN.READ_PROGRESS' | translate }}</span>
         </div>
         <div class="progress-bar-bg">
           <div class="progress-bar-fill" [style.width.%]="progressPercentage()"></div>
@@ -33,7 +33,7 @@
         [class.is-active]="activeTab() === 'lessons'"
         (click)="setTab('lessons')"
       >
-        Guías y Lecturas
+        {{ 'LEARN.TAB_LESSONS' | translate }}
       </button>
       <button
         type="button"
@@ -41,7 +41,7 @@
         [class.is-active]="activeTab() === 'calculators'"
         (click)="setTab('calculators')"
       >
-        Calculadoras Prácticas
+        {{ 'LEARN.TAB_CALCULATORS' | translate }}
       </button>
       <button
         type="button"
@@ -49,7 +49,7 @@
         [class.is-active]="activeTab() === 'glossary'"
         (click)="setTab('glossary')"
       >
-        Glosario Financiero
+        {{ 'LEARN.TAB_GLOSSARY' | translate }}
       </button>
     </nav>
 
@@ -64,7 +64,7 @@
             [class.is-active]="selectedCategory() === 'all'"
             (click)="setCategory('all')"
           >
-            Todas ({{ lessons.length }})
+            {{ 'LEARN.FILTERS.ALL' | translate }} ({{ lessons.length }})
           </button>
           <button
             type="button"
@@ -72,7 +72,7 @@
             [class.is-active]="selectedCategory() === 'basics'"
             (click)="setCategory('basics')"
           >
-            Fundamentos
+            {{ 'LEARN.FILTERS.BASICS' | translate }}
           </button>
           <button
             type="button"
@@ -80,7 +80,7 @@
             [class.is-active]="selectedCategory() === 'expenses'"
             (click)="setCategory('expenses')"
           >
-            Control de Gastos
+            {{ 'LEARN.FILTERS.EXPENSES' | translate }}
           </button>
           <button
             type="button"
@@ -88,7 +88,7 @@
             [class.is-active]="selectedCategory() === 'credit'"
             (click)="setCategory('credit')"
           >
-            Crédito y Deudas
+            {{ 'LEARN.FILTERS.CREDIT' | translate }}
           </button>
           <button
             type="button"
@@ -96,7 +96,7 @@
             [class.is-active]="selectedCategory() === 'future'"
             (click)="setCategory('future')"
           >
-            Inversión y Futuro
+            {{ 'LEARN.FILTERS.FUTURE' | translate }}
           </button>
         </div>
 
@@ -121,16 +121,16 @@
                   class="btn-read"
                   (click)="openLesson(lesson)"
                 >
-                  Leer guía &rarr;
+                  {{ 'LEARN.CARD.READ_GUIDE' | translate }}
                 </button>
                 <button
                   type="button"
                   class="btn-check"
                   [class.is-checked]="isLessonCompleted(lesson.id)"
                   (click)="toggleLessonComplete(lesson.id)"
-                  [title]="isLessonCompleted(lesson.id) ? 'Marcar como pendiente' : 'Marcar como leída'"
+                  [title]="isLessonCompleted(lesson.id) ? ('LEARN.CARD.PENDING' | translate) : ('LEARN.CARD.MARK_READ' | translate)"
                 >
-                  {{ isLessonCompleted(lesson.id) ? '✓ Completada' : 'Marcar leída' }}
+                  {{ isLessonCompleted(lesson.id) ? ('LEARN.CARD.COMPLETED' | translate) : ('LEARN.CARD.MARK_READ' | translate) }}
                 </button>
               </div>
             </article>

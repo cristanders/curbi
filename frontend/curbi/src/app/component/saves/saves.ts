@@ -8,6 +8,7 @@ import { RefreshBusService } from '../../service/refresh-bus.service';
 import { WalletCard, WalletCardService } from '../../service/wallet-card.service';
 import { bankById } from '../../service/bank-catalog';
 import { DEFAULT_CATEGORY_ID, SAVINGS_CATEGORIES, iconForGoal, matchCategory } from '../../service/savings-catalog';
+import { TranslatePipe } from '@ngx-translate/core';
 
 interface SaveGoal {
   id: number;
@@ -37,7 +38,7 @@ function messageOf(e: unknown): string {
 }
 
 @Component({
-  imports: [FormsModule, Topbar],
+  imports: [FormsModule, Topbar, TranslatePipe],
   selector: 'app-saves',
   styleUrl: './saves.css',
   templateUrl: './saves.html',

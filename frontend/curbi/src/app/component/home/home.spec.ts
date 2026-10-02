@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { Home } from './home';
 import { BankSerie, LiveMarketService } from '../../service/live-market.service';
 import { SessionService } from '../../service/session.service';
@@ -33,8 +34,29 @@ describe('Home', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Home],
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideTranslateService({ fallbackLang: 'es', lang: 'es' }),
+      ],
     }).compileComponents();
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('es', {
+      HOME: {
+        WALLETS: {
+          TITLE: 'YOUR ACTIVE WALLETS',
+        },
+        SPEND_CONTROL: {
+          EXCEEDED_BY: 'Te pasaste por',
+          REMAINING: 'Te quedan',
+          FRENADO: 'Frenado.',
+          APPROVED: 'Aprobado.',
+          DISCOUNTED: 'Se descontó de la cuenta.',
+        },
+      },
+    });
+    translate.use('es');
 
     // Sin backend el feed arranca vacio: se siembran tres series para poder
     // comprobar que el componente dibuja una tarjeta por cada una.

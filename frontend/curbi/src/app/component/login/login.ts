@@ -1,11 +1,12 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ApiService } from '../../service/api.service';
 import { SessionService } from '../../service/session.service';
 
 @Component({
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslatePipe],
   selector: 'app-login',
   styleUrl: './login.css',
   templateUrl: './login.html',
@@ -27,11 +28,10 @@ export class Login {
   readonly googleIcon = 'assets/images/google.png';
   readonly outlookIcon = 'assets/images/outlook.png';
 
-  constructor(
-    private readonly router: Router,
-    private readonly api: ApiService,
-    private readonly session: SessionService,
-  ) {}
+  private readonly router = inject(Router);
+  private readonly api = inject(ApiService);
+  private readonly session = inject(SessionService);
+  private readonly translate = inject(TranslateService);
 
   async onSubmit(): Promise<void> {
     this.error.set('');
@@ -41,7 +41,7 @@ export class Login {
     this.loading.set(false);
 
     if (!ok || !data) {
-      this.error.set(error ?? 'No se pudo conectar con el servidor. Inténtalo de nuevo.');
+      this.error.set(error ?? this.translate.instant('LOGIN.ERROR_SERVER'));
       return;
     }
 

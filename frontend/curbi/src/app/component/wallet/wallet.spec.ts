@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { ApiService, BankAccount, FinancialAccount, TransferResult, ApiBusinessError } from '../../service/api.service';
 import { ReceiptService } from '../../service/receipt.service';
 import { WalletCardService } from '../../service/wallet-card.service';
@@ -113,10 +114,22 @@ describe('Wallet', () => {
 
     await TestBed.configureTestingModule({
       imports: [Wallet],
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideTranslateService({ fallbackLang: 'es', lang: 'es' }),
+      ],
     }).compileComponents();
 
     mockApi();
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('es', {
+      WALLET: {
+        TITLE: 'My Wallets',
+      },
+    });
+    translate.use('es');
 
     fixture = TestBed.createComponent(Wallet);
     component = fixture.componentInstance;
@@ -546,7 +559,11 @@ describe('Wallet con una tarjeta del backend', () => {
 
     await TestBed.configureTestingModule({
       imports: [Wallet],
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideTranslateService({ fallbackLang: 'es', lang: 'es' }),
+      ],
     }).compileComponents();
 
     mockApi([CUENTA]);

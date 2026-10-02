@@ -1,0 +1,13 @@
+{
+  "welcome": "Welcome to CURBI",
+  "route_not_found": "Route not found",
+  "server_error": "Internal server error",
+  "unauthorized": "Unauthorized",
+  "language_updated": "Language updated successfully",
+  "invalid_language": "Unsupported language. Valid options are: es, en, fr, pt, sd, kaq",
+  "auth": {
+    "login_success": "Login successful",
+    "invalid_credentials": "Invalid credentials",
+    "user_not_found": "User not found"
+  }
+}

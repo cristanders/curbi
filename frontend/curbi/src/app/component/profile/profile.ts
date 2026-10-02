@@ -2,12 +2,14 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
 import { Router } from '@angular/router';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Topbar } from '../shell/topbar';
 import { ApiService, House } from '../../service/api.service';
 import { SessionService } from '../../service/session.service';
+import { LanguageService, SupportedLanguage } from '../../service/language.service';
 
 @Component({
-  imports: [FormsModule, NgIf, Topbar],
+  imports: [FormsModule, NgIf, Topbar, TranslatePipe],
   selector: 'app-profile',
   styleUrl: './profile.css',
   templateUrl: './profile.html',
@@ -68,6 +70,8 @@ export class Profile implements OnInit {
 
   private readonly api = inject(ApiService);
   readonly session = inject(SessionService);
+  readonly languageService = inject(LanguageService);
+  private readonly translate = inject(TranslateService);
   private readonly router = inject(Router);
 
   async ngOnInit(): Promise<void> {
@@ -133,7 +137,7 @@ export class Profile implements OnInit {
     const nombre = this.familyName.trim();
     const u = this.session.currentUser;
     if (!nombre) {
-      this.familyError.set('Ponle un nombre a la familia');
+      this.familyError.set(this.translate.instant('PROFILE.MESSAGES.FAMILY_NAME_REQUIRED'));
       return;
     }
     if (this.familyBusy()) {
@@ -144,7 +148,7 @@ export class Profile implements OnInit {
     const { ok, error } = await this.api.createHouse(nombre, u.username, this.session.idUser);
     this.familyBusy.set(false);
     if (!ok) {
-      this.familyError.set(error?.message ?? 'No se pudo crear el grupo');
+      this.familyError.set(error?.message ?? this.translate.instant('PROFILE.MESSAGES.FAMILY_CREATE_ERROR'));
       return;
     }
     this.familyName = '';
@@ -159,7 +163,7 @@ export class Profile implements OnInit {
   async searchHouses(): Promise<void> {
     const username = this.familySearch.trim().replace(/^@/, '');
     if (!username) {
-      this.familyError.set('Escribe un username');
+      this.familyError.set(this.translate.instant('PROFILE.MESSAGES.USERNAME_REQUIRED'));
       return;
     }
     if (this.familyBusy()) {
@@ -170,7 +174,7 @@ export class Profile implements OnInit {
     const { data, ok, error } = await this.api.houses(username, this.session.idUser);
     this.familyBusy.set(false);
     if (!ok) {
-      this.familyError.set(error?.message ?? 'No se pudo buscar');
+      this.familyError.set(error?.message ?? this.translate.instant('PROFILE.MESSAGES.SEARCH_ERROR'));
       return;
     }
     this.joinable.set((data ?? []).filter((h) => !h.is_member));
@@ -189,7 +193,7 @@ export class Profile implements OnInit {
     );
     this.familyBusy.set(false);
     if (!ok) {
-      this.familyError.set(error?.message ?? 'No se pudo unir al grupo');
+      this.familyError.set(error?.message ?? this.translate.instant('PROFILE.MESSAGES.JOIN_ERROR'));
       return;
     }
     this.familySearch = '';
@@ -225,7 +229,7 @@ export class Profile implements OnInit {
       });
 
       if (!ok || !data) {
-        this.flash(error?.message ?? 'No se pudieron guardar los cambios');
+        this.flash(error?.message ?? this.translate.instant('PROFILE.MESSAGES.SAVE_ERROR'));
         return;
       }
 
@@ -239,10 +243,17 @@ export class Profile implements OnInit {
       });
       this.applyUser(data);
       this.editMode = false;
-      this.flash('Cambios guardados');
+      this.flash(this.translate.instant('PROFILE.MESSAGES.SAVE_SUCCESS'));
     } finally {
       this.saving = false;
     }
+  }
+
+  async onLanguageChange(event: Event): Promise<void> {
+    const target = event.target as HTMLSelectElement;
+    const lang = target.value as SupportedLanguage;
+    await this.languageService.changeLanguage(lang);
+    this.flash(this.translate.instant('PROFILE.MESSAGES.SAVE_SUCCESS'));
   }
 
   /** Vuelca los datos guardados en las señales que pinta la pantalla. */
@@ -281,16 +292,20 @@ export class Profile implements OnInit {
 
   private async uploadPhoto(file: File): Promise<void> {
     if (!file.type.startsWith('image/')) {
-      this.flash('Selecciona un archivo de imagen válido.');
+      this.flash(this.translate.instant('PROFILE.MESSAGES.IMAGE_INVALID'));
       return;
     }
     try {
       const resized = await this.readResizedImage(file, 256);
       this.session.setAvatar(resized);
       const { ok } = await this.api.updateAvatar(this.session.idUser, resized);
-      this.flash(ok ? 'Foto de perfil actualizada.' : 'Foto guardada (sin conexión al servidor).');
+      this.flash(
+        ok
+          ? this.translate.instant('PROFILE.MESSAGES.AVATAR_UPDATED')
+          : this.translate.instant('PROFILE.MESSAGES.AVATAR_SAVED_OFFLINE'),
+      );
     } catch {
-      this.flash('Ocurrió un error al procesar la imagen.');
+      this.flash(this.translate.instant('PROFILE.MESSAGES.IMAGE_ERROR'));
     }
   }
 

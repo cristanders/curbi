@@ -1,6 +1,7 @@
-﻿import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { Saves } from './saves';
 import { ApiBusinessError, ApiService, FinancialAccount } from '../../service/api.service';
 import { RefreshBusService } from '../../service/refresh-bus.service';
@@ -20,8 +21,20 @@ describe('Saves', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Saves],
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideTranslateService({ fallbackLang: 'es', lang: 'es' }),
+      ],
     }).compileComponents();
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('es', {
+      SAVES: {
+        TITLE: 'My saves',
+      },
+    });
+    translate.use('es');
 
     // El store del wallet persiste en localStorage: sin limpiarlo, las tarjetas de un
     // describe se filtran al siguiente.
@@ -103,7 +116,11 @@ describe('Saves: aportar a una meta', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Saves],
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideTranslateService({ fallbackLang: 'es', lang: 'es' }),
+      ],
     }).compileComponents();
 
     // El store del wallet persiste en localStorage: sin limpiarlo, las tarjetas de un
@@ -296,7 +313,11 @@ describe('Saves: el aporte sale del saldo de la tarjeta', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Saves],
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideTranslateService({ fallbackLang: 'es', lang: 'es' }),
+      ],
     }).compileComponents();
 
     // El store del wallet persiste en localStorage: sin limpiarlo, las tarjetas de un
@@ -366,7 +387,11 @@ describe('Saves: sin tarjetas no se puede aportar', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Saves],
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideTranslateService({ fallbackLang: 'es', lang: 'es' }),
+      ],
     }).compileComponents();
 
     // El store del wallet persiste en localStorage: sin limpiarlo, las tarjetas de un
@@ -414,7 +439,11 @@ describe('Saves: nueva meta', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Saves],
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideTranslateService({ fallbackLang: 'es', lang: 'es' }),
+      ],
     }).compileComponents();
 
     // El store del wallet persiste en localStorage: sin limpiarlo, las tarjetas de un
@@ -543,7 +572,11 @@ describe('Saves: categorias e iconos', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Saves],
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideTranslateService({ fallbackLang: 'es', lang: 'es' }),
+      ],
     }).compileComponents();
 
     localStorage.clear();

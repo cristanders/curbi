@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { Learn } from './learn';
 
 describe('Learn Component', () => {
@@ -10,8 +11,21 @@ describe('Learn Component', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Learn],
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideTranslateService({ fallbackLang: 'es', lang: 'es' }),
+      ],
     }).compileComponents();
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('es', {
+      LEARN: {
+        TITLE: 'Aprende con CURBI',
+        BADGE: 'EDUCACIÓN FINANCIERA',
+      },
+    });
+    translate.use('es');
 
     fixture = TestBed.createComponent(Learn);
     component = fixture.componentInstance;

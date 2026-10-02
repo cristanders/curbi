@@ -3,38 +3,38 @@
 
   <main class="content">
     <div class="page-head">
-      <h1 class="page-title">My saves</h1>
+      <h1 class="page-title">{{ 'SAVES.TITLE' | translate }}</h1>
       <span class="source-chip" [class.is-demo]="source() === 'demo'">
-        {{ source() === 'api' ? 'Backend conectado' : 'Sin conexión al backend' }} · {{ lastUpdate() }}
+        {{ source() === 'api' ? ('WALLET.SYNCED' | translate) : ('WALLET.NO_BACKEND' | translate) }} · {{ lastUpdate() }}
       </span>
     </div>
 
     <section class="stats" aria-label="Savings summary">
       <article class="stat-card">
-        <p class="stat-label">SALDO TOTAL AHORRADO</p>
+        <p class="stat-label">{{ 'SAVES.TOTAL_SAVED' | translate }}</p>
         <p class="stat-amount">(GTQ{{ totalSaved() }}<span class="dec">.00</span>)</p>
       </article>
       <article class="stat-card">
-        <p class="stat-label">CASHBACK ACUMULADO</p>
+        <p class="stat-label">{{ 'SAVES.CASHBACK' | translate }}</p>
         <p class="stat-amount">(GTQ{{ cashback() }}<span class="dec">.00</span>)</p>
       </article>
       <article class="stat-card">
-        <p class="stat-label">INTERESES GENERADOS</p>
+        <p class="stat-label">{{ 'SAVES.INTEREST' | translate }}</p>
         <p class="stat-amount">(GTQ{{ interest() }}<span class="dec">.{{ interestDecimals() }}</span>)</p>
       </article>
     </section>
 
     <div class="section-head">
-      <h2 class="section-title">Your saves goals</h2>
-      <button type="button" class="btn-new-goal" (click)="openNewGoal()">+ Nueva meta</button>
+      <h2 class="section-title">{{ 'SAVES.GOALS_TITLE' | translate }}</h2>
+      <button type="button" class="btn-new-goal" (click)="openNewGoal()">{{ 'SAVES.NEW_GOAL' | translate }}</button>
     </div>
 
     @if (goals().length === 0) {
       <section class="goals-empty">
         <img src="assets/icons/savings-pig.svg" alt="" width="56" height="56" />
-        <h3>Aun no tenes metas de ahorro</h3>
-        <p>Crea tu primera meta y empezar a aportar hasta completarla.</p>
-        <button type="button" class="btn-primary" (click)="openNewGoal()">Crear mi primera meta</button>
+        <h3>{{ 'SAVES.EMPTY_TITLE' | translate }}</h3>
+        <p>{{ 'SAVES.EMPTY_DESC' | translate }}</p>
+        <button type="button" class="btn-primary" (click)="openNewGoal()">{{ 'SAVES.EMPTY_BTN' | translate }}</button>
       </section>
     }
 
@@ -51,14 +51,14 @@
             </span>
           </div>
 
-          <p class="goal-progress">{{ progressOf(goal) }}% Completado</p>
+          <p class="goal-progress">{{ progressOf(goal) }}% {{ 'SAVES.COMPLETED' | translate }}</p>
 
           <div class="progress" aria-hidden="true">
             <span [style.width.%]="progressOf(goal)"></span>
           </div>
 
           <div class="goal-actions">
-            <button type="button" class="btn-details" (click)="viewDetails(goal)">Ver detalles</button>
+            <button type="button" class="btn-details" (click)="viewDetails(goal)">{{ 'SAVES.VIEW_DETAILS' | translate }}</button>
             <button
               type="button"
               class="btn-contribute"
@@ -66,7 +66,7 @@
               [disabled]="isCompleted(goal)"
               (click)="openContribute(goal)"
             >
-              {{ isCompleted(goal) ? 'Meta completa' : 'Aportar $' }}
+              {{ isCompleted(goal) ? ('SAVES.GOAL_COMPLETE' | translate) : ('SAVES.CONTRIBUTE_BTN' | translate) }}
             </button>
           </div>
         </article>
@@ -86,20 +86,20 @@
       class="modal"
       role="dialog"
       aria-modal="true"
-      aria-label="Nueva meta de ahorro"
+      [attr.aria-label]="'SAVES.MODAL_NEW.TITLE' | translate"
       (click)="$event.stopPropagation()"
     >
       <div class="modal-head">
-        <h2>Nueva meta de ahorro</h2>
-        <button type="button" class="modal-close" (click)="closeNewGoal()" aria-label="Cerrar">×</button>
+        <h2>{{ 'SAVES.MODAL_NEW.TITLE' | translate }}</h2>
+        <button type="button" class="modal-close" (click)="closeNewGoal()" [attr.aria-label]="'COMMON.CLOSE' | translate">×</button>
       </div>
 
       <label class="goal-field">
-        <span>¿Para que ahorras?</span>
+        <span>{{ 'SAVES.MODAL_NEW.NAME_LABEL' | translate }}</span>
         <input
           type="text"
           maxlength="70"
-          placeholder="Ej. Viaje a Antigua"
+          [placeholder]="'SAVES.MODAL_NEW.NAME_PLACEHOLDER' | translate"
           [disabled]="newGoalBusy()"
           [ngModel]="newGoalName()"
           (ngModelChange)="onGoalNameInput($event)"
@@ -107,7 +107,7 @@
       </label>
 
       <div class="category-picker">
-        <span class="category-picker-label" id="category-label">Categoria</span>
+        <span class="category-picker-label" id="category-label">{{ 'SAVES.MODAL_NEW.CATEGORY_LABEL' | translate }}</span>
         <div class="category-grid" role="radiogroup" aria-labelledby="category-label">
           @for (option of categories; track option.id) {
             <button
@@ -125,11 +125,11 @@
             </button>
           }
         </div>
-        <p class="field-hint">El icono de la tarjeta sale de la categoria que elijas.</p>
+        <p class="field-hint">{{ 'SAVES.MODAL_NEW.CATEGORY_HINT' | translate }}</p>
       </div>
 
       <label class="goal-field">
-        <span>Monto objetivo (Q)</span>
+        <span>{{ 'SAVES.MODAL_NEW.TARGET_LABEL' | translate }}</span>
         <input
           type="number"
           min="0.01"
@@ -141,21 +141,21 @@
         />
       </label>
 
-      <p class="field-hint">La meta empieza en Q0.00 y vas sumando aportes hasta llegar al objetivo.</p>
+      <p class="field-hint">{{ 'SAVES.MODAL_NEW.TARGET_HINT' | translate }}</p>
 
       @if (newGoalError()) {
         <p class="field-hint is-error">{{ newGoalError() }}</p>
       }
 
       <div class="modal-actions">
-        <button type="button" class="btn-ghost" (click)="closeNewGoal()">Cancelar</button>
+        <button type="button" class="btn-ghost" (click)="closeNewGoal()">{{ 'COMMON.CANCEL' | translate }}</button>
         <button
           type="button"
           class="btn-primary"
           [disabled]="!canCreateGoal() || newGoalBusy()"
           (click)="confirmNewGoal()"
         >
-          {{ newGoalBusy() ? 'Creando...' : 'Crear meta' }}
+          {{ newGoalBusy() ? ('SAVES.MODAL_NEW.CREATING' | translate) : ('SAVES.MODAL_NEW.SUBMIT' | translate) }}
         </button>
       </div>
     </div>
@@ -173,12 +173,12 @@
       (click)="$event.stopPropagation()"
     >
       <div class="modal-head">
-        <h2>Aportar a {{ goal.name }}</h2>
-        <button type="button" class="modal-close" (click)="closeContribute()" aria-label="Cerrar">×</button>
+        <h2>{{ 'SAVES.MODAL_CONTRIBUTE.TITLE_PREFIX' | translate }} {{ goal.name }}</h2>
+        <button type="button" class="modal-close" (click)="closeContribute()" [attr.aria-label]="'COMMON.CLOSE' | translate">×</button>
       </div>
 
       <div class="goal-preview">
-        <span>{{ progressOf(goal) }}% Completado</span>
+        <span>{{ progressOf(goal) }}% {{ 'SAVES.COMPLETED' | translate }}</span>
         <strong>Q{{ fmt(goal.current) }} / Q{{ fmt(goal.target) }}</strong>
       </div>
 
@@ -187,7 +187,7 @@
       </div>
 
       <label class="goal-field">
-        <span>Monto del aporte (Q)</span>
+        <span>{{ 'SAVES.MODAL_CONTRIBUTE.AMOUNT_LABEL' | translate }}</span>
         <input
           type="number"
           min="0.01"
@@ -215,7 +215,7 @@
 
       @if (contributeCards().length > 0) {
         <div class="card-picker">
-          <span class="card-picker-label">Pagar con</span>
+          <span class="card-picker-label">{{ 'SAVES.MODAL_CONTRIBUTE.CARD_BALANCE' | translate }}</span>
           <div class="card-picker-list" role="radiogroup" aria-label="Tarjeta para el aporte">
             @for (card of contributeCards(); track card.id) {
               <button
@@ -254,16 +254,16 @@
 
       <div class="modal-actions">
         <button type="button" class="btn-ghost" (click)="completeGoal()" [disabled]="contributeBusy()">
-          Completar meta
+          {{ 'SAVES.MODAL_CONTRIBUTE.COMPLETE_GOAL' | translate }}
         </button>
-        <button type="button" class="btn-ghost" (click)="closeContribute()">Cancelar</button>
+        <button type="button" class="btn-ghost" (click)="closeContribute()">{{ 'COMMON.CANCEL' | translate }}</button>
         <button
           type="button"
           class="btn-primary"
           [disabled]="!canContribute()"
           (click)="confirmContribute()"
         >
-          {{ contributeBusy() ? 'Guardando...' : 'Aportar' }}
+          {{ contributeBusy() ? ('SAVES.MODAL_CONTRIBUTE.SUBMITTING' | translate) : ('SAVES.CONTRIBUTE_BTN' | translate) }}
         </button>
       </div>
     </div>

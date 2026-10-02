@@ -1,11 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ApiService } from '../../service/api.service';
 import { SessionService } from '../../service/session.service';
 
 @Component({
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslatePipe],
   selector: 'app-register',
   styleUrl: './register.css',
   templateUrl: './register.html',
