@@ -34,12 +34,13 @@ import { RefreshBusService } from '../../service/refresh-bus.service';
 import { SERVICE_PROVIDERS, ServiceProvider } from '../../service/service-catalog';
 import { isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 type TxKind = 'transfer' | 'request' | 'pay';
 type AddStep = 'bank' | 'kind' | 'data';
 
 @Component({
-  imports: [FormsModule, RouterLink, Topbar],
+  imports: [FormsModule, RouterLink, Topbar, TranslatePipe],
   selector: 'app-wallet',
   styleUrl: './wallet.css',
   templateUrl: './wallet.html',

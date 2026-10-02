@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { Profile } from './profile';
 import { ApiBusinessError, ApiService, House } from '../../service/api.service';
 import { SessionService } from '../../service/session.service';
@@ -12,8 +13,31 @@ describe('Profile', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Profile],
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideTranslateService({ fallbackLang: 'es', lang: 'es' }),
+      ],
     }).compileComponents();
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('es', {
+      PROFILE: {
+        MESSAGES: {
+          SAVE_SUCCESS: 'Cambios guardados',
+          SAVE_ERROR: 'No se pudieron guardar los cambios',
+          FAMILY_NAME_REQUIRED: 'Ponle un nombre a la familia',
+          USERNAME_REQUIRED: 'Escribe un username',
+          FAMILY_CREATE_ERROR: 'No se pudo crear el grupo',
+          SEARCH_ERROR: 'No se pudo buscar',
+          JOIN_ERROR: 'No se pudo unir al grupo',
+        },
+        FAMILY: {
+          ROLE_MEMBER: 'Member',
+        },
+      },
+    });
+    translate.use('es');
 
     const api = TestBed.inject(ApiService);
     vi.spyOn(api, 'dashboard').mockResolvedValue({ data: null, ok: false });

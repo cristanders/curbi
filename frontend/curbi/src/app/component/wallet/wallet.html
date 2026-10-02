@@ -1,25 +1,25 @@
-﻿<div class="page">
+<div class="page">
   <app-topbar active="wallet" />
 
   <main class="content">
     <div class="page-head">
       <div>
-        <h1>My Wallets</h1>
+        <h1>{{ 'WALLET.TITLE' | translate }}</h1>
         <p class="page-sub">
-          {{ source() === 'api' ? 'Sincronizado con el backend' : 'Sin conexión al backend' }} ·
-          actualizado {{ lastUpdate() }}
+          {{ source() === 'api' ? ('WALLET.SYNCED' | translate) : ('WALLET.NO_BACKEND' | translate) }} ·
+          {{ 'WALLET.UPDATED' | translate }} {{ lastUpdate() }}
         </p>
       </div>
       <button type="button" class="add-card" (click)="openAdd()" aria-label="Add credit or debit card">
         <span aria-hidden="true">+</span>
-        <span class="add-card-label">Add Credit/Debit Card</span>
+        <span class="add-card-label">{{ 'WALLET.ADD_CARD' | translate }}</span>
       </button>
     </div>
 
     <section class="wallet-layout">
       <div class="card-stack">
         @if (store.allCards().length > 1) {
-          <div class="card-selector" role="tablist" aria-label="Tus tarjetas">
+          <div class="card-selector" role="tablist" [attr.aria-label]="'WALLET.STACK_LABEL' | translate">
             @for (c of store.allCards(); track c.id) {
               <button
                 type="button"
@@ -82,12 +82,12 @@
               </span>
             </div>
 
-            <p class="card-holder-label">Titular</p>
+            <p class="card-holder-label">{{ 'WALLET.CARD.HOLDER' | translate }}</p>
             <p class="card-holder">{{ activeCard.holder }}</p>
 
             <div class="card-bottom">
               <p class="card-expiry">
-                <span>Vigencia</span>
+                <span>{{ 'WALLET.CARD.EXPIRY' | translate }}</span>
                 <strong>{{ activeCardExpiry || '··/··' }}</strong>
               </p>
               <div class="card-network">
@@ -96,20 +96,20 @@
                 } @else {
                   <span class="card-network-name">{{ cardBrandLabel }}</span>
                 }
-                <span class="card-network-sub">{{ cardType === 'Credito' ? 'crédito' : 'débito' }}</span>
+                <span class="card-network-sub">{{ cardType === 'Credito' ? ('WALLET.CARD.CREDIT' | translate) : ('WALLET.CARD.DEBIT' | translate) }}</span>
               </div>
             </div>
 
             <div class="card-balance">
-              <p class="balance-label">Saldo Disponible</p>
+              <p class="balance-label">{{ 'WALLET.CARD.AVAILABLE_BALANCE' | translate }}</p>
               <p class="balance-amount">
                 GTQ{{ balanceParts.integer }}<span class="balance-dec">.{{ balanceParts.decimals }}</span>
               </p>
             </div>
 
             @if (store.allCards().length > 1) {
-              <button type="button" class="card-remove" (click)="removeActiveCard()" aria-label="Eliminar tarjeta activa">
-                Quitar tarjeta
+              <button type="button" class="card-remove" (click)="removeActiveCard()" [attr.aria-label]="'WALLET.CARD.REMOVE' | translate">
+                {{ 'WALLET.CARD.REMOVE' | translate }}
               </button>
             }
           </article>
@@ -117,7 +117,7 @@
           @if (accountNumberLabel) {
             <div class="account-number">
               <div class="account-number-info">
-                <span>Número de cuenta para que te depositen</span>
+                <span>{{ 'WALLET.ACCOUNT_DEPOSIT' | translate }}</span>
                 <strong>{{ accountNumberLabel }}</strong>
               </div>
               <button
@@ -126,57 +126,57 @@
                 [class.is-copied]="accountCopied()"
                 (click)="copyAccountNumber()"
               >
-                {{ accountCopied() ? '¡Copiado!' : 'Copiar' }}
+                {{ accountCopied() ? ('WALLET.COPIED' | translate) : ('WALLET.COPY' | translate) }}
               </button>
             </div>
           }
         } @else {
           <div class="card-empty">
-            <p class="card-empty-title">Aún no tienes tarjetas</p>
+            <p class="card-empty-title">{{ 'WALLET.EMPTY.TITLE' | translate }}</p>
             <p class="card-empty-sub">
-              Agrega una tarjeta de débito o crédito para empezar a ver tu saldo y movimientos.
+              {{ 'WALLET.EMPTY.SUBTITLE' | translate }}
             </p>
-            <button type="button" class="btn-primary" (click)="openAdd()">Agregar mi primera tarjeta</button>
+            <button type="button" class="btn-primary" (click)="openAdd()">{{ 'WALLET.EMPTY.BTN' | translate }}</button>
           </div>
         }
       </div>
 
       <aside class="quick-panel card">
-        <h2>Quick actions</h2>
+        <h2>{{ 'WALLET.QUICK.TITLE' | translate }}</h2>
         <div class="quick-grid">
           <button type="button" class="quick" (click)="openTx('transfer')">
             <span class="quick-icon" aria-hidden="true">
               <img [src]="quickIcons.transfer" alt="" width="20" height="20" />
             </span>
-            Transfer
+            {{ 'WALLET.QUICK.TRANSFER' | translate }}
           </button>
           <button type="button" class="quick" (click)="openTx('request')">
             <span class="quick-icon" aria-hidden="true">
               <img [src]="quickIcons.request" alt="" width="20" height="20" />
             </span>
-            Request
+            {{ 'WALLET.QUICK.REQUEST' | translate }}
           </button>
           <button type="button" class="quick" (click)="openTx('pay')">
             <span class="quick-icon" aria-hidden="true">
               <img [src]="quickIcons.pay" alt="" width="20" height="20" />
             </span>
-            Pay bill
+            {{ 'WALLET.QUICK.PAY_BILL' | translate }}
           </button>
           <button type="button" class="quick" (click)="openAdd()">
             <span class="quick-icon" aria-hidden="true">
               <img [src]="quickIcons.add" alt="" width="20" height="20" />
             </span>
-            Add card
+            {{ 'WALLET.QUICK.ADD_CARD' | translate }}
           </button>
         </div>
 
         <div class="mini-stats">
           <div class="mini-stat">
-            <span>Ingresos (mes)</span>
+            <span>{{ 'WALLET.QUICK.INCOME_MONTH' | translate }}</span>
             <strong class="positive">Q{{ income() }}</strong>
           </div>
           <div class="mini-stat">
-            <span>Gastos (mes)</span>
+            <span>{{ 'WALLET.QUICK.EXPENSE_MONTH' | translate }}</span>
             <strong class="negative">Q{{ expense() }}</strong>
           </div>
         </div>
@@ -185,8 +185,8 @@
 
     <section class="card movements">
       <div class="movements-head">
-        <h2>ÚLTIMOS MOVIMIENTOS</h2>
-        <a routerLink="/transactions" class="see-all">Ver todos</a>
+        <h2>{{ 'WALLET.MOVEMENTS.TITLE' | translate }}</h2>
+        <a routerLink="/transactions" class="see-all">{{ 'WALLET.MOVEMENTS.SEE_ALL' | translate }}</a>
       </div>
 
       <ul class="movement-list">

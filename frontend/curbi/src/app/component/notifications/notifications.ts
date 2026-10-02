@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Topbar, TopbarActive } from '../shell/topbar';
 import { AppNotification } from '../../service/api.service';
 import { NotificationService } from '../../service/notification.service';
@@ -28,7 +29,7 @@ const LOOK: Record<AppNotification['type'], { glyph: string; color: string }> = 
 };
 
 @Component({
-  imports: [Topbar],
+  imports: [Topbar, TranslatePipe],
   selector: 'app-notifications',
   styleUrl: './notifications.css',
   templateUrl: './notifications.html',

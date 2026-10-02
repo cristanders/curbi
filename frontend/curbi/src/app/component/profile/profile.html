@@ -9,7 +9,7 @@
           <div class="big-avatar" aria-hidden="true">
             <img [src]="avatarUrl()" alt="" width="84" height="84" />
           </div>
-          <label class="photo-btn" title="Cambiar foto de perfil">
+          <label class="photo-btn" [title]="'PROFILE.HERO.CHANGE_PHOTO' | translate">
             <img src="assets/icons/camera.svg" alt="" width="14" height="14" />
             <input type="file" accept="image/*" (change)="onPhotoSelected($event)" />
           </label>
@@ -17,23 +17,23 @@
         <div class="hero-id">
           <div class="name-row">
             <h1 class="full-name">{{ fullName() }}</h1>
-            <span class="verified" title="Verified account" aria-label="Verified">
+            <span class="verified" [title]="'PROFILE.HERO.VERIFIED' | translate" [attr.aria-label]="'PROFILE.HERO.VERIFIED' | translate">
               <img [src]="verifiedUrl" alt="" width="18" height="18" />
             </span>
           </div>
           <p class="handle">{{ username() }}</p>
           <div class="badges">
-            <span class="rank-badge">{{ rank() }}</span>
+            <span class="rank-badge">{{ 'PROFILE.FAMILY.ROLE_MEMBER' | translate }}</span>
             @if (memberSince()) {
-              <span class="member-badge">Member since {{ memberSince() }}</span>
+              <span class="member-badge">{{ 'PROFILE.HERO.MEMBER_SINCE' | translate }} {{ memberSince() }}</span>
             }
             <span class="source-badge" [class.is-demo]="source() === 'demo'">
-              {{ source() === 'api' ? 'Backend conectado' : 'Sin conexión al backend' }}
+              {{ source() === 'api' ? ('PROFILE.HERO.BACKEND_CONNECTED' | translate) : ('PROFILE.HERO.NO_BACKEND' | translate) }}
             </span>
           </div>
           @if (session.avatar) {
             <div class="photo-clear">
-              <button type="button" class="link-btn" (click)="clearPhoto()">Quitar foto de perfil</button>
+              <button type="button" class="link-btn" (click)="clearPhoto()">{{ 'PROFILE.HERO.REMOVE_PHOTO' | translate }}</button>
             </div>
           }
         </div>
@@ -46,7 +46,7 @@
           [attr.aria-expanded]="familyOpen()"
           (click)="toggleFamily()"
         >
-          {{ familyOpen() ? 'Cerrar familia' : 'Add to Family' }}
+          {{ familyOpen() ? ('PROFILE.HERO.CLOSE_FAMILY' | translate) : ('PROFILE.HERO.ADD_FAMILY' | translate) }}
         </button>
         <button
           type="button"
@@ -54,10 +54,10 @@
           (click)="toggleEdit()"
           [disabled]="saving"
         >
-          {{ saving ? 'Guardando...' : editMode ? 'Save changes' : 'Edit profile' }}
+          {{ saving ? ('PROFILE.HERO.SAVING' | translate) : editMode ? ('PROFILE.HERO.SAVE_CHANGES' | translate) : ('PROFILE.HERO.EDIT_PROFILE' | translate) }}
         </button>
         <button *ngIf="editMode" type="button" class="btn btn--ghost" (click)="cancelEdit()">
-          Cancel
+          {{ 'PROFILE.HERO.CANCEL' | translate }}
         </button>
       </div>
     </section>
@@ -68,12 +68,11 @@
 
     @if (familyOpen()) {
       <section class="card family" aria-label="Familia">
-        <h2 class="family-title">Mi familia</h2>
+        <h2 class="family-title">{{ 'PROFILE.FAMILY.TITLE' | translate }}</h2>
 
         @if (houses().length === 0) {
           <p class="family-empty">
-            Todavía no estás en ningún grupo. Crea uno abajo o únete al de alguien
-            escribiendo su username.
+            {{ 'PROFILE.FAMILY.EMPTY' | translate }}
           </p>
         }
 
@@ -82,11 +81,11 @@
             <li class="family-item">
               <div class="family-item-head">
                 <strong>{{ h.name }}</strong>
-                <span class="family-role">{{ h.role === 'Admin' ? 'Admin' : 'Miembro' }}</span>
+                <span class="family-role">{{ h.role === 'Admin' ? ('PROFILE.FAMILY.ROLE_ADMIN' | translate) : ('PROFILE.FAMILY.ROLE_MEMBER' | translate) }}</span>
               </div>
               <p class="family-meta">
                 @{{ h.username }} · {{ h.member_count }}
-                {{ h.member_count === 1 ? 'persona' : 'personas' }}
+                {{ h.member_count === 1 ? ('PROFILE.FAMILY.PERSON' | translate) : ('PROFILE.FAMILY.PEOPLE' | translate) }}
               </p>
               <ul class="family-members">
                 @for (m of h.members; track m.id_member) {
@@ -99,11 +98,11 @@
 
         <div class="family-form">
           <label class="family-field">
-            <span>Crear un grupo</span>
+            <span>{{ 'PROFILE.FAMILY.CREATE_GROUP' | translate }}</span>
             <input
               type="text"
               name="familyName"
-              placeholder="Ej. Casa Ruiz"
+              [placeholder]="'PROFILE.FAMILY.CREATE_PLACEHOLDER' | translate"
               [(ngModel)]="familyName"
             />
           </label>
@@ -113,17 +112,17 @@
             [disabled]="familyBusy()"
             (click)="createHouse()"
           >
-            {{ familyBusy() ? 'Un momento...' : 'Crear' }}
+            {{ familyBusy() ? ('PROFILE.FAMILY.BTN_CREATING' | translate) : ('PROFILE.FAMILY.BTN_CREATE' | translate) }}
           </button>
         </div>
 
         <div class="family-form">
           <label class="family-field">
-            <span>Unirme con un username</span>
+            <span>{{ 'PROFILE.FAMILY.JOIN_USERNAME' | translate }}</span>
             <input
               type="text"
               name="familySearch"
-              placeholder="Ej. luis"
+              [placeholder]="'PROFILE.FAMILY.SEARCH_PLACEHOLDER' | translate"
               [(ngModel)]="familySearch"
             />
           </label>
@@ -133,7 +132,7 @@
             [disabled]="familyBusy()"
             (click)="searchHouses()"
           >
-            Buscar
+            {{ 'PROFILE.FAMILY.BTN_SEARCH' | translate }}
           </button>
         </div>
 
@@ -149,12 +148,12 @@
                     [disabled]="familyBusy()"
                     (click)="joinHouse(h)"
                   >
-                    Unirme
+                    {{ 'PROFILE.FAMILY.BTN_JOIN' | translate }}
                   </button>
                 </div>
                 <p class="family-meta">
-                  De @{{ h.username }} · {{ h.member_count }}
-                  {{ h.member_count === 1 ? 'persona' : 'personas' }}
+                  {{ 'PROFILE.FAMILY.FROM' | translate }} @{{ h.username }} · {{ h.member_count }}
+                  {{ h.member_count === 1 ? ('PROFILE.FAMILY.PERSON' | translate) : ('PROFILE.FAMILY.PEOPLE' | translate) }}
                 </p>
               </li>
             }
@@ -170,15 +169,15 @@
     <div class="grid">
       <section class="card">
         <div class="card-head">
-          <h2>Personal information</h2>
+          <h2>{{ 'PROFILE.PERSONAL_INFO.TITLE' | translate }}</h2>
           @if (!editMode) {
-            <button type="button" class="link-btn" (click)="toggleEdit()">Edit</button>
+            <button type="button" class="link-btn" (click)="toggleEdit()">{{ 'PROFILE.PERSONAL_INFO.EDIT' | translate }}</button>
           }
         </div>
 
         <div class="fields">
           <label class="field">
-            <span>Full name</span>
+            <span>{{ 'PROFILE.PERSONAL_INFO.FULL_NAME' | translate }}</span>
             <input
               type="text"
               name="fullName"
@@ -188,7 +187,7 @@
             />
           </label>
           <label class="field">
-            <span>Email</span>
+            <span>{{ 'PROFILE.PERSONAL_INFO.EMAIL' | translate }}</span>
             <input
               type="email"
               name="email"
@@ -198,7 +197,7 @@
             />
           </label>
           <label class="field">
-            <span>Phone</span>
+            <span>{{ 'PROFILE.PERSONAL_INFO.PHONE' | translate }}</span>
             <input
               type="tel"
               name="phone"
@@ -208,7 +207,7 @@
             />
           </label>
           <label class="field">
-            <span>Location</span>
+            <span>{{ 'PROFILE.PERSONAL_INFO.LOCATION' | translate }}</span>
             <input
               type="text"
               name="location"
@@ -225,7 +224,7 @@
           <div class="savings-top">
             <p class="savings-label">
               <img [src]="savingsIconUrl" alt="" width="16" height="16" />
-              YOUR SAVINGS ON THIS CARD
+              {{ 'PROFILE.SAVINGS.TITLE' | translate }}
             </p>
             <span class="savings-range">{{ savingsRange() }}</span>
           </div>
@@ -235,24 +234,24 @@
           <div class="savings-bar" aria-hidden="true">
             <span [style.width.%]="savingsProgress()"></span>
           </div>
-          <p class="savings-note">{{ savingsGoal() }} goal · {{ savingsProgress() }}% completed</p>
+          <p class="savings-note">{{ savingsGoal() }} {{ 'PROFILE.SAVINGS.GOAL' | translate }} · {{ savingsProgress() }}% {{ 'PROFILE.SAVINGS.COMPLETED' | translate }}</p>
         </section>
 
         <section class="card">
           <div class="card-head">
-            <h2>Money snapshot</h2>
+            <h2>{{ 'PROFILE.MONEY.TITLE' | translate }}</h2>
           </div>
           <ul class="stats">
             <li>
-              <span class="stat-label">Active balance</span>
+              <span class="stat-label">{{ 'PROFILE.MONEY.ACTIVE_BALANCE' | translate }}</span>
               <strong>Q{{ accountBalance() }}<span class="decimals-sm">.{{ accountDecimals() }}</span></strong>
             </li>
             <li>
-              <span class="stat-label">Spent this month</span>
+              <span class="stat-label">{{ 'PROFILE.MONEY.SPENT_MONTH' | translate }}</span>
               <strong>Q{{ totalSpent() }}</strong>
             </li>
             <li>
-              <span class="stat-label">Active wallets</span>
+              <span class="stat-label">{{ 'PROFILE.MONEY.ACTIVE_WALLETS' | translate }}</span>
               <strong>{{ activeWallets() }}</strong>
             </li>
           </ul>
@@ -262,13 +261,35 @@
 
     <section class="card">
       <div class="card-head">
-        <h2>Preferences</h2>
+        <h2>{{ 'PROFILE.PREFERENCES.TITLE' | translate }}</h2>
       </div>
       <div class="prefs">
+        <!-- Selector de idioma elegante -->
+        <div class="pref pref--language">
+          <div>
+            <p class="pref-title">{{ 'PROFILE.PREFERENCES.LANGUAGE_TITLE' | translate }}</p>
+            <p class="pref-desc">{{ 'PROFILE.PREFERENCES.LANGUAGE_DESC' | translate }}</p>
+          </div>
+          <div class="lang-selector-wrapper">
+            <select
+              class="lang-select"
+              [value]="languageService.currentLang"
+              (change)="onLanguageChange($event)"
+              aria-label="Seleccionar idioma"
+            >
+              @for (lang of languageService.supportedLanguages; track lang.code) {
+                <option [value]="lang.code">
+                  {{ lang.flag }} {{ lang.nameInLang }}
+                </option>
+              }
+            </select>
+          </div>
+        </div>
+
         <div class="pref">
           <div>
-            <p class="pref-title">Push notifications</p>
-            <p class="pref-desc">Get alerts for payments, savings goals and family activity.</p>
+            <p class="pref-title">{{ 'PROFILE.PREFERENCES.NOTIFICATIONS_TITLE' | translate }}</p>
+            <p class="pref-desc">{{ 'PROFILE.PREFERENCES.NOTIFICATIONS_DESC' | translate }}</p>
           </div>
           <button
             type="button"
@@ -283,8 +304,8 @@
         </div>
         <div class="pref">
           <div>
-            <p class="pref-title">Biometric login</p>
-            <p class="pref-desc">Use fingerprint or Face ID when opening CURBI.</p>
+            <p class="pref-title">{{ 'PROFILE.PREFERENCES.BIOMETRIC_TITLE' | translate }}</p>
+            <p class="pref-desc">{{ 'PROFILE.PREFERENCES.BIOMETRIC_DESC' | translate }}</p>
           </div>
           <button
             type="button"
@@ -302,10 +323,10 @@
 
     <section class="card danger-card">
       <div>
-        <h2>Session</h2>
-        <p class="pref-desc">Sign out of CURBI on this device.</p>
+        <h2>{{ 'PROFILE.SESSION.TITLE' | translate }}</h2>
+        <p class="pref-desc">{{ 'PROFILE.SESSION.DESC' | translate }}</p>
       </div>
-      <button type="button" class="btn btn--danger" (click)="signOut()">Sign out</button>
+      <button type="button" class="btn btn--danger" (click)="signOut()">{{ 'PROFILE.SESSION.SIGN_OUT' | translate }}</button>
     </section>
   </main>
 </div>

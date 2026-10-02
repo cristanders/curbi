@@ -1,0 +1,13 @@
+{
+  "welcome": "Ütz petenïk pa CURBI",
+  "route_not_found": "Man xilitäj ta ri b'ey",
+  "server_error": "Sachoj pa kematz'ib'",
+  "unauthorized": "Man ya'on ta q'ij",
+  "language_updated": "Xjal ri ch'ab'äl jikïl",
+  "invalid_language": "Man etaman ta re ch'ab'äl re'. Ri ütz: es, en, fr, pt, sd, kaq",
+  "auth": {
+    "login_success": "Xat-ok pa rub'eyal",
+    "invalid_credentials": "Man ütz ta ri retal awachib'al",
+    "user_not_found": "Man xilitäj ta ri winaq"
+  }
+}

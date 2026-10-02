@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+import { provideTranslateService, TranslateService } from '@ngx-translate/core';
 import { ApiBusinessError, ApiService, Transaction } from '../../service/api.service';
 import { Transactions } from './transactions';
 
@@ -40,8 +41,20 @@ describe('Transactions', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Transactions],
-      providers: [provideRouter([]), provideHttpClient()],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideTranslateService({ fallbackLang: 'es', lang: 'es' }),
+      ],
     }).compileComponents();
+
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('es', {
+      TRANSACTIONS: {
+        TITLE: 'Transactions',
+      },
+    });
+    translate.use('es');
 
     api = TestBed.inject(ApiService);
     vi.spyOn(api, 'transactions').mockResolvedValue({ data: [], ok: false });

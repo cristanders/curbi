@@ -4,10 +4,10 @@
   <main class="content">
     <div class="page-head">
       <div>
-        <h1>Transactions</h1>
+        <h1>{{ 'TRANSACTIONS.TITLE' | translate }}</h1>
         <p class="page-sub">
-          {{ source() === 'api' ? 'Sincronizado con el backend' : 'Sin conexión al backend' }} ·
-          actualizado {{ lastUpdate() }}
+          {{ source() === 'api' ? ('WALLET.SYNCED' | translate) : ('WALLET.NO_BACKEND' | translate) }} ·
+          {{ 'WALLET.UPDATED' | translate }} {{ lastUpdate() }}
         </p>
       </div>
       <button
@@ -16,17 +16,17 @@
         [attr.aria-expanded]="showForm()"
         (click)="showForm.set(!showForm())"
       >
-        {{ showForm() ? 'Cerrar' : '+ Nueva transacción' }}
+        {{ showForm() ? ('TRANSACTIONS.CLOSE' | translate) : ('TRANSACTIONS.NEW_TX' | translate) }}
       </button>
     </div>
 
     @if (showForm()) {
-      <section class="card form-card" aria-label="Nueva transacción">
-        <h2 class="form-title">Nueva transacción</h2>
+      <section class="card form-card" [attr.aria-label]="'TRANSACTIONS.FORM.TITLE' | translate">
+        <h2 class="form-title">{{ 'TRANSACTIONS.FORM.TITLE' | translate }}</h2>
 
         <div class="form-grid">
           <label class="filter">
-            <span>Descripción</span>
+            <span>{{ 'TRANSACTIONS.FORM.DESCRIPTION' | translate }}</span>
             <input
               type="text"
               name="description"
@@ -36,7 +36,7 @@
           </label>
 
           <label class="filter">
-            <span>Monto</span>
+            <span>{{ 'TRANSACTIONS.FORM.AMOUNT' | translate }}</span>
             <input
               type="number"
               name="amount"
@@ -48,15 +48,15 @@
           </label>
 
           <label class="filter">
-            <span>Tipo</span>
+            <span>{{ 'TRANSACTIONS.FORM.TYPE' | translate }}</span>
             <select name="formType" [(ngModel)]="form.type">
-              <option value="Gasto">Gasto</option>
-              <option value="Ingreso">Ingreso</option>
+              <option value="Gasto">{{ 'TRANSACTIONS.FORM.EXPENSE' | translate }}</option>
+              <option value="Ingreso">{{ 'TRANSACTIONS.FORM.INCOME' | translate }}</option>
             </select>
           </label>
 
           <label class="filter">
-            <span>Categoría</span>
+            <span>{{ 'TRANSACTIONS.FORM.CATEGORY' | translate }}</span>
             <select name="formCategory" [(ngModel)]="form.id_category">
               @for (c of categories(); track c.id_category) {
                 <option [ngValue]="c.id_category">{{ c.type_category }}</option>
@@ -65,9 +65,9 @@
           </label>
 
           <label class="filter">
-            <span>Cuenta</span>
+            <span>{{ 'TRANSACTIONS.FORM.ACCOUNT' | translate }}</span>
             <select name="formAccount" [(ngModel)]="form.id_financial">
-              <option [ngValue]="0">Elige una cuenta</option>
+              <option [ngValue]="0">{{ 'TRANSACTIONS.FORM.CHOOSE_ACCOUNT' | translate }}</option>
               @for (a of accounts(); track a.id_financial) {
                 <option [ngValue]="a.id_financial">
                   {{ a.account_name }} · Q{{ a.balance.toFixed(2) }}
@@ -82,14 +82,14 @@
         }
 
         <div class="form-actions">
-          <button type="button" class="btn-ghost" (click)="resetForm()">Limpiar</button>
+          <button type="button" class="btn-ghost" (click)="resetForm()">{{ 'TRANSACTIONS.FORM.CLEAR' | translate }}</button>
           <button
             type="button"
             class="btn-primary"
             [disabled]="saving()"
             (click)="submit()"
           >
-            {{ saving() ? 'Guardando…' : 'Guardar movimiento' }}
+            {{ saving() ? ('TRANSACTIONS.FORM.SAVING' | translate) : ('TRANSACTIONS.FORM.SAVE' | translate) }}
           </button>
         </div>
       </section>
@@ -97,51 +97,51 @@
 
     <section class="stats" aria-label="Resumen de transacciones">
       <article class="stat-card">
-        <p class="stat-label">INGRESOS</p>
+        <p class="stat-label">{{ 'TRANSACTIONS.STATS.INCOME' | translate }}</p>
         <p class="stat-amount positive">Q{{ incomeTotal() }}</p>
       </article>
       <article class="stat-card">
-        <p class="stat-label">GASTOS</p>
+        <p class="stat-label">{{ 'TRANSACTIONS.STATS.EXPENSE' | translate }}</p>
         <p class="stat-amount negative">Q{{ expenseTotal() }}</p>
       </article>
       <article class="stat-card">
-        <p class="stat-label">TOTAL MOVIMIENTOS</p>
+        <p class="stat-label">{{ 'TRANSACTIONS.STATS.TOTAL' | translate }}</p>
         <p class="stat-amount">{{ filtered().length }}</p>
       </article>
     </section>
 
     <section class="card filters">
       <label class="filter">
-        <span>Buscar</span>
+        <span>{{ 'TRANSACTIONS.FILTERS.SEARCH' | translate }}</span>
         <input
           type="search"
           name="search"
-          placeholder="Descripción o categoría"
+          [placeholder]="'TRANSACTIONS.FILTERS.SEARCH_PLACEHOLDER' | translate"
           [(ngModel)]="search"
           (ngModelChange)="applyFilter()"
         />
       </label>
 
       <label class="filter">
-        <span>Tipo</span>
+        <span>{{ 'TRANSACTIONS.FILTERS.TYPE' | translate }}</span>
         <select name="type" [(ngModel)]="typeFilter" (ngModelChange)="applyFilter()">
-          <option value="todas">Todas</option>
-          <option value="Ingreso">Ingresos</option>
-          <option value="Gasto">Gastos</option>
+          <option value="todas">{{ 'TRANSACTIONS.FILTERS.ALL' | translate }}</option>
+          <option value="Ingreso">{{ 'TRANSACTIONS.FILTERS.INCOME' | translate }}</option>
+          <option value="Gasto">{{ 'TRANSACTIONS.FILTERS.EXPENSE' | translate }}</option>
         </select>
       </label>
 
       <label class="filter">
-        <span>Categoría</span>
+        <span>{{ 'TRANSACTIONS.FILTERS.CATEGORY' | translate }}</span>
         <select name="category" [(ngModel)]="categoryId" (ngModelChange)="applyFilter()">
-          <option [ngValue]="0">Todas</option>
+          <option [ngValue]="0">{{ 'TRANSACTIONS.FILTERS.ALL' | translate }}</option>
           @for (c of categories(); track c.id_category) {
             <option [ngValue]="c.id_category">{{ c.type_category }}</option>
           }
         </select>
       </label>
 
-      <button type="button" class="btn-ghost" (click)="reset()">Limpiar</button>
+      <button type="button" class="btn-ghost" (click)="reset()">{{ 'TRANSACTIONS.FILTERS.CLEAR' | translate }}</button>
     </section>
 
     <section class="card">
@@ -162,7 +162,7 @@
             </span>
           </li>
         } @empty {
-          <li class="tx-empty">No hay transacciones con esos filtros.</li>
+          <li class="tx-empty">{{ 'TRANSACTIONS.EMPTY_FILTERED' | translate }}</li>
         }
       </ul>
     </section>

@@ -2,6 +2,7 @@ import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { Topbar, TopbarActive } from '../shell/topbar';
 
 export type LearnCategory = 'all' | 'basics' | 'expenses' | 'credit' | 'future';
@@ -34,7 +35,7 @@ export interface GlossaryTerm {
 }
 
 @Component({
-  imports: [CommonModule, FormsModule, RouterLink, Topbar],
+  imports: [CommonModule, FormsModule, RouterLink, Topbar, TranslatePipe],
   selector: 'app-learn',
   styleUrl: './learn.css',
   templateUrl: './learn.html',

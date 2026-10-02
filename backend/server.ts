@@ -17,11 +17,19 @@ import { DashboardController } from './controller/dashboardController';
 import { BillController } from './controller/billController';
 import { NotificationController } from './controller/notificationController';
 
+import cookieParser from 'cookie-parser';
+import { i18nMiddleware } from './middlewares/i18n';
+
 const app = express();
 const PORT = Number(process.env.PORT || process.env.API_PORT || 4000);
 
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
+app.use(i18nMiddleware);
 
 // Credenciales del archivo process.env (o .env si existe)
 import dotenv from 'dotenv';
@@ -108,8 +116,38 @@ app.post('/api/houses/:idHouse/join', houses.joinHouse);
 // Dashboard agregado (combina cuentas + transacciones + metas del usuario)
 app.get('/api/dashboard/user/:idUser', dashboard.getDashboard);
 
+// Internacionalización (i18n): cambiar y persistir idioma
+const setLanguageHandler = (req: Request, res: Response) => {
+  const lang = (req.body?.lang || req.query?.lang) as string;
+  const validLocales = ['es', 'en', 'fr', 'pt', 'sd', 'kaq'];
+
+  if (lang && validLocales.includes(lang.toLowerCase())) {
+    const selectedLang = lang.toLowerCase();
+    res.cookie('lang', selectedLang, {
+      maxAge: 365 * 24 * 60 * 60 * 1000, // 1 año persistente
+      httpOnly: false,
+      sameSite: 'lax',
+      path: '/'
+    });
+    req.setLocale(selectedLang);
+    res.status(200).json({
+      success: true,
+      lang: selectedLang,
+      message: res.__ ? res.__('language_updated') : 'Idioma actualizado con éxito'
+    });
+  } else {
+    res.status(400).json({
+      success: false,
+      error: res.__ ? res.__('invalid_language') : 'Idioma no válido. Opciones: es, en, fr, pt, sd, kaq'
+    });
+  }
+};
+
+app.post('/api/set-language', setLanguageHandler);
+app.get('/api/set-language', setLanguageHandler);
+
 app.use((_req: Request, res: Response) => {
-  res.status(404).json({ error: 'Ruta no encontrada' });
+  res.status(404).json({ error: res.__ ? res.__('route_not_found') : 'Ruta no encontrada' });
 });
 
 app.listen(PORT, () => {

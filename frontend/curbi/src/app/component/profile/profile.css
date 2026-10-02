@@ -516,6 +516,49 @@
   transform: translateX(20px);
 }
 
+/* ---------- language selector ---------- */
+.pref--language {
+  align-items: center;
+}
+
+.lang-selector-wrapper {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.lang-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: #f7fafc;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%232fa8ae' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  border: 1.5px solid #d7e3ea;
+  border-radius: 999px;
+  padding: 8px 38px 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  color: #14505f;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.lang-select:hover {
+  border-color: #4ec8cd;
+  background-color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.lang-select:focus {
+  outline: none;
+  border-color: #2fa8ae;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(78, 200, 205, 0.25);
+}
+
 /* ---------- danger ---------- */
 .danger-card {
   display: flex;

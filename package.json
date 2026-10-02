@@ -12,6 +12,8 @@
     "test": "npm --prefix frontend/curbi run test"
   },
   "dependencies": {
+    "@ngx-translate/core": "^18.0.0",
+    "@ngx-translate/http-loader": "^18.0.0",
     "@types/cookie-parser": "^1.4.10",
     "cookie-parser": "^1.4.7",
     "express": "^5.2.1",
