@@ -4,9 +4,6 @@
   <main class="content">
     <div class="page-head">
       <h1 class="page-title">{{ 'SAVES.TITLE' | translate }}</h1>
-      <span class="source-chip" [class.is-demo]="source() === 'demo'">
-        {{ source() === 'api' ? ('WALLET.SYNCED' | translate) : ('WALLET.NO_BACKEND' | translate) }} · {{ lastUpdate() }}
-      </span>
     </div>
 
     <section class="stats" aria-label="Savings summary">

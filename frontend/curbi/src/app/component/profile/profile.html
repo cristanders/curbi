@@ -27,9 +27,6 @@
             @if (memberSince()) {
               <span class="member-badge">{{ 'PROFILE.HERO.MEMBER_SINCE' | translate }} {{ memberSince() }}</span>
             }
-            <span class="source-badge" [class.is-demo]="source() === 'demo'">
-              {{ source() === 'api' ? ('PROFILE.HERO.BACKEND_CONNECTED' | translate) : ('PROFILE.HERO.NO_BACKEND' | translate) }}
-            </span>
           </div>
           @if (session.avatar) {
             <div class="photo-clear">

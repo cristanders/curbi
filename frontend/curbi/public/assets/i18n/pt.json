@@ -48,7 +48,15 @@
     "NO_ACCOUNT": "Não tem uma conta?",
     "REGISTER_LINK": "Cadastre-se aqui",
     "REMEMBER_ME": "Lembrar de mim",
-    "ERROR_SERVER": "Não foi possível conectar ao servidor. Tente novamente."
+    "ERROR_SERVER": "Não foi possível conectar ao servidor. Tente novamente.",
+    "ERROR_REQUIRED": "Por favor, insira seu e-mail ou nome de usuário e sua senha.",
+    "FORGOT_INFO": "Para redefinir sua senha, entre em contato com o suporte ou faça login com o Google/Outlook.",
+    "HIDE_PASSWORD": "Ocultar senha",
+    "SHOW_PASSWORD": "Mostrar senha",
+    "CHAT_TIP_DEFAULT": "Olá! Sou o Curbi, seu assistente inteligente para finanças e economias.",
+    "CHAT_TIP_SAVINGS": "Com o CURBI você pode criar metas de economia, fundos de emergência e seguir a regra 50/30/20.",
+    "CHAT_TIP_CARDS": "Vincule e gerencie seus cartões de crédito e débito com muita facilidade.",
+    "CHAT_TIP_GENERAL": "Faça login ou cadastre-se para assumir o controle total do seu dinheiro."
   },
   "REGISTER": {
     "LOGIN_NAV": "Entrar",
@@ -83,7 +91,15 @@
     "SUBMIT_BTN": "Criar conta",
     "SUBMITTING_BTN": "Criando…",
     "ALREADY_HAVE": "Já tem uma conta?",
-    "LOGIN_LINK": "Entrar"
+    "LOGIN_LINK": "Entrar",
+    "ERROR_REQUIRED": "Por favor, preencha todos os campos obrigatórios.",
+    "ERROR_EMAIL": "Por favor, insira um endereço de e-mail válido.",
+    "ERROR_PASSWORD": "A senha deve ter pelo menos 8 caracteres.",
+    "ERROR_AGREED": "Você deve aceitar a Política de Privacidade e os Termos de Serviço.",
+    "ERROR_SERVER": "Não foi possível conectar ao servidor. Tente novamente.",
+    "CHAT_TIP_DEFAULT": "Crie sua conta no CURBI e comece a gerenciar suas economias hoje mesmo!",
+    "CHAT_TIP_FREE": "O CURBI é 100% gratuito para te ajudar na conquista da liberdade financeira!",
+    "CHAT_TIP_GENERAL": "Preencha o formulário ao lado para se juntar ao CURBI em um instante."
   },
   "PROFILE": {
     "HERO": {
@@ -243,7 +259,9 @@
       "SKIP": "Pular",
       "NEXT": "Próximo",
       "GOT_IT": "Entendi"
-    }
+    },
+    "WELCOME": "Bem-vindo",
+    "WELCOME_SUB": "Aqui está o resumo da sua atividade financeira e transações recentes."
   },
   "WALLET": {
     "TITLE": "Minhas carteiras",
@@ -391,6 +409,193 @@
       "BUG_DESC": "Estime o impacto acumulado de pequenos gastos frequentes a longo prazo.",
       "RULE_TITLE": "Simulador Regra 50/30/20",
       "RULE_DESC": "Divida sua renda mensal em Necessidades (50%), Desejos (30%) e Poupança (20%)."
+    },
+    "LEVELS": {
+      "STRATEGIST": {
+        "TITLE": "Estrategista Financeiro",
+        "DESC": "Domínio avançado de finanças pessoais"
+      },
+      "SAVER": {
+        "TITLE": "Poupador Consciente",
+        "DESC": "Bons hábitos financeiros em desenvolvimento"
+      },
+      "LEARNER": {
+        "TITLE": "Em Aprendizado",
+        "DESC": "Explore as orientações para começar"
+      },
+      "BASIC": "Básico",
+      "INTERMEDIATE": "Intermediário",
+      "ADVANCED": "Avançado"
+    },
+    "CATEGORIES": {
+      "BASICS": "Fundamentos",
+      "EXPENSES": "Controle de Gastos",
+      "CREDIT": "Crédito e Dívidas",
+      "FUTURE": "Investimento e Futuro"
+    },
+    "CALC": {
+      "BUG": {
+        "TAG": "SIMULADOR",
+        "TITLE": "Calculadora de Gastos Invisíveis",
+        "SUBTITLE": "Estime o impacto acumulado de pequenos consumos diários a médio e longo prazo.",
+        "CONCEPT_LABEL": "Descrição do gasto:",
+        "CONCEPT_PLACEHOLDER": "ex. Café, lanches, delivery",
+        "AMOUNT_LABEL": "Valor diário (Q):",
+        "FREQ_LABEL": "Frequência semanal:",
+        "DAYS_1": "1 dia / semana",
+        "DAYS_2": "2 dias / semana",
+        "DAYS_3": "3 dias / semana",
+        "DAYS_4": "4 dias / semana",
+        "DAYS_5": "5 dias (Úteis)",
+        "DAYS_6": "6 dias / semana",
+        "DAYS_7": "Todos os dias (7)",
+        "RESULT_MONTHLY": "Gasto Mensal Estimado",
+        "RESULT_YEARLY": "Gasto Anual Acumulado",
+        "RESULT_5YEARS": "Projeção de Economia em 5 anos",
+        "ADVICE_TITLE": "Análise CURBI",
+        "ADVICE_DESC": "Redirecionar 50% desse gasto representaria uma economia mensal de",
+        "ADVICE_SUFFIX": "direto para suas metas de poupança."
+      },
+      "RULE": {
+        "TAG": "REGRA DE ORÇAMENTO",
+        "TITLE": "Divisão de Renda 50 / 30 / 20",
+        "SUBTITLE": "Informe sua renda líquida mensal para receber uma estrutura de orçamento recomendada.",
+        "INCOME_LABEL": "Renda mensal líquida (Q):",
+        "NEEDS_TAG": "50% NECESSIDADES BÁSICAS",
+        "NEEDS_DESC": "Moradia, alimentação básica, contas essenciais, saúde e transporte.",
+        "WANTS_TAG": "30% GASTOS PESSOAIS",
+        "WANTS_DESC": "Lazer, saídas, compras pessoais e assinaturas de entretenimento.",
+        "SAVINGS_TAG": "20% POUPANÇA E DÍVIDAS",
+        "SAVINGS_DESC": "Reserva de emergência, metas no CURBI ou quitação de empréstimos.",
+        "LINK_SAVES": "Configurar orçamentos no CURBI"
+      },
+      "EMERG": {
+        "TAG": "PROTEÇÃO",
+        "TITLE": "Meta de Reserva de Emergência",
+        "SUBTITLE": "Calcule a proteção financeira necessária com base em seus gastos vitais.",
+        "EXPENSES_LABEL": "Gastos essenciais mensais (Q):",
+        "COVERAGE_LABEL": "Cobertura pretendida:",
+        "MONTHS_3": "3 meses (Padrão recomendado)",
+        "MONTHS_6": "6 meses (Maior segurança)",
+        "MONTHS_9": "9 meses",
+        "MONTHS_12": "12 meses (Autônomos / Freelancers)",
+        "TARGET_LABEL": "Reserva de Emergência Sugerida",
+        "TARGET_MONTHS_LABEL": "Prazo para concluir",
+        "PLAN_6": "Em 6 meses",
+        "PLAN_12": "Em 12 meses",
+        "PLAN_18": "Em 18 meses",
+        "PER_MONTH": "/ mês",
+        "LINK_GOAL": "Criar Meta no CURBI"
+      }
+    },
+    "GLOSSARY": {
+      "SEARCH_PLACEHOLDER": "Buscar termo financeiro (ex. reserva, inflação, juros, crédito, liquidez)...",
+      "PRACTICAL_EXAMPLE": "Exemplo prático",
+      "NO_RESULTS": "Nenhum resultado encontrado para \"{{ query }}\".",
+      "VIEW_ALL": "Ver todos os termos",
+      "TAGS": {
+        "BASICS": "Fundamentos",
+        "SAVINGS": "Poupança",
+        "BUDGETS": "Orçamentos",
+        "INVESTMENT": "Investimento",
+        "CREDIT": "Crédito",
+        "ECONOMY": "Economia",
+        "FINANCE": "Finanças"
+      },
+      "TERMS": {
+        "emergency-fund": {
+          "TERM": "Reserva de Emergência",
+          "SHORT_DESC": "Sua rede de proteção financeira contra imprevistos.",
+          "EXPLANATION": "Valor guardado exclusivamente para imprevistos urgentes (saúde, consertos mecânicos ou desemprego). Recomenda-se entre 3 e 6 meses de gastos fixos.",
+          "EXAMPLE": "Com gastos essenciais de Q3.000 ao mês, uma reserva de 3 meses totaliza Q9.000."
+        },
+        "micro-expenses": {
+          "TERM": "Gastos Formiga",
+          "SHORT_DESC": "Pequenos consumos diários que passam despercebidos.",
+          "EXPLANATION": "Gastos baixos feitos sem planejamento contínuo (café, guloseimas, gorjetas extras, assinaturas não utilizadas). No total do ano, somam valores expressivos.",
+          "EXAMPLE": "Gastar Q20 por dia em lanches equivale a Q600 no mês e Q7.200 ao ano."
+        },
+        "rule-50-30-20": {
+          "TERM": "Regra 50 / 30 / 20",
+          "SHORT_DESC": "Fórmula descomplicada para organizar o salário mensal.",
+          "EXPLANATION": "50% para Necessidades básicas, 30% para Desejos e estilo de vida, e 20% para Poupança e amortização de dívidas.",
+          "EXAMPLE": "Com salário de Q5.000: Q2.500 para necessidades, Q1.500 para lazer e Q1.000 para poupança."
+        },
+        "compound-interest": {
+          "TERM": "Juros Compostos",
+          "SHORT_DESC": "Rendimento calculado sobre o montante acumulado.",
+          "EXPLANATION": "O crescimento exponencial do capital ao longo do tempo, gerando rendimentos contínuos sobre os rendimentos anteriores.",
+          "EXAMPLE": "Poupar Q1.000 a 5% ao ano gera Q50 no 1º ano e 5% sobre Q1.050 no 2º ano."
+        },
+        "full-payer": {
+          "TERM": "Pagador Integral (Cartão)",
+          "SHORT_DESC": "Quem paga 100% da fatura do cartão em dia.",
+          "EXPLANATION": "Liquidar o saldo total da fatura antes do vencimento para usufruir de benefícios sem pagar taxas de juros rotativos.",
+          "EXAMPLE": "Se você gastou Q800 no mês, paga exatamente Q800 no vencimento."
+        },
+        "inflation": {
+          "TERM": "Inflação",
+          "SHORT_DESC": "Aumento contínuo de preços e perda do poder de compra.",
+          "EXPLANATION": "Quando os bens e serviços ficam mais caros com o tempo, reduzindo a capacidade de compra do dinheiro parado em espécie.",
+          "EXAMPLE": "Se um prato custava Q30 e passou a custar Q33, a inflação foi de 10%."
+        },
+        "liquidity": {
+          "TERM": "Liquidez",
+          "SHORT_DESC": "Velocidade com que um recurso se converte em dinheiro na mão.",
+          "EXPLANATION": "O saldo bancário no CURBI é 100% líquido por poder ser transferido na hora. Imóveis têm baixa liquidez por demorarem a ser vendidos.",
+          "EXAMPLE": "Ter dinheiro em conta corrente garante liquidez imediata."
+        },
+        "zero-based-budget": {
+          "TERM": "Orçamento Base Zero",
+          "SHORT_DESC": "Destinar cada centavo recebido a uma finalidade certa.",
+          "EXPLANATION": "Planejar a distribuição de toda a renda em categorias até que a equação Renda menos Despesas/Poupança seja igual a zero.",
+          "EXAMPLE": "Ao receber Q4.000, você direciona exatamente Q4.000 entre contas e metas."
+        }
+      }
+    },
+    "MODAL": {
+      "CLOSE": "Fechar aula",
+      "OF_READING": "de leitura",
+      "KEY_POINTS": "Pontos-chave",
+      "ACTION_TIP": "Ação recomendada"
+    },
+    "LESSONS": {
+      "regla-50-30-20": {
+        "TITLE": "A regra 50 / 30 / 20 para estruturar seu dinheiro",
+        "SUMMARY": "Aprenda a planejar suas despesas sem contas difíceis e sem abrir mão do que gosta.",
+        "ACTION_TIP": "Vá para a aba Calculadoras para simular sua divisão de renda ideal em instantes.",
+        "LINK_LABEL": "Configurar orçamentos no CURBI"
+      },
+      "fondo-emergencia": {
+        "TITLE": "Sua primeira Reserva de Emergência",
+        "SUMMARY": "Saiba por que uma reserva de segurança é sua maior defesa contra endividamentos.",
+        "ACTION_TIP": "Comece com um objetivo viável: guarde Q200 nesta quinzena para sua reserva.",
+        "LINK_LABEL": "Criar Meta de Emergência"
+      },
+      "gastos-hormiga": {
+        "TITLE": "Controlando Gastos Formiga e Compras por Impulso",
+        "SUMMARY": "Descubra como pequenos gastos corriqueiros drenam silenciosamente seus recursos.",
+        "ACTION_TIP": "Examine suas assinaturas recorrentes e cancele pelo menos uma que não use com frequência.",
+        "LINK_LABEL": "Ver últimas movimentações"
+      },
+      "tarjetas-credito": {
+        "TITLE": "Cartões de Crédito: Uso inteligente e sem juros",
+        "SUMMARY": "Aproveite a segurança e benefícios dos cartões sem pagar tarifas de financiamento.",
+        "ACTION_TIP": "Ative um lembrete antes do fechamento da fatura para acompanhar seus gastos.",
+        "LINK_LABEL": "Gerenciar minhas contas"
+      },
+      "metodo-bola-de-nieve": {
+        "TITLE": "O Método Bola de Neve para quitar dívidas",
+        "SUMMARY": "Uma metodologia progressiva e motivadora para eliminar compromissos financeiros.",
+        "ACTION_TIP": "Ordene seus saldos em aberto e priorize a quitação da menor dívida primeiro.",
+        "LINK_LABEL": "Ver Metas de Economia"
+      },
+      "interes-compuesto": {
+        "TITLE": "Juros Compostos e o poder da regularidade",
+        "SUMMARY": "Como a constância nos aportes multiplica seu patrimônio com o passar do tempo.",
+        "ACTION_TIP": "Configure uma contribuição periódica automática, mesmo começando com pouco.",
+        "LINK_LABEL": "Ver Metas de Economia"
+      }
     }
   },
   "NOTIFICATIONS": {

@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Login } from './component/login/login';
 import { Register } from './component/register/register';
+import { AuthSuccess } from './component/auth-success/auth-success';
 import { Home } from './component/home/home';
 import { Profile } from './component/profile/profile';
 import { Wallet } from './component/wallet/wallet';
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
   { path: 'login', component: Login },
   { path: 'register', component: Register },
+  { path: 'auth-success', component: AuthSuccess },
   { path: 'home', component: Home, canActivate: [authGuard] },
   { path: 'profile', component: Profile, canActivate: [authGuard] },
   { path: 'wallet', component: Wallet, canActivate: [authGuard] },

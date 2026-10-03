@@ -373,6 +373,9 @@ export class ApiService {
       if (status === 401) {
         return { data: null, ok: false, error: 'Usuario o contraseña incorrectos.' };
       }
+      if (typeof status === 'number' && status >= 400 && status < 500) {
+        return { data: null, ok: false, error: messageOf(e) };
+      }
       return { data: null, ok: false, error: 'No se pudo conectar con el servidor. Inténtalo de nuevo.' };
     }
   }

@@ -1824,4 +1824,6 @@ distDirs.forEach(dir => {
     console.log(`Wrote ${filePath}`);
   }
 });
+require('./add_learn_translations');
 console.log('All 6 i18n JSONs generated successfully!');
+

@@ -1,5 +1,20 @@
 <div class="page">
   <header class="topbar">
+    <div class="topbar-lang-wrapper">
+      <select
+        class="topbar-lang-select"
+        [value]="languageService.currentLang"
+        (change)="onLanguageChange($event)"
+        [title]="'TOPBAR.SELECT_LANGUAGE' | translate"
+        [attr.aria-label]="'TOPBAR.SELECT_LANGUAGE' | translate"
+      >
+        @for (lang of languageService.supportedLanguages; track lang.code) {
+          <option [value]="lang.code">
+            {{ lang.flag }} {{ lang.nameInLang }}
+          </option>
+        }
+      </select>
+    </div>
     <a routerLink="/login" class="nav-btn nav-btn--light">{{ 'LOGIN.LOGIN_NAV' | translate }}</a>
     <a routerLink="/register" class="nav-btn nav-btn--dark">{{ 'LOGIN.REGISTER_NAV' | translate }}</a>
   </header>
@@ -12,23 +27,56 @@
       </div>
 
       <div class="chat-box">
-        <p class="chat-placeholder">{{ 'LOGIN.CHAT_PLACEHOLDER' | translate }}</p>
+        <input
+          type="text"
+          class="chat-input"
+          [placeholder]="'LOGIN.CHAT_PLACEHOLDER' | translate"
+          [(ngModel)]="chatText"
+          (keydown.enter)="onSendChat()"
+        />
         <div class="chat-actions">
           <div class="chat-icons">
-            <button type="button" class="icon-btn" [attr.aria-label]="'LOGIN.ATTACH_IMG' | translate">
+            <button
+              type="button"
+              class="icon-btn"
+              (click)="chatTip('attach')"
+              [attr.aria-label]="'LOGIN.ATTACH_IMG' | translate"
+              [title]="'LOGIN.ATTACH_IMG' | translate"
+            >
               <img [src]="chatIcons.attach" alt="" width="16" height="16" />
             </button>
-            <button type="button" class="icon-btn" [attr.aria-label]="'LOGIN.EMOJI' | translate">
+            <button
+              type="button"
+              class="icon-btn"
+              (click)="chatTip('emoji')"
+              [attr.aria-label]="'LOGIN.EMOJI' | translate"
+              [title]="'LOGIN.EMOJI' | translate"
+            >
               <img [src]="chatIcons.emoji" alt="" width="16" height="16" />
             </button>
-            <button type="button" class="icon-btn" [attr.aria-label]="'LOGIN.MIC' | translate">
+            <button
+              type="button"
+              class="icon-btn"
+              (click)="chatTip('mic')"
+              [attr.aria-label]="'LOGIN.MIC' | translate"
+              [title]="'LOGIN.MIC' | translate"
+            >
               <img [src]="chatIcons.mic" alt="" width="16" height="16" />
             </button>
           </div>
-          <button type="button" class="send-btn" [attr.aria-label]="'LOGIN.SEND' | translate">
+          <button
+            type="button"
+            class="send-btn"
+            (click)="onSendChat()"
+            [attr.aria-label]="'LOGIN.SEND' | translate"
+            [title]="'LOGIN.SEND' | translate"
+          >
             <img [src]="chatIcons.send" alt="" width="14" height="14" />
           </button>
         </div>
+        @if (chatResponse()) {
+          <p class="chat-bubble" role="status">{{ chatResponse() }}</p>
+        }
       </div>
     </section>
 
@@ -45,34 +93,53 @@
         <p class="form-error" role="alert">{{ error() }}</p>
       }
 
+      @if (infoMessage()) {
+        <p class="form-info" role="status">{{ infoMessage() }}</p>
+      }
+
       <form class="login-form" (ngSubmit)="onSubmit()">
         <label class="field">
           <span class="field-label">{{ 'LOGIN.EMAIL_LABEL' | translate }}</span>
           <input
-            type="email"
+            type="text"
             name="email"
+            required
             [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
             [(ngModel)]="email"
-            autocomplete="email"
+            autocomplete="username email"
           />
         </label>
 
         <label class="field">
           <span class="field-label">{{ 'LOGIN.PASSWORD_LABEL' | translate }}</span>
-          <input
-            type="password"
-            name="password"
-            [placeholder]="'LOGIN.PASSWORD_PLACEHOLDER' | translate"
-            [(ngModel)]="password"
-            autocomplete="current-password"
-          />
+          <div class="password-wrapper">
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              name="password"
+              required
+              [placeholder]="'LOGIN.PASSWORD_PLACEHOLDER' | translate"
+              [(ngModel)]="password"
+              autocomplete="current-password"
+            />
+            <button
+              type="button"
+              class="pwd-toggle-btn"
+              (click)="togglePassword()"
+              [title]="showPassword() ? ('LOGIN.HIDE_PASSWORD' | translate) : ('LOGIN.SHOW_PASSWORD' | translate)"
+              [attr.aria-label]="showPassword() ? ('LOGIN.HIDE_PASSWORD' | translate) : ('LOGIN.SHOW_PASSWORD' | translate)"
+            >
+              {{ showPassword() ? '👁️' : '🙈' }}
+            </button>
+          </div>
         </label>
 
         <button type="submit" class="signin-btn" [disabled]="loading()">
           {{ loading() ? ('LOGIN.SUBMITTING_BTN' | translate) : ('LOGIN.SUBMIT_BTN' | translate) }}
         </button>
 
-        <a href="#" class="forgot">{{ 'LOGIN.FORGOT_PASSWORD' | translate }}</a>
+        <button type="button" class="forgot-btn" (click)="onForgotPassword($event)">
+          {{ 'LOGIN.FORGOT_PASSWORD' | translate }}
+        </button>
 
         <div class="divider">
           <span class="divider-line"></span>
@@ -80,13 +147,13 @@
           <span class="divider-line"></span>
         </div>
 
-        <button type="button" class="social-btn">
+        <a href="http://localhost:3000/api/auth/google" class="social-btn" (click)="loginWithGoogle()">
           <!-- PLACEHOLDER: assets/images/google.png -->
           <img class="social-icon" [src]="googleIcon" alt="" width="20" height="20" />
           {{ 'LOGIN.GOOGLE_BTN' | translate }}
-        </button>
+        </a>
 
-        <button type="button" class="social-btn">
+        <button type="button" class="social-btn" (click)="loginWithOutlook()">
           <!-- PLACEHOLDER: assets/images/outlook.png -->
           <img class="social-icon" [src]="outlookIcon" alt="" width="20" height="20" />
           {{ 'LOGIN.OUTLOOK_BTN' | translate }}

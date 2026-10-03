@@ -1,8 +1,8 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Topbar, TopbarActive } from '../shell/topbar';
 
 export type LearnCategory = 'all' | 'basics' | 'expenses' | 'credit' | 'future';
@@ -27,11 +27,13 @@ export interface Lesson {
 }
 
 export interface GlossaryTerm {
+  id: string;
   term: string;
   shortDesc: string;
   explanation: string;
   example: string;
   tag: string;
+  tagId: 'BASICS' | 'SAVINGS' | 'BUDGETS' | 'INVESTMENT' | 'CREDIT' | 'ECONOMY' | 'FINANCE';
 }
 
 @Component({
@@ -47,6 +49,8 @@ export class Learn implements OnInit {
   readonly selectedLesson = signal<Lesson | null>(null);
   readonly completedLessons = signal<string[]>([]);
   readonly glossarySearch = signal<string>('');
+
+  private readonly translate = inject(TranslateService);
 
   // Calculadora de Gastos Hormiga
   readonly bugExpenseName = signal<string>('Café y snacks diarios');
@@ -64,60 +68,87 @@ export class Learn implements OnInit {
   // Glosario
   readonly terms: GlossaryTerm[] = [
     {
+      id: 'emergency-fund',
       term: 'Fondo de Emergencia',
       shortDesc: 'Tu red de seguridad financiera ante imprevistos.',
-      explanation: 'Es una cantidad de dinero reservada exclusivamente para emergencias reales (problemas de salud, reparaciones mecánicas urgentes o pérdida temporal de empleo). Lo ideal es tener entre 3 y 6 meses de tus gastos fijos básicos.',
+      explanation:
+        'Es una cantidad de dinero reservada exclusivamente para emergencias reales (problemas de salud, reparaciones mecánicas urgentes o pérdida temporal de empleo). Lo ideal es tener entre 3 y 6 meses de tus gastos fijos básicos.',
       example: 'Si tus gastos fijos son Q3,000 al mes, un fondo de 3 meses sería de Q9,000.',
       tag: 'Fundamentos',
+      tagId: 'BASICS',
     },
     {
+      id: 'micro-expenses',
       term: 'Gastos Hormiga',
       shortDesc: 'Pequeñas compras cotidianas que pasan desapercibidas.',
-      explanation: 'Son aquellos gastos de bajo monto que hacemos casi a diario sin pensarlo (café de camino al trabajo, snacks, propinas extras, suscripciones no utilizadas). Individualmente parecen inofensivos, pero al mes o al año suman una cifra enorme.',
+      explanation:
+        'Son aquellos gastos de bajo monto que hacemos casi a diario sin pensarlo (café de camino al trabajo, snacks, propinas extras, suscripciones no utilizadas). Individualmente parecen inofensivos, pero al mes o al año suman una cifra enorme.',
       example: 'Gastar Q20 diarios en golosinas equivale a Q600 al mes y Q7,200 al año.',
       tag: 'Ahorro',
+      tagId: 'SAVINGS',
     },
     {
+      id: 'rule-50-30-20',
       term: 'Regla 50 / 30 / 20',
       shortDesc: 'Fórmula sencilla para repartir tus ingresos mensuales.',
-      explanation: 'Un método clásico de presupuesto: el 50% de tus ingresos se destina a Necesidades básicas (vivienda, comida, servicios), el 30% a Deseos/Estilo de vida (salidas, entretenimiento) y el 20% al Ahorro o pago de deudas.',
-      example: 'Con un sueldo de Q5,000: Q2,500 para necesidades, Q1,500 para gustos y Q1,000 para ahorro.',
+      explanation:
+        'Un método clásico de presupuesto: el 50% de tus ingresos se destina a Necesidades básicas (vivienda, comida, servicios), el 30% a Deseos/Estilo de vida (salidas, entretenimiento) y el 20% al Ahorro o pago de deudas.',
+      example:
+        'Con un sueldo de Q5,000: Q2,500 para necesidades, Q1,500 para gustos y Q1,000 para ahorro.',
       tag: 'Presupuestos',
+      tagId: 'BUDGETS',
     },
     {
+      id: 'compound-interest',
       term: 'Interés Compuesto',
       shortDesc: 'Ganar intereses sobre los intereses ya ganados.',
-      explanation: 'Es el efecto multiplicador del dinero a lo largo del tiempo. Cuando ahorras o inviertes, las ganancias que generas se suman a tu capital original, y en el siguiente ciclo generas intereses sobre un monto mayor.',
-      example: 'Si ahorras Q1,000 al 5% anual, el primer año ganas Q50. El segundo año ganas el 5% sobre Q1,050.',
+      explanation:
+        'Es el efecto multiplicador del dinero a lo largo del tiempo. Cuando ahorras o inviertes, las ganancias que generas se suman a tu capital original, y en el siguiente ciclo generas intereses sobre un monto mayor.',
+      example:
+        'Si ahorras Q1,000 al 5% anual, el primer año ganas Q50. El segundo año ganas el 5% sobre Q1,050.',
       tag: 'Inversión',
+      tagId: 'INVESTMENT',
     },
     {
+      id: 'full-payer',
       term: 'Totalero (Tarjeta de Crédito)',
       shortDesc: 'Persona que paga el 100% de su estado de cuenta cada mes.',
-      explanation: 'Ser totalero significa pagar el saldo total adeudado antes de la fecha límite de pago. De esta manera disfrutas de los beneficios de la tarjeta (seguridad, puntos, financiamiento temporal) sin pagar ni un solo centavo de intereses.',
+      explanation:
+        'Ser totalero significa pagar el saldo total adeudado antes de la fecha límite de pago. De esta manera disfrutas de los beneficios de la tarjeta (seguridad, puntos, financiamiento temporal) sin pagar ni un solo centavo de intereses.',
       example: 'Compraste Q800 en el mes y pagas exactamente Q800 en la fecha de pago.',
       tag: 'Crédito',
+      tagId: 'CREDIT',
     },
     {
+      id: 'inflation',
       term: 'Inflación',
       shortDesc: 'El aumento generalizado de precios y la pérdida de poder adquisitivo.',
-      explanation: 'Es cuando las cosas que compras habitualmente suben de precio con el tiempo, haciendo que con el mismo dinero puedas comprar menos productos que antes. Por eso dejar dinero guardado bajo el colchón pierde valor.',
+      explanation:
+        'Es cuando las cosas que compras habitualmente suben de precio con el tiempo, haciendo que con el mismo dinero puedas comprar menos productos que antes. Por eso dejar dinero guardado bajo el colchón pierde valor.',
       example: 'Si un almuerzo costaba Q30 el año pasado y hoy cuesta Q33, la inflación fue del 10%.',
       tag: 'Economía',
+      tagId: 'ECONOMY',
     },
     {
+      id: 'liquidity',
       term: 'Liquidez',
       shortDesc: 'La rapidez con la que puedes convertir un activo en dinero en efectivo.',
-      explanation: 'El dinero en tu cuenta bancaria de CURBI es 100% líquido porque puedes transferirlo de inmediato. Una casa o un automóvil tienen baja liquidez porque tardas semanas o meses en venderlos para tener efectivo.',
+      explanation:
+        'El dinero en tu cuenta bancaria de CURBI es 100% líquido porque puedes transferirlo de inmediato. Una casa o un automóvil tienen baja liquidez porque tardas semanas o meses en venderlos para tener efectivo.',
       example: 'Tener dinero en tu cuenta monetaria o de ahorros te da liquidez instantánea.',
       tag: 'Finanzas',
+      tagId: 'FINANCE',
     },
     {
+      id: 'zero-based-budget',
       term: 'Presupuesto Base Cero',
       shortDesc: 'Darle un propósito específico a cada centavo que entra.',
-      explanation: 'Consiste en asignar cada quetzal de tus ingresos a una categoría (necesidades, gustos, ahorros, deudas) hasta que la resta de Ingresos - Gastos/Ahorros sea exactamente cero. No significa gastar todo, sino planificar todo.',
-      example: 'Si ganas Q4,000, asignas exactamente Q4,000 distribuidos entre tus gastos y tus metas.',
+      explanation:
+        'Consiste en asignar cada quetzal de tus ingresos a una categoría (necesidades, gustos, ahorros, deudas) hasta que la resta de Ingresos - Gastos/Ahorros sea exactamente cero. No significa gastar todo, sino planificar todo.',
+      example:
+        'Si ganas Q4,000, asignas exactamente Q4,000 distribuidos entre tus gastos y tus metas.',
       tag: 'Presupuestos',
+      tagId: 'BUDGETS',
     },
   ];
 
@@ -131,7 +162,8 @@ export class Learn implements OnInit {
       readTime: '3 min',
       level: 'Básico',
       icon: '01',
-      summary: 'Aprende a distribuir tus ingresos sin cálculos complicados ni privarte de las cosas que te gustan.',
+      summary:
+        'Aprende a distribuir tus ingresos sin cálculos complicados ni privarte de las cosas que te gustan.',
       keyPoints: [
         '50% para Necesidades básicas indispensables para vivir.',
         '30% para Deseos y estilo de vida (gastos personales y recreación).',
@@ -144,7 +176,8 @@ export class Learn implements OnInit {
         'El 30% es para tus Deseos: salidas a comer, cine, compras personales, suscripciones de streaming y pasatiempos. Este porcentaje es vital para mantener la motivación.',
         'El 20% es para tu Yo del Futuro: ahorros en tus metas de CURBI, aportes a tu fondo de emergencia o abono a deudas si las tienes.',
       ],
-      actionTip: 'Ve a la pestaña "Calculadoras" para calcular tu desglose 50/30/20 personalizado en segundos.',
+      actionTip:
+        'Ve a la pestaña "Calculadoras" para calcular tu desglose 50/30/20 personalizado en segundos.',
       curbiLink: {
         label: 'Configurar presupuestos en CURBI',
         route: '/saves',
@@ -158,7 +191,8 @@ export class Learn implements OnInit {
       readTime: '3 min',
       level: 'Básico',
       icon: '02',
-      summary: 'Descubre por qué un colchón para imprevistos es la mejor protección contra las deudas.',
+      summary:
+        'Descubre por qué un colchón para imprevistos es la mejor protección contra las deudas.',
       keyPoints: [
         'Una emergencia no es un capricho: es salud, trabajo o reparaciones urgentes.',
         'La meta recomendada es acumular entre 3 y 6 meses de tus gastos fijos.',
@@ -170,7 +204,8 @@ export class Learn implements OnInit {
         '¿Cuánto necesitas? Si tus gastos esenciales son Q2,500 al mes, una meta inicial excelente es juntar Q2,500 (1 mes) y progresar paulatinamente hasta alcanzar Q7,500 (3 meses).',
         'Crea una meta de ahorro dedicada en CURBI llamada "Fondo de Emergencia" y programa aportes quincenales constantes.',
       ],
-      actionTip: 'Empieza con una meta pequeña pero alcanzable, como ahorrar Q200 esta quincena en tu meta de emergencia.',
+      actionTip:
+        'Empieza con una meta pequeña pero alcanzable, como ahorrar Q200 esta quincena en tu meta de emergencia.',
       curbiLink: {
         label: 'Crear Meta de Emergencia',
         route: '/saves',
@@ -184,7 +219,8 @@ export class Learn implements OnInit {
       readTime: '2 min',
       level: 'Básico',
       icon: '03',
-      summary: 'Cómo identificar los pequeños consumos diarios que reducen tu capacidad de ahorro.',
+      summary:
+        'Cómo identificar los pequeños consumos diarios que reducen tu capacidad de ahorro.',
       keyPoints: [
         'Los gastos hormiga parecen insignificantes en el día a día pero son relevantes al año.',
         'Identificarlos no significa eliminarlos todos, sino elegir cuáles realmente aportan valor.',
@@ -195,7 +231,8 @@ export class Learn implements OnInit {
         'Un café diario, suscripciones a servicios en desuso o pagos extras de envíos pueden sumar una cifra considerable al cabo de unas semanas.',
         'Para gestionarlos: 1) Revisa tus movimientos en CURBI e identifica patrones de consumo. 2) Aplica la "Regla de las 48 horas": ante una compra no planificada, espera dos días. Si después de 48 horas todavía es necesaria, adquiérela.',
       ],
-      actionTip: 'Haz una revisión de tus suscripciones activas y cancela al menos una que no hayas utilizado recientemente.',
+      actionTip:
+        'Haz una revisión de tus suscripciones activas y cancela al menos una que no hayas utilizado recientemente.',
       curbiLink: {
         label: 'Ver mis últimos movimientos',
         route: '/transactions',
@@ -209,7 +246,8 @@ export class Learn implements OnInit {
       readTime: '3 min',
       level: 'Intermedio',
       icon: '04',
-      summary: 'Aprende a aprovechar los beneficios de una tarjeta de crédito sin generar cargos por financiamiento.',
+      summary:
+        'Aprende a aprovechar los beneficios de una tarjeta de crédito sin generar cargos por financiamiento.',
       keyPoints: [
         'Fecha de corte: el día en que el banco totaliza los consumos del periodo.',
         'Fecha de pago: el plazo límite para liquidar lo consumido sin recargos.',
@@ -234,7 +272,8 @@ export class Learn implements OnInit {
       readTime: '3 min',
       level: 'Intermedio',
       icon: '05',
-      summary: 'Una estrategia progresiva y estructurada para ordenar y liquidar compromisos financieros.',
+      summary:
+        'Una estrategia progresiva y estructurada para ordenar y liquidar compromisos financieros.',
       keyPoints: [
         'Organiza tus deudas de menor a mayor saldo.',
         'Cubre el pago mínimo en todas y concentra el saldo disponible en la menor.',
@@ -247,7 +286,12 @@ export class Learn implements OnInit {
         'Paso 3: Dirige cualquier ingreso adicional a amortizar la obligación más pequeña hasta liquidarla por completo.',
         'Al cerrar la primera deuda, la cuota liberada se suma directamente al pago de la siguiente, acelerando el proceso de forma continua.',
       ],
-      actionTip: 'Lista tus saldos pendientes y calcula el plazo estimado para liquidar la menor de tus obligaciones.',
+      actionTip:
+        'Lista tus saldos pendientes y calcula el plazo estimado para liquidar la menor de tus obligaciones.',
+      curbiLink: {
+        label: 'Ver Metas de Ahorro',
+        route: '/saves',
+      },
     },
     {
       id: 'interes-compuesto',
@@ -257,7 +301,8 @@ export class Learn implements OnInit {
       readTime: '3 min',
       level: 'Avanzado',
       icon: '06',
-      summary: 'Cómo los rendimientos continuos potencian el crecimiento del capital a mediano y largo plazo.',
+      summary:
+        'Cómo los rendimientos continuos potencian el crecimiento del capital a mediano y largo plazo.',
       keyPoints: [
         'El interés compuesto reinvierte las ganancias para generar nuevos rendimientos.',
         'El factor tiempo es determinante para la acumulación de capital.',
@@ -268,7 +313,8 @@ export class Learn implements OnInit {
         'Por ejemplo, aportes mensuales constantes de Q300 con un rendimiento moderado generan un crecimiento geométrico tras varios periodos, superando con creces el ahorro estático en efectivo.',
         'El valor fundamental radica en la disciplina de mantener los depósitos y respetar los plazos establecidos.',
       ],
-      actionTip: 'Define un aporte periódico automático, sin importar que el monto inicial sea modesto.',
+      actionTip:
+        'Define un aporte periódico automático, sin importar que el monto inicial sea modesto.',
       curbiLink: {
         label: 'Ver Metas de Ahorro',
         route: '/saves',
@@ -297,7 +343,9 @@ export class Learn implements OnInit {
   readonly ruleSavings = computed(() => Math.round(this.salaryInput() * 0.2));
 
   // Cálculos reactivos para la calculadora de Fondo de Emergencia
-  readonly emergencyTarget = computed(() => this.emergencyMonthlyExpenses() * this.emergencyMonths());
+  readonly emergencyTarget = computed(
+    () => this.emergencyMonthlyExpenses() * this.emergencyMonths(),
+  );
   readonly emergencyMonthlyDeposit = computed(() => {
     const target = this.emergencyTarget();
     const months = this.emergencySavingsMonthsTarget() || 1;
@@ -315,26 +363,48 @@ export class Learn implements OnInit {
   readonly filteredTerms = computed(() => {
     const query = this.glossarySearch().toLowerCase().trim();
     if (!query) return this.terms;
-    return this.terms.filter(
-      (t) =>
+    return this.terms.filter((t) => {
+      const termTr = this.translate.instant(`LEARN.GLOSSARY.TERMS.${t.id}.TERM`)?.toLowerCase() || '';
+      const expTr = this.translate.instant(`LEARN.GLOSSARY.TERMS.${t.id}.EXPLANATION`)?.toLowerCase() || '';
+      const shortTr = this.translate.instant(`LEARN.GLOSSARY.TERMS.${t.id}.SHORT_DESC`)?.toLowerCase() || '';
+      const tagTr = this.translate.instant(`LEARN.GLOSSARY.TAGS.${t.tagId}`)?.toLowerCase() || '';
+      return (
         t.term.toLowerCase().includes(query) ||
         t.explanation.toLowerCase().includes(query) ||
         t.shortDesc.toLowerCase().includes(query) ||
-        t.tag.toLowerCase().includes(query)
-    );
+        t.tag.toLowerCase().includes(query) ||
+        termTr.includes(query) ||
+        expTr.includes(query) ||
+        shortTr.includes(query) ||
+        tagTr.includes(query)
+      );
+    });
   });
 
   // Progreso general
   readonly completedCount = computed(() => this.completedLessons().length);
   readonly progressPercentage = computed(() =>
-    Math.round((this.completedCount() / this.lessons.length) * 100)
+    Math.round((this.completedCount() / this.lessons.length) * 100),
   );
 
   readonly userLevel = computed(() => {
     const count = this.completedCount();
-    if (count >= 5) return { title: 'Estratega Financiero', desc: 'Dominio avanzado de finanzas personales' };
-    if (count >= 2) return { title: 'Ahorrador Consciente', desc: 'Hábitos financieros en desarrollo' };
-    return { title: 'En Aprendizaje', desc: 'Explora las guías para empezar' };
+    if (count >= 5) {
+      return {
+        title: this.translate.instant('LEARN.LEVELS.STRATEGIST.TITLE') || 'Estratega Financiero',
+        desc: this.translate.instant('LEARN.LEVELS.STRATEGIST.DESC') || 'Dominio avanzado de finanzas personales',
+      };
+    }
+    if (count >= 2) {
+      return {
+        title: this.translate.instant('LEARN.LEVELS.SAVER.TITLE') || 'Ahorrador Consciente',
+        desc: this.translate.instant('LEARN.LEVELS.SAVER.DESC') || 'Hábitos financieros en desarrollo',
+      };
+    }
+    return {
+      title: this.translate.instant('LEARN.LEVELS.LEARNER.TITLE') || 'En Aprendizaje',
+      desc: this.translate.instant('LEARN.LEVELS.LEARNER.DESC') || 'Explora las guías para empezar',
+    };
   });
 
   ngOnInit(): void {
@@ -345,6 +415,7 @@ export class Learn implements OnInit {
           this.completedLessons.set(JSON.parse(saved));
         }
       } catch {
+        /* ignore */
       }
     }
   }
@@ -390,5 +461,79 @@ export class Learn implements OnInit {
 
   setGlossaryFilter(term: string): void {
     this.glossarySearch.set(term);
+  }
+
+  getLessonTitle(lesson: Lesson): string {
+    const key = `LEARN.LESSONS.${lesson.id}.TITLE`;
+    const tr = this.translate.instant(key);
+    return tr && tr !== key ? tr : lesson.title;
+  }
+
+  getLessonSummary(lesson: Lesson): string {
+    const key = `LEARN.LESSONS.${lesson.id}.SUMMARY`;
+    const tr = this.translate.instant(key);
+    return tr && tr !== key ? tr : lesson.summary;
+  }
+
+  getLessonActionTip(lesson: Lesson): string {
+    const key = `LEARN.LESSONS.${lesson.id}.ACTION_TIP`;
+    const tr = this.translate.instant(key);
+    return tr && tr !== key ? tr : lesson.actionTip;
+  }
+
+  getLessonLinkLabel(lesson: Lesson): string {
+    const key = `LEARN.LESSONS.${lesson.id}.LINK_LABEL`;
+    const tr = this.translate.instant(key);
+    return tr && tr !== key ? tr : (lesson.curbiLink?.label || '');
+  }
+
+  getLessonLevel(lesson: Lesson): string {
+    const mapLevel: Record<string, string> = {
+      Básico: 'LEARN.LEVELS.BASIC',
+      Intermedio: 'LEARN.LEVELS.INTERMEDIATE',
+      Avanzado: 'LEARN.LEVELS.ADVANCED',
+    };
+    const key = mapLevel[lesson.level];
+    if (key) {
+      const tr = this.translate.instant(key);
+      if (tr && tr !== key) return tr;
+    }
+    return lesson.level;
+  }
+
+  getLessonCategory(lesson: Lesson): string {
+    const key = `LEARN.CATEGORIES.${lesson.category.toUpperCase()}`;
+    const tr = this.translate.instant(key);
+    return tr && tr !== key ? tr : lesson.categoryLabel;
+  }
+
+  getTermName(item: GlossaryTerm): string {
+    const key = `LEARN.GLOSSARY.TERMS.${item.id}.TERM`;
+    const tr = this.translate.instant(key);
+    return tr && tr !== key ? tr : item.term;
+  }
+
+  getTermTag(item: GlossaryTerm): string {
+    const key = `LEARN.GLOSSARY.TAGS.${item.tagId}`;
+    const tr = this.translate.instant(key);
+    return tr && tr !== key ? tr : item.tag;
+  }
+
+  getTermShortDesc(item: GlossaryTerm): string {
+    const key = `LEARN.GLOSSARY.TERMS.${item.id}.SHORT_DESC`;
+    const tr = this.translate.instant(key);
+    return tr && tr !== key ? tr : item.shortDesc;
+  }
+
+  getTermExplanation(item: GlossaryTerm): string {
+    const key = `LEARN.GLOSSARY.TERMS.${item.id}.EXPLANATION`;
+    const tr = this.translate.instant(key);
+    return tr && tr !== key ? tr : item.explanation;
+  }
+
+  getTermExample(item: GlossaryTerm): string {
+    const key = `LEARN.GLOSSARY.TERMS.${item.id}.EXAMPLE`;
+    const tr = this.translate.instant(key);
+    return tr && tr !== key ? tr : item.example;
   }
 }

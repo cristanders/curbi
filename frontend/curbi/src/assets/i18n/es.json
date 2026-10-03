@@ -48,7 +48,15 @@
     "NO_ACCOUNT": "¿No tienes una cuenta?",
     "REGISTER_LINK": "Regístrate aquí",
     "REMEMBER_ME": "Recordarme",
-    "ERROR_SERVER": "No se pudo conectar con el servidor. Inténtalo de nuevo."
+    "ERROR_SERVER": "No se pudo conectar con el servidor. Inténtalo de nuevo.",
+    "ERROR_REQUIRED": "Por favor ingresa tu correo o usuario y tu contraseña.",
+    "FORGOT_INFO": "Para restablecer tu contraseña, ingresa tus credenciales o accede con Google/Outlook.",
+    "HIDE_PASSWORD": "Ocultar contraseña",
+    "SHOW_PASSWORD": "Mostrar contraseña",
+    "CHAT_TIP_DEFAULT": "¡Hola! Soy Curbi, tu asistente inteligente para tus finanzas y ahorros.",
+    "CHAT_TIP_SAVINGS": "Con CURBI puedes crear metas de ahorro, fondos de emergencia y seguir la regla 50/30/20.",
+    "CHAT_TIP_CARDS": "Puedes vincular y administrar tus tarjetas de débito y crédito fácilmente.",
+    "CHAT_TIP_GENERAL": "Inicia sesión o regístrate para comenzar a tomar el control de tu dinero."
   },
   "REGISTER": {
     "LOGIN_NAV": "Iniciar sesión",
@@ -83,7 +91,15 @@
     "SUBMIT_BTN": "Crear cuenta",
     "SUBMITTING_BTN": "Creando…",
     "ALREADY_HAVE": "¿Ya tienes una cuenta?",
-    "LOGIN_LINK": "Inicia sesión"
+    "LOGIN_LINK": "Inicia sesión",
+    "ERROR_REQUIRED": "Por favor completa todos los campos obligatorios.",
+    "ERROR_EMAIL": "Por favor ingresa un correo electrónico válido.",
+    "ERROR_PASSWORD": "La contraseña debe tener al menos 8 caracteres.",
+    "ERROR_AGREED": "Debes aceptar la Política de Privacidad y los Términos de Servicio.",
+    "ERROR_SERVER": "No se pudo conectar con el servidor. Inténtalo de nuevo.",
+    "CHAT_TIP_DEFAULT": "¡Crea tu cuenta en CURBI para empezar a gestionar tus ahorros y metas!",
+    "CHAT_TIP_FREE": "¡CURBI es 100% gratuito para ayudarte a alcanzar tu libertad financiera!",
+    "CHAT_TIP_GENERAL": "Completa el formulario a la derecha para unirte a CURBI en un minuto."
   },
   "PROFILE": {
     "HERO": {
@@ -243,7 +259,9 @@
       "SKIP": "Saltar",
       "NEXT": "Siguiente",
       "GOT_IT": "Entendido"
-    }
+    },
+    "WELCOME": "Bienvenido",
+    "WELCOME_SUB": "Aquí tienes el resumen de tu actividad financiera y movimientos recientes."
   },
   "WALLET": {
     "TITLE": "Mis billeteras",
@@ -391,6 +409,193 @@
       "BUG_DESC": "Estima el impacto acumulado de pequeños consumos regulares a mediano y largo plazo.",
       "RULE_TITLE": "Simulador Regla 50/30/20",
       "RULE_DESC": "Distribuye tu ingreso mensual en Necesidades (50%), Deseos (30%) y Ahorro (20%)."
+    },
+    "LEVELS": {
+      "STRATEGIST": {
+        "TITLE": "Estratega Financiero",
+        "DESC": "Dominio avanzado de finanzas personales"
+      },
+      "SAVER": {
+        "TITLE": "Ahorrador Consciente",
+        "DESC": "Hábitos financieros en desarrollo"
+      },
+      "LEARNER": {
+        "TITLE": "En Aprendizaje",
+        "DESC": "Explora las guías para empezar"
+      },
+      "BASIC": "Básico",
+      "INTERMEDIATE": "Intermedio",
+      "ADVANCED": "Avanzado"
+    },
+    "CATEGORIES": {
+      "BASICS": "Fundamentos",
+      "EXPENSES": "Control de Gastos",
+      "CREDIT": "Crédito y Deudas",
+      "FUTURE": "Inversión y Futuro"
+    },
+    "CALC": {
+      "BUG": {
+        "TAG": "SIMULADOR",
+        "TITLE": "Calculadora de Gastos Hormiga",
+        "SUBTITLE": "Estima el impacto acumulado de pequeños consumos regulares a mediano y largo plazo.",
+        "CONCEPT_LABEL": "Concepto del gasto:",
+        "CONCEPT_PLACEHOLDER": "ej. Café, aperitivos, delivery",
+        "AMOUNT_LABEL": "Monto por día (Q):",
+        "FREQ_LABEL": "Frecuencia semanal:",
+        "DAYS_1": "1 día / semana",
+        "DAYS_2": "2 días / semana",
+        "DAYS_3": "3 días / semana",
+        "DAYS_4": "4 días / semana",
+        "DAYS_5": "5 días (Laborales)",
+        "DAYS_6": "6 días / semana",
+        "DAYS_7": "Todos los días (7)",
+        "RESULT_MONTHLY": "Gasto Mensual Estimado",
+        "RESULT_YEARLY": "Gasto Anual Acumulado",
+        "RESULT_5YEARS": "Proyección Ahorro a 5 años",
+        "ADVICE_TITLE": "Análisis CURBI",
+        "ADVICE_DESC": "Reasignar el 50% de este gasto representaría un ahorro mensual de",
+        "ADVICE_SUFFIX": "directo a tus metas de ahorro."
+      },
+      "RULE": {
+        "TAG": "DISTRIBUCIÓN",
+        "TITLE": "Distribución de Ingresos 50 / 30 / 20",
+        "SUBTITLE": "Ingresa tu ingreso neto mensual para obtener una estructura de presupuesto recomendada.",
+        "INCOME_LABEL": "Ingreso mensual neto (Q):",
+        "NEEDS_TAG": "50% NECESIDADES BÁSICAS",
+        "NEEDS_DESC": "Vivienda, alimentación esencial, servicios básicos, salud y transporte.",
+        "WANTS_TAG": "30% GASTOS PERSONALES",
+        "WANTS_DESC": "Entretenimiento, salidas, compras personales y suscripciones.",
+        "SAVINGS_TAG": "20% AHORRO Y DEUDAS",
+        "SAVINGS_DESC": "Fondo de emergencia, metas en CURBI o amortización de créditos.",
+        "LINK_SAVES": "Configurar presupuestos en CURBI"
+      },
+      "EMERG": {
+        "TAG": "PROTECCIÓN",
+        "TITLE": "Meta de Fondo de Emergencia",
+        "SUBTITLE": "Calcula el colchón de seguridad financiero necesario en función de tus gastos esenciales.",
+        "EXPENSES_LABEL": "Gastos esenciales mensuales (Q):",
+        "COVERAGE_LABEL": "Cobertura deseada:",
+        "MONTHS_3": "3 meses (Recomendado estándar)",
+        "MONTHS_6": "6 meses (Mayor tranquilidad)",
+        "MONTHS_9": "9 meses",
+        "MONTHS_12": "12 meses (Independientes o freelancers)",
+        "TARGET_LABEL": "Fondo de Emergencia Sugerido",
+        "TARGET_MONTHS_LABEL": "Plazo para completarlo",
+        "PLAN_6": "En 6 meses",
+        "PLAN_12": "En 12 meses",
+        "PLAN_18": "En 18 meses",
+        "PER_MONTH": "/ mes",
+        "LINK_GOAL": "Crear Meta en CURBI"
+      }
+    },
+    "GLOSSARY": {
+      "SEARCH_PLACEHOLDER": "Buscar concepto financiero (ej. fondo, inflación, interés, crédito, liquidez)...",
+      "PRACTICAL_EXAMPLE": "Ejemplo práctico",
+      "NO_RESULTS": "No se encontraron resultados para \"{{ query }}\".",
+      "VIEW_ALL": "Ver todos los términos",
+      "TAGS": {
+        "BASICS": "Fundamentos",
+        "SAVINGS": "Ahorro",
+        "BUDGETS": "Presupuestos",
+        "INVESTMENT": "Inversión",
+        "CREDIT": "Crédito",
+        "ECONOMY": "Economía",
+        "FINANCE": "Finanzas"
+      },
+      "TERMS": {
+        "emergency-fund": {
+          "TERM": "Fondo de Emergencia",
+          "SHORT_DESC": "Tu red de seguridad financiera ante imprevistos.",
+          "EXPLANATION": "Es una cantidad de dinero reservada exclusivamente para emergencias reales (problemas de salud, reparaciones mecánicas urgentes o pérdida temporal de empleo). Lo ideal es tener entre 3 y 6 meses de tus gastos fijos básicos.",
+          "EXAMPLE": "Si tus gastos fijos son Q3,000 al mes, un fondo de 3 meses sería de Q9,000."
+        },
+        "micro-expenses": {
+          "TERM": "Gastos Hormiga",
+          "SHORT_DESC": "Pequeñas compras cotidianas que pasan desapercibidas.",
+          "EXPLANATION": "Son aquellos gastos de bajo monto que hacemos casi a diario sin pensarlo (café de camino al trabajo, snacks, propinas extras, suscripciones no utilizadas). Individualmente parecen inofensivos, pero al mes o al año suman una cifra enorme.",
+          "EXAMPLE": "Gastar Q20 diarios en golosinas equivale a Q600 al mes y Q7,200 al año."
+        },
+        "rule-50-30-20": {
+          "TERM": "Regla 50 / 30 / 20",
+          "SHORT_DESC": "Fórmula sencilla para repartir tus ingresos mensuales.",
+          "EXPLANATION": "Un método clásico de presupuesto: el 50% de tus ingresos se destina a Necesidades básicas (vivienda, comida, servicios), el 30% a Deseos/Estilo de vida (salidas, entretenimiento) y el 20% al Ahorro o pago de deudas.",
+          "EXAMPLE": "Con un sueldo de Q5,000: Q2,500 para necesidades, Q1,500 para gustos y Q1,000 para ahorro."
+        },
+        "compound-interest": {
+          "TERM": "Interés Compuesto",
+          "SHORT_DESC": "Ganar intereses sobre los intereses ya ganados.",
+          "EXPLANATION": "Es el efecto multiplicador del dinero a lo largo del tiempo. Cuando ahorras o inviertes, las ganancias que generas se suman a tu capital original, y en el siguiente ciclo generas intereses sobre un monto mayor.",
+          "EXAMPLE": "Si ahorras Q1,000 al 5% anual, el primer año ganas Q50. El segundo año ganas el 5% sobre Q1,050."
+        },
+        "full-payer": {
+          "TERM": "Totalero (Tarjeta de Crédito)",
+          "SHORT_DESC": "Persona que paga el 100% de su estado de cuenta cada mes.",
+          "EXPLANATION": "Ser totalero significa pagar el saldo total adeudado antes de la fecha límite de pago. De esta manera disfrutas de los beneficios de la tarjeta (seguridad, puntos, financiamiento temporal) sin pagar ni un solo centavo de intereses.",
+          "EXAMPLE": "Compraste Q800 en el mes y pagas exactamente Q800 en la fecha de pago."
+        },
+        "inflation": {
+          "TERM": "Inflación",
+          "SHORT_DESC": "El aumento generalizado de precios y la pérdida de poder adquisitivo.",
+          "EXPLANATION": "Es cuando las cosas que compras habitualmente suben de precio con el tiempo, haciendo que con el mismo dinero puedas comprar menos productos que antes. Por eso dejar dinero guardado bajo el colchón pierde valor.",
+          "EXAMPLE": "Si un almuerzo costaba Q30 el año pasado y hoy cuesta Q33, la inflación fue del 10%."
+        },
+        "liquidity": {
+          "TERM": "Liquidez",
+          "SHORT_DESC": "La rapidez con la que puedes convertir un activo en dinero en efectivo.",
+          "EXPLANATION": "El dinero en tu cuenta bancaria de CURBI es 100% líquido porque puedes transferirlo de inmediato. Una casa o un automóvil tienen baja liquidez porque tardas semanas o meses en venderlos para tener efectivo.",
+          "EXAMPLE": "Tener dinero en tu cuenta monetaria o de ahorros te da liquidez instantánea."
+        },
+        "zero-based-budget": {
+          "TERM": "Presupuesto Base Cero",
+          "SHORT_DESC": "Darle un propósito específico a cada centavo que entra.",
+          "EXPLANATION": "Consiste en asignar cada quetzal de tus ingresos a una categoría (necesidades, gustos, ahorros, deudas) hasta que la resta de Ingresos - Gastos/Ahorros sea exactamente cero. No significa gastar todo, sino planificar todo.",
+          "EXAMPLE": "Si ganas Q4,000, asignas exactamente Q4,000 distribuidos entre tus gastos y tus metas."
+        }
+      }
+    },
+    "MODAL": {
+      "CLOSE": "Cerrar lección",
+      "OF_READING": "de lectura",
+      "KEY_POINTS": "Puntos clave",
+      "ACTION_TIP": "Acción recomendada"
+    },
+    "LESSONS": {
+      "regla-50-30-20": {
+        "TITLE": "La regla 50 / 30 / 20 para organizar tu dinero",
+        "SUMMARY": "Aprende a distribuir tus ingresos sin cálculos complicados ni privarte de las cosas que te gustan.",
+        "ACTION_TIP": "Ve a la pestaña \"Calculadoras\" para calcular tu desglose 50/30/20 personalizado en segundos.",
+        "LINK_LABEL": "Configurar presupuestos en CURBI"
+      },
+      "fondo-emergencia": {
+        "TITLE": "Tu primer Fondo de Emergencia",
+        "SUMMARY": "Descubre por qué un colchón para imprevistos es la mejor protección contra las deudas.",
+        "ACTION_TIP": "Empieza con una meta pequeña pero alcanzable, como ahorrar Q200 esta quincena en tu meta de emergencia.",
+        "LINK_LABEL": "Crear Meta de Emergencia"
+      },
+      "gastos-hormiga": {
+        "TITLE": "Control de Gastos Hormiga y compras impulsivas",
+        "SUMMARY": "Cómo identificar los pequeños consumos diarios que reducen tu capacidad de ahorro.",
+        "ACTION_TIP": "Haz una revisión de tus suscripciones activas y cancela al menos una que no hayas utilizado recientemente.",
+        "LINK_LABEL": "Ver mis últimos movimientos"
+      },
+      "tarjetas-credito": {
+        "TITLE": "Tarjetas de Crédito: Uso responsable y sin intereses",
+        "SUMMARY": "Aprende a aprovechar los beneficios de una tarjeta de crédito sin generar cargos por financiamiento.",
+        "ACTION_TIP": "Programa un aviso previo a tu fecha de corte para revisar tus saldos.",
+        "LINK_LABEL": "Administrar mis cuentas"
+      },
+      "metodo-bola-de-nieve": {
+        "TITLE": "Método Bola de Nieve para liquidación de deudas",
+        "SUMMARY": "Una estrategia progresiva y estructurada para ordenar y liquidar compromisos financieros.",
+        "ACTION_TIP": "Lista tus saldos pendientes y calcula el plazo estimado para liquidar la menor de tus obligaciones.",
+        "LINK_LABEL": "Ver Metas de Ahorro"
+      },
+      "interes-compuesto": {
+        "TITLE": "El Interés Compuesto y la constancia de ahorro",
+        "SUMMARY": "Cómo los rendimientos continuos potencian el crecimiento del capital a mediano y largo plazo.",
+        "ACTION_TIP": "Define un aporte periódico automático, sin importar que el monto inicial sea modesto.",
+        "LINK_LABEL": "Ver Metas de Ahorro"
+      }
     }
   },
   "NOTIFICATIONS": {

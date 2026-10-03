@@ -48,7 +48,15 @@
     "NO_ACCOUNT": "¿Man jun awilpe' k'o?",
     "REGISTER_LINK": "Tatz'ib'aj awabi' wawe'",
     "REMEMBER_ME": "Kinatanaj",
-    "ERROR_SERVER": "Man xkowin ta xtunun ruk'in kematz'ib'. Tatojtob'ej chik."
+    "ERROR_SERVER": "Man xkowin ta xtunun ruk'in kematz'ib'. Tatojtob'ej chik.",
+    "ERROR_REQUIRED": "Tab'ana' utzil tatz'ib'aj ri ata'b'al chuqa' ri retokil.",
+    "FORGOT_INFO": "Richin nak'ëx ri retokil, katb'e ruk'in to'onïk o katok ruk'in Google/Outlook.",
+    "HIDE_PASSWORD": "Tewäx ri retokil",
+    "SHOW_PASSWORD": "Tik'ut ri retokil",
+    "CHAT_TIP_DEFAULT": "¡Xb'e k'a! In Curbi, ri ato'onel richin ri apwaq chuqa' yakoj pwaq.",
+    "CHAT_TIP_SAVINGS": "Ruk'in CURBI yatikïr naya' rayb'äl richin yakoj pwaq chuqa' ri regla 50/30/20.",
+    "CHAT_TIP_CARDS": "Yatikïr nachajij ri a-tarjetas pa jun b'ey.",
+    "CHAT_TIP_GENERAL": "Katok o tatz'ib'aj ab'i' richin nachap ri rusamajixik apwaq."
   },
   "REGISTER": {
     "LOGIN_NAV": "Kat-ok",
@@ -83,7 +91,15 @@
     "SUBMIT_BTN": "Tatz'ib'aj awabi'",
     "SUBMITTING_BTN": "Tajin nitz'ib'äx…",
     "ALREADY_HAVE": "¿K'o chik awilpe'?",
-    "LOGIN_LINK": "Kat-ok"
+    "LOGIN_LINK": "Kat-ok",
+    "ERROR_REQUIRED": "Tab'ana' utzil tanojisaj ronojel ri k'atzinel.",
+    "ERROR_EMAIL": "Tab'ana' utzil tatz'ib'aj jun ütz taqowäch.",
+    "ERROR_PASSWORD": "Ri retokil k'atzinel k'o waqxaqi' tz'ib'.",
+    "ERROR_AGREED": "K'atzinel nak'ul ri rutzijol k'amonïk chuqa' samaj.",
+    "ERROR_SERVER": "Man tikirel ta xutz'ët ri kematz'ib'. Titij chik jun b'ey.",
+    "CHAT_TIP_DEFAULT": "Tatz'ib'aj ab'i' pa CURBI richin nachäp yakoj pwaq chuqa' rayb'äl!",
+    "CHAT_TIP_FREE": "¡CURBI sipan richin nato'ik chi rij ri apwaq!",
+    "CHAT_TIP_GENERAL": "Tanojisaj ri rutzijol pa ri ajkiq'ab' richin katok pa jun ti ramaj."
   },
   "PROFILE": {
     "HERO": {
@@ -243,7 +259,9 @@
       "SKIP": "Taq'axaj",
       "NEXT": "Jun chik",
       "GOT_IT": "Xinnik'oj"
-    }
+    },
+    "WELCOME": "Ütz petenïk",
+    "WELCOME_SUB": "Wawe' k'o ri rutzijol ri apwaq chuqa' ri achi'jïk."
   },
   "WALLET": {
     "TITLE": "Ri nu-yakb'äl",
@@ -391,6 +409,193 @@
       "BUG_DESC": "Tatz'ët ri nïm rajil ri koköj sik'inïk q'ij q'ij chpan ri juna'.",
       "RULE_TITLE": "K'utb'äl Rucholanil 50/30/20",
       "RULE_DESC": "Tach'aka' ri apwäq chpan rajawaxik (50%), rayb'äl (30%) chuqa' yakoj pwäq (20%)."
+    },
+    "LEVELS": {
+      "STRATEGIST": {
+        "TITLE": "Na'ojinel pa Pwaq",
+        "DESC": "Nimaläj etamab'äl chi rij ri pwaq"
+      },
+      "SAVER": {
+        "TITLE": "Yakonel Na'ojil",
+        "DESC": "Ütz kib'anikil tajin nilitäj"
+      },
+      "LEARNER": {
+        "TITLE": "Tajin netamäx",
+        "DESC": "Tatz'eta' ri peraj richin nachäp"
+      },
+      "BASIC": "Ruxe'el",
+      "INTERMEDIATE": "Nik'aj",
+      "ADVANCED": "Ajtij"
+    },
+    "CATEGORIES": {
+      "BASICS": "Ruxe'el",
+      "EXPENSES": "Q'atonem Gastos",
+      "CREDIT": "Qasomal chuqa' K'as",
+      "FUTURE": "Tiko'n chuqa' Chwa'q"
+    },
+    "CALC": {
+      "BUG": {
+        "TAG": "K'AMB'ÄL",
+        "TITLE": "Retamab'al ri Ch'uti Gastos",
+        "SUBTITLE": "Tatz'eta' ri k'ayewal chi rij ri ch'uti gastos q'ij q'ij.",
+        "CONCEPT_LABEL": "Rutzijol ri gasto:",
+        "CONCEPT_PLACEHOLDER": "ej. Kape, q'utu'n, delivery",
+        "AMOUNT_LABEL": "Jarupe' pa q'ij (Q):",
+        "FREQ_LABEL": "Jarupe' q'ij pa wuqq'ij:",
+        "DAYS_1": "1 q'ij / wuqq'ij",
+        "DAYS_2": "2 q'ij / wuqq'ij",
+        "DAYS_3": "3 q'ij / wuqq'ij",
+        "DAYS_4": "4 q'ij / wuqq'ij",
+        "DAYS_5": "5 q'ij (Samajib'äl)",
+        "DAYS_6": "6 q'ij / wuqq'ij",
+        "DAYS_7": "Ronojel q'ij (7)",
+        "RESULT_MONTHLY": "Gasto Ik'ik'",
+        "RESULT_YEARLY": "Gasto Juna'",
+        "RESULT_5YEARS": "Yakoj pwaq pa 5 Juna'",
+        "ADVICE_TITLE": "Rutzijol CURBI",
+        "ADVICE_DESC": "Tuya' 50% chi re re gasto re' ntel jun yakoj ik'ik' chi",
+        "ADVICE_SUFFIX": "choj pa ri arayb'al chi yakoj pwaq."
+      },
+      "RULE": {
+        "TAG": "RETAMAB'AL",
+        "TITLE": "Jachonïk Pwaq 50 / 30 / 20",
+        "SUBTITLE": "Tatz'ib'aj ri ch'ajch'öj pwaq ik'ik' richin jun ütz cholb'äl.",
+        "INCOME_LABEL": "Ch'ajch'öj ik'ik' pwaq (Q):",
+        "NEEDS_TAG": "50% RAJOWAXIKIL",
+        "NEEDS_DESC": "Jay, way, ya', q'aq', aq'omanïk chuqa' b'enam.",
+        "WANTS_TAG": "30% RAYB'ÄL ACHIK'",
+        "WANTS_DESC": "Etz'anem, q'utu'n, chuqa' loq'oj.",
+        "SAVINGS_TAG": "20% YAKOJ PWAQ CHUQA' K'AS",
+        "SAVINGS_DESC": "Yakoj pwaq k'atzinel pa CURBI o tojonïk k'as.",
+        "LINK_SAVES": "Tachojmirisaj ri apwaq pa CURBI"
+      },
+      "EMERG": {
+        "TAG": "CHAJINÏK",
+        "TITLE": "Rayb'al Yakoj pa K'ayewal",
+        "SUBTITLE": "Tatz'eta' jarupe' pwaq rajowaxik richin colob'äl pa k'ayewal.",
+        "EXPENSES_LABEL": "Rajowaxikil gastos ik'ik' (Q):",
+        "COVERAGE_LABEL": "Jarupe' ik' nawajo':",
+        "MONTHS_3": "3 ik' (Ütz na'oj)",
+        "MONTHS_6": "6 ik' (Nimaläj jikomal)",
+        "MONTHS_9": "9 ik' ",
+        "MONTHS_12": "12 ik' (Aj-itij o freelancer)",
+        "TARGET_LABEL": "Yakoj pwaq rajowaxik",
+        "TARGET_MONTHS_LABEL": "Ramaj richin nak'ïs",
+        "PLAN_6": "Pa 6 ik'",
+        "PLAN_12": "Pa 12 ik'",
+        "PLAN_18": "Pa 18 ik'",
+        "PER_MONTH": "/ ik'",
+        "LINK_GOAL": "Tatz'uk Rayb'äl pa CURBI"
+      }
+    },
+    "GLOSSARY": {
+      "SEARCH_PLACEHOLDER": "Tikanöx ri tzij pa pwaq (ej. yakoj, k'as, rajil)...",
+      "PRACTICAL_EXAMPLE": "K'amb'äl tz'etb'äl",
+      "NO_RESULTS": "Majun xilitäj chi rij \"{{ query }}\".",
+      "VIEW_ALL": "Titz'et ronojel",
+      "TAGS": {
+        "BASICS": "Ruxe'el",
+        "SAVINGS": "Yakoj",
+        "BUDGETS": "Cholb'äl",
+        "INVESTMENT": "Tiko'n",
+        "CREDIT": "Qasomal",
+        "ECONOMY": "Aj-ik'",
+        "FINANCE": "Pwaq"
+      },
+      "TERMS": {
+        "emergency-fund": {
+          "TERM": "Yakoj pa K'ayewal",
+          "SHORT_DESC": "Achajinïk pwaq toq k'o k'ayewal.",
+          "EXPLANATION": "Pwaq yakon choj richin yabil, ruk'ojlem ch'ich' o sachoj samaj. Ütz 3 k'a 6 ik' gastos.",
+          "EXAMPLE": "We agastos e Q3,000 pa jun ik', 3 ik' e Q9,000."
+        },
+        "micro-expenses": {
+          "TERM": "Ch'uti Gastos",
+          "SHORT_DESC": "Ch'uti loq'oj q'ij q'ij man netamäx ta.",
+          "EXPLANATION": "Loq'oj q'ij q'ij nkisärisaj ri apwaq akuchi ntel nimaläj rajil pa jun juna'.",
+          "EXAMPLE": "We nak'ës Q20 pa q'ij, ntel Q600 ik'ik' chuqa' Q7,200 juna'."
+        },
+        "rule-50-30-20": {
+          "TERM": "Regla 50 / 30 / 20",
+          "SHORT_DESC": "Man k'ayew ta jachonïk apwaq ik'ik'.",
+          "EXPLANATION": "50% rajowaxik, 30% rayb'äl, 20% yakoj pwaq chuqa' tojonïk k'as.",
+          "EXAMPLE": "Pa Q5,000: Q2,500 rajowaxik, Q1,500 rayb'äl, Q1,000 yakoj."
+        },
+        "compound-interest": {
+          "TERM": "Poq'näq Ral Pwaq",
+          "SHORT_DESC": "Ral pwaq chi rij ral pwaq xch'ak chik.",
+          "EXPLANATION": "Toq ri ach'akoj ntz'aqat ruk'in ri apwaq ruxe'el richin npoq'an chik.",
+          "EXAMPLE": "Yakoj Q1,000 pa 5% nuch'äk Q50 ri nab'ey juna', chuqa' 5% chi rij Q1,050 ri ruka'n."
+        },
+        "full-payer": {
+          "TERM": "Tojonel Ronojel (Tarjeta)",
+          "SHORT_DESC": "Winaq nutöj ronojel ri tarjeta ik'ik'.",
+          "EXPLANATION": "Nutöj ronojel ri k'as chuwäch ri q'ij richin man nutöj ta ral pwaq.",
+          "EXAMPLE": "Xaloq' Q800 pa ri ik', natöj choj Q800 pa ri q'ij."
+        },
+        "inflation": {
+          "TERM": "Jotolïk Rajil",
+          "SHORT_DESC": "Jotolïk rajil q'ij q'ij chuqa' sachoj uchuq'a' pwaq.",
+          "EXPLANATION": "Toq ri jastaq njote' rajil pa ronojel q'ij, ri pwaq yakon pa warab'äl manäq chik nuloq'.",
+          "EXAMPLE": "We jun wa'ïk k'o Q30 kan chuqa' wakamin Q33, ri jotolïk xux 10%."
+        },
+        "liquidity": {
+          "TERM": "Aninek Pwaq (Liquidez)",
+          "SHORT_DESC": "Aninek yatikïr nakusaj ri apwaq.",
+          "EXPLANATION": "Ri apwaq pa CURBI chaq'ij aninek yatikïr nakusaj, xa jun jay man aninek ta nak'ayij.",
+          "EXAMPLE": "Pwaq k'o pa acolar nkiya' aninek pwaq chawa."
+        },
+        "zero-based-budget": {
+          "TERM": "Cholb'äl Base Cero",
+          "SHORT_DESC": "Naya' rusamaj ronojel centavo nok pe.",
+          "EXPLANATION": "Ronojel quetzal k'o rusamaj akuchi ri apwaq ntel cero toq xajäj ronojel gastos chuqa' yakoj.",
+          "EXAMPLE": "We nach'äk Q4,000, naya' rusamaj ronojel ri Q4,000."
+        }
+      }
+    },
+    "MODAL": {
+      "CLOSE": "Titz'apïx tijonïk",
+      "OF_READING": "sik'inïk",
+      "KEY_POINTS": "Nimaläj na'oj",
+      "ACTION_TIP": "Samaj chilb'exik"
+    },
+    "LESSONS": {
+      "regla-50-30-20": {
+        "TITLE": "Ri regla 50 / 30 / 20 richin nacholmirisaj apwaq",
+        "SUMMARY": "Tetamäx jachonïk pwaq akuchi man nak'ës ta ri rayb'äl.",
+        "ACTION_TIP": "Katb'e pa K'amb'äl Retamab'al richin nachol apwaq.",
+        "LINK_LABEL": "Tachojmirisaj apwaq pa CURBI"
+      },
+      "fondo-emergencia": {
+        "TITLE": "Ri Nab'ey Yakoj pa K'ayewal",
+        "SUMMARY": "Rutzijol achike ruma ri yakoj pwaq nuchajij awi' chuwäch k'as.",
+        "ACTION_TIP": "Tachapa' ruk'in jun ti yakoj: tayaka' Q200 re ik' re'.",
+        "LINK_LABEL": "Tatz'uk Rayb'äl pa K'ayewal"
+      },
+      "gastos-hormiga": {
+        "TITLE": "Q'atonïk Ch'uti Gastos chuqa' aninek loq'oj",
+        "SUMMARY": "Ketamäx ri ch'uti loq'oj nkisach apwaq.",
+        "ACTION_TIP": "Tatz'eta' ri asuscripciones chuqa' tayuja' ri man nakusaj ta.",
+        "LINK_LABEL": "Tatz'eta' ri amovimientos"
+      },
+      "tarjetas-credito": {
+        "TITLE": "Tarjetas de Crédito: Ütz kusanïk majun ral pwaq",
+        "SUMMARY": "Takusaj ri utzil richin tarjeta majun tojonïk ral pwaq.",
+        "ACTION_TIP": "Tatz'ib'aj ri q'ij richin natöj chuwäch ri q'ij.",
+        "LINK_LABEL": "Tachajij ri acuentas"
+      },
+      "metodo-bola-de-nieve": {
+        "TITLE": "Ri Na'oj Bola de Nieve richin tojonïk k'as",
+        "SUMMARY": "Ruk'ojlemal cholajem richin nak'ïs ronojel ri ak'as.",
+        "ACTION_TIP": "Tatz'ib'aj ri ak'as chuqa' tatöj nab'ey ri mas ti k'as.",
+        "LINK_LABEL": "Tatz'eta' Yakoj Rayb'äl"
+      },
+      "interes-compuesto": {
+        "TITLE": "Ri Ral Pwaq Poq'näq chuqa' jikïl yakoj",
+        "SUMMARY": "Achike rub'anïk ri ral pwaq nunimirisaj ri apwaq pa juna'.",
+        "ACTION_TIP": "Tayaka' pwaq q'ij q'ij o ik'ik' stape' ti pwaq.",
+        "LINK_LABEL": "Tatz'eta' Yakoj Rayb'äl"
+      }
     }
   },
   "NOTIFICATIONS": {
