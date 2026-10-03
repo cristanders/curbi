@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+
+# Environment / secrets
+.env
+.env.*
+process.env
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+
+# Builds / coverage
+dist/
+build/
+coverage/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.sublime-workspace
+
+# Temporary
+tmp/
+temp/
+*.tmp

@@ -1,0 +1,329 @@
+<div class="page">
+  <app-topbar active="profile" />
+
+  <main class="content">
+    <section class="profile-hero card">
+      <div class="hero-left">
+        <div class="avatar-wrap">
+          <!-- PLACEHOLDER: assets/images/avatar.png -->
+          <div class="big-avatar" aria-hidden="true">
+            <img [src]="avatarUrl()" alt="" width="84" height="84" />
+          </div>
+          <label class="photo-btn" [title]="'PROFILE.HERO.CHANGE_PHOTO' | translate">
+            <img src="assets/icons/camera.svg" alt="" width="14" height="14" />
+            <input type="file" accept="image/*" (change)="onPhotoSelected($event)" />
+          </label>
+        </div>
+        <div class="hero-id">
+          <div class="name-row">
+            <h1 class="full-name">{{ fullName() }}</h1>
+            <span class="verified" [title]="'PROFILE.HERO.VERIFIED' | translate" [attr.aria-label]="'PROFILE.HERO.VERIFIED' | translate">
+              <img [src]="verifiedUrl" alt="" width="18" height="18" />
+            </span>
+          </div>
+          <p class="handle">{{ username() }}</p>
+          <div class="badges">
+            <span class="rank-badge">{{ 'PROFILE.FAMILY.ROLE_MEMBER' | translate }}</span>
+            @if (memberSince()) {
+              <span class="member-badge">{{ 'PROFILE.HERO.MEMBER_SINCE' | translate }} {{ memberSince() }}</span>
+            }
+          </div>
+          @if (session.avatar) {
+            <div class="photo-clear">
+              <button type="button" class="link-btn" (click)="clearPhoto()">{{ 'PROFILE.HERO.REMOVE_PHOTO' | translate }}</button>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="hero-actions">
+        <button
+          type="button"
+          class="btn btn--teal"
+          [attr.aria-expanded]="familyOpen()"
+          (click)="toggleFamily()"
+        >
+          {{ familyOpen() ? ('PROFILE.HERO.CLOSE_FAMILY' | translate) : ('PROFILE.HERO.ADD_FAMILY' | translate) }}
+        </button>
+        <button
+          type="button"
+          class="btn btn--dark"
+          (click)="toggleEdit()"
+          [disabled]="saving"
+        >
+          {{ saving ? ('PROFILE.HERO.SAVING' | translate) : editMode ? ('PROFILE.HERO.SAVE_CHANGES' | translate) : ('PROFILE.HERO.EDIT_PROFILE' | translate) }}
+        </button>
+        <button *ngIf="editMode" type="button" class="btn btn--ghost" (click)="cancelEdit()">
+          {{ 'PROFILE.HERO.CANCEL' | translate }}
+        </button>
+      </div>
+    </section>
+
+    @if (savedMessage) {
+      <p class="saved-toast" role="status">{{ savedMessage }}</p>
+    }
+
+    @if (familyOpen()) {
+      <section class="card family" aria-label="Familia">
+        <h2 class="family-title">{{ 'PROFILE.FAMILY.TITLE' | translate }}</h2>
+
+        @if (houses().length === 0) {
+          <p class="family-empty">
+            {{ 'PROFILE.FAMILY.EMPTY' | translate }}
+          </p>
+        }
+
+        <ul class="family-list">
+          @for (h of houses(); track h.id_house) {
+            <li class="family-item">
+              <div class="family-item-head">
+                <strong>{{ h.name }}</strong>
+                <span class="family-role">{{ h.role === 'Admin' ? ('PROFILE.FAMILY.ROLE_ADMIN' | translate) : ('PROFILE.FAMILY.ROLE_MEMBER' | translate) }}</span>
+              </div>
+              <p class="family-meta">
+                @{{ h.username }} · {{ h.member_count }}
+                {{ h.member_count === 1 ? ('PROFILE.FAMILY.PERSON' | translate) : ('PROFILE.FAMILY.PEOPLE' | translate) }}
+              </p>
+              <ul class="family-members">
+                @for (m of h.members; track m.id_member) {
+                  <li>@{{ m.username }}<span class="family-badge">{{ m.role }}</span></li>
+                }
+              </ul>
+            </li>
+          }
+        </ul>
+
+        <div class="family-form">
+          <label class="family-field">
+            <span>{{ 'PROFILE.FAMILY.CREATE_GROUP' | translate }}</span>
+            <input
+              type="text"
+              name="familyName"
+              [placeholder]="'PROFILE.FAMILY.CREATE_PLACEHOLDER' | translate"
+              [(ngModel)]="familyName"
+            />
+          </label>
+          <button
+            type="button"
+            class="btn btn--teal"
+            [disabled]="familyBusy()"
+            (click)="createHouse()"
+          >
+            {{ familyBusy() ? ('PROFILE.FAMILY.BTN_CREATING' | translate) : ('PROFILE.FAMILY.BTN_CREATE' | translate) }}
+          </button>
+        </div>
+
+        <div class="family-form">
+          <label class="family-field">
+            <span>{{ 'PROFILE.FAMILY.JOIN_USERNAME' | translate }}</span>
+            <input
+              type="text"
+              name="familySearch"
+              [placeholder]="'PROFILE.FAMILY.SEARCH_PLACEHOLDER' | translate"
+              [(ngModel)]="familySearch"
+            />
+          </label>
+          <button
+            type="button"
+            class="btn btn--dark"
+            [disabled]="familyBusy()"
+            (click)="searchHouses()"
+          >
+            {{ 'PROFILE.FAMILY.BTN_SEARCH' | translate }}
+          </button>
+        </div>
+
+        @if (joinable().length > 0) {
+          <ul class="family-list">
+            @for (h of joinable(); track h.id_house) {
+              <li class="family-item">
+                <div class="family-item-head">
+                  <strong>{{ h.name }}</strong>
+                  <button
+                    type="button"
+                    class="btn btn--teal"
+                    [disabled]="familyBusy()"
+                    (click)="joinHouse(h)"
+                  >
+                    {{ 'PROFILE.FAMILY.BTN_JOIN' | translate }}
+                  </button>
+                </div>
+                <p class="family-meta">
+                  {{ 'PROFILE.FAMILY.FROM' | translate }} @{{ h.username }} · {{ h.member_count }}
+                  {{ h.member_count === 1 ? ('PROFILE.FAMILY.PERSON' | translate) : ('PROFILE.FAMILY.PEOPLE' | translate) }}
+                </p>
+              </li>
+            }
+          </ul>
+        }
+
+        @if (familyError()) {
+          <p class="family-error" role="alert">{{ familyError() }}</p>
+        }
+      </section>
+    }
+
+    <div class="grid">
+      <section class="card">
+        <div class="card-head">
+          <h2>{{ 'PROFILE.PERSONAL_INFO.TITLE' | translate }}</h2>
+          @if (!editMode) {
+            <button type="button" class="link-btn" (click)="toggleEdit()">{{ 'PROFILE.PERSONAL_INFO.EDIT' | translate }}</button>
+          }
+        </div>
+
+        <div class="fields">
+          <label class="field">
+            <span>{{ 'PROFILE.PERSONAL_INFO.FULL_NAME' | translate }}</span>
+            <input
+              type="text"
+              name="fullName"
+              [readonly]="!editMode"
+              [(ngModel)]="draft.fullName"
+              [class.is-readonly]="!editMode"
+            />
+          </label>
+          <label class="field">
+            <span>{{ 'PROFILE.PERSONAL_INFO.EMAIL' | translate }}</span>
+            <input
+              type="email"
+              name="email"
+              [readonly]="!editMode"
+              [(ngModel)]="draft.email"
+              [class.is-readonly]="!editMode"
+            />
+          </label>
+          <label class="field">
+            <span>{{ 'PROFILE.PERSONAL_INFO.PHONE' | translate }}</span>
+            <input
+              type="tel"
+              name="phone"
+              [readonly]="!editMode"
+              [(ngModel)]="draft.phone"
+              [class.is-readonly]="!editMode"
+            />
+          </label>
+          <label class="field">
+            <span>{{ 'PROFILE.PERSONAL_INFO.LOCATION' | translate }}</span>
+            <input
+              type="text"
+              name="location"
+              [readonly]="!editMode"
+              [(ngModel)]="draft.location"
+              [class.is-readonly]="!editMode"
+            />
+          </label>
+        </div>
+      </section>
+
+      <div class="side">
+        <section class="card savings-card">
+          <div class="savings-top">
+            <p class="savings-label">
+              <img [src]="savingsIconUrl" alt="" width="16" height="16" />
+              {{ 'PROFILE.SAVINGS.TITLE' | translate }}
+            </p>
+            <span class="savings-range">{{ savingsRange() }}</span>
+          </div>
+          <p class="savings-amount">
+            Q{{ savings() }}<span class="decimals">.{{ savingsDecimals() }}</span>
+          </p>
+          <div class="savings-bar" aria-hidden="true">
+            <span [style.width.%]="savingsProgress()"></span>
+          </div>
+          <p class="savings-note">{{ savingsGoal() }} {{ 'PROFILE.SAVINGS.GOAL' | translate }} · {{ savingsProgress() }}% {{ 'PROFILE.SAVINGS.COMPLETED' | translate }}</p>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>{{ 'PROFILE.MONEY.TITLE' | translate }}</h2>
+          </div>
+          <ul class="stats">
+            <li>
+              <span class="stat-label">{{ 'PROFILE.MONEY.ACTIVE_BALANCE' | translate }}</span>
+              <strong>Q{{ accountBalance() }}<span class="decimals-sm">.{{ accountDecimals() }}</span></strong>
+            </li>
+            <li>
+              <span class="stat-label">{{ 'PROFILE.MONEY.SPENT_MONTH' | translate }}</span>
+              <strong>Q{{ totalSpent() }}</strong>
+            </li>
+            <li>
+              <span class="stat-label">{{ 'PROFILE.MONEY.ACTIVE_WALLETS' | translate }}</span>
+              <strong>{{ activeWallets() }}</strong>
+            </li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>{{ 'PROFILE.PREFERENCES.TITLE' | translate }}</h2>
+      </div>
+      <div class="prefs">
+        <!-- Selector de idioma elegante -->
+        <div class="pref pref--language">
+          <div>
+            <p class="pref-title">{{ 'PROFILE.PREFERENCES.LANGUAGE_TITLE' | translate }}</p>
+            <p class="pref-desc">{{ 'PROFILE.PREFERENCES.LANGUAGE_DESC' | translate }}</p>
+          </div>
+          <div class="lang-selector-wrapper">
+            <select
+              class="lang-select"
+              [value]="languageService.currentLang"
+              (change)="onLanguageChange($event)"
+              aria-label="Seleccionar idioma"
+            >
+              @for (lang of languageService.supportedLanguages; track lang.code) {
+                <option [value]="lang.code">
+                  {{ lang.flag }} {{ lang.nameInLang }}
+                </option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="pref">
+          <div>
+            <p class="pref-title">{{ 'PROFILE.PREFERENCES.NOTIFICATIONS_TITLE' | translate }}</p>
+            <p class="pref-desc">{{ 'PROFILE.PREFERENCES.NOTIFICATIONS_DESC' | translate }}</p>
+          </div>
+          <button
+            type="button"
+            class="toggle"
+            [class.is-on]="notifications"
+            role="switch"
+            [attr.aria-checked]="notifications"
+            (click)="notifications = !notifications"
+          >
+            <span class="toggle-thumb"></span>
+          </button>
+        </div>
+        <div class="pref">
+          <div>
+            <p class="pref-title">{{ 'PROFILE.PREFERENCES.BIOMETRIC_TITLE' | translate }}</p>
+            <p class="pref-desc">{{ 'PROFILE.PREFERENCES.BIOMETRIC_DESC' | translate }}</p>
+          </div>
+          <button
+            type="button"
+            class="toggle"
+            [class.is-on]="biometricLogin"
+            role="switch"
+            [attr.aria-checked]="biometricLogin"
+            (click)="biometricLogin = !biometricLogin"
+          >
+            <span class="toggle-thumb"></span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card danger-card">
+      <div>
+        <h2>{{ 'PROFILE.SESSION.TITLE' | translate }}</h2>
+        <p class="pref-desc">{{ 'PROFILE.SESSION.DESC' | translate }}</p>
+      </div>
+      <button type="button" class="btn btn--danger" (click)="signOut()">{{ 'PROFILE.SESSION.SIGN_OUT' | translate }}</button>
+    </section>
+  </main>
+</div>

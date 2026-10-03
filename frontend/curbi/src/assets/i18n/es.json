@@ -1,0 +1,611 @@
+{
+  "TOPBAR": {
+    "HOME": "Dashboard",
+    "WALLET": "Billetera",
+    "SAVES": "Ahorros",
+    "TRANSACTIONS": "Transacciones",
+    "LEARN": "Aprende",
+    "NOTIFICATIONS": "Notificaciones",
+    "PROFILE": "Perfil",
+    "SELECT_LANGUAGE": "Seleccionar idioma"
+  },
+  "COMMON": {
+    "SAVE": "Guardar",
+    "CANCEL": "Cancelar",
+    "EDIT": "Editar",
+    "DELETE": "Eliminar",
+    "LOADING": "Cargando...",
+    "SUCCESS": "Operación exitosa",
+    "ERROR": "Ocurrió un error",
+    "CLOSE": "Cerrar",
+    "BACK": "Volver",
+    "ALL": "Todos",
+    "CONFIRM": "Confirmar"
+  },
+  "LOGIN": {
+    "LOGIN_NAV": "Iniciar sesión",
+    "REGISTER_NAV": "Registro",
+    "MASCOT_ALT": "Mascota CURBI",
+    "CHAT_PLACEHOLDER": "¿Qué preguntas tienes sobre Curbi?",
+    "ATTACH_IMG": "Adjuntar imagen",
+    "EMOJI": "Emoji",
+    "MIC": "Micrófono",
+    "SEND": "Enviar",
+    "WELCOME": "Bienvenido",
+    "TO": "a",
+    "TITLE": "Iniciar sesión en Curbi",
+    "SUBTITLE": "Continúa donde lo dejaste y mantén todo en marcha",
+    "EMAIL_LABEL": "Correo electrónico",
+    "EMAIL_PLACEHOLDER": "ejemploparacli@gmail.com",
+    "PASSWORD_LABEL": "Contraseña",
+    "PASSWORD_PLACEHOLDER": "••••••••",
+    "SUBMIT_BTN": "Iniciar sesión",
+    "SUBMITTING_BTN": "Iniciando sesión…",
+    "FORGOT_PASSWORD": "¿Olvidaste tu contraseña?",
+    "OR": "o",
+    "GOOGLE_BTN": "INICIAR CON GOOGLE",
+    "OUTLOOK_BTN": "INICIAR CON OUTLOOK",
+    "NO_ACCOUNT": "¿No tienes una cuenta?",
+    "REGISTER_LINK": "Regístrate aquí",
+    "REMEMBER_ME": "Recordarme",
+    "ERROR_SERVER": "No se pudo conectar con el servidor. Inténtalo de nuevo.",
+    "ERROR_REQUIRED": "Por favor ingresa tu correo o usuario y tu contraseña.",
+    "FORGOT_INFO": "Para restablecer tu contraseña, ingresa tus credenciales o accede con Google/Outlook.",
+    "HIDE_PASSWORD": "Ocultar contraseña",
+    "SHOW_PASSWORD": "Mostrar contraseña",
+    "CHAT_TIP_DEFAULT": "¡Hola! Soy Curbi, tu asistente inteligente para tus finanzas y ahorros.",
+    "CHAT_TIP_SAVINGS": "Con CURBI puedes crear metas de ahorro, fondos de emergencia y seguir la regla 50/30/20.",
+    "CHAT_TIP_CARDS": "Puedes vincular y administrar tus tarjetas de débito y crédito fácilmente.",
+    "CHAT_TIP_GENERAL": "Inicia sesión o regístrate para comenzar a tomar el control de tu dinero."
+  },
+  "REGISTER": {
+    "LOGIN_NAV": "Iniciar sesión",
+    "REGISTER_NAV": "Registro",
+    "MASCOT_ALT": "Mascota CURBI",
+    "CHAT_PLACEHOLDER": "¿Qué preguntas tienes sobre Curbi?",
+    "ATTACH_IMG": "Adjuntar imagen",
+    "EMOJI": "Emoji",
+    "MIC": "Micrófono",
+    "SEND": "Enviar",
+    "WELCOME": "Bienvenido",
+    "TO": "a",
+    "SUBTITLE": "¡Empieza y mejora tus finanzas hoy mismo!",
+    "TITLE": "Crear cuenta",
+    "GOOGLE_BTN": "REGISTRARSE CON GOOGLE",
+    "FORM_HINT": "o llena el formulario para crear una cuenta",
+    "FULL_NAME": "Nombre completo",
+    "FULL_NAME_PLACEHOLDER": "Juan Pérez",
+    "USERNAME": "Nombre de usuario",
+    "USERNAME_PLACEHOLDER": "@juanperez",
+    "EMAIL": "Correo electrónico",
+    "EMAIL_PLACEHOLDER": "ejemplo@gmail.com",
+    "PHONE": "Teléfono",
+    "PHONE_PLACEHOLDER": "+502 5555-1234",
+    "PASSWORD": "Contraseña",
+    "PASSWORD_PLACEHOLDER": "••••••••",
+    "PASSWORD_HINT": "Al menos 8 caracteres",
+    "AGREE_PRE": "Acepto la",
+    "PRIVACY_POLICY": "Política de Privacidad",
+    "AND": "y los",
+    "TERMS": "Términos de Servicio",
+    "SUBMIT_BTN": "Crear cuenta",
+    "SUBMITTING_BTN": "Creando…",
+    "ALREADY_HAVE": "¿Ya tienes una cuenta?",
+    "LOGIN_LINK": "Inicia sesión",
+    "ERROR_REQUIRED": "Por favor completa todos los campos obligatorios.",
+    "ERROR_EMAIL": "Por favor ingresa un correo electrónico válido.",
+    "ERROR_PASSWORD": "La contraseña debe tener al menos 8 caracteres.",
+    "ERROR_AGREED": "Debes aceptar la Política de Privacidad y los Términos de Servicio.",
+    "ERROR_SERVER": "No se pudo conectar con el servidor. Inténtalo de nuevo.",
+    "CHAT_TIP_DEFAULT": "¡Crea tu cuenta en CURBI para empezar a gestionar tus ahorros y metas!",
+    "CHAT_TIP_FREE": "¡CURBI es 100% gratuito para ayudarte a alcanzar tu libertad financiera!",
+    "CHAT_TIP_GENERAL": "Completa el formulario a la derecha para unirte a CURBI en un minuto."
+  },
+  "PROFILE": {
+    "HERO": {
+      "VERIFIED": "Cuenta verificada",
+      "CHANGE_PHOTO": "Cambiar foto de perfil",
+      "REMOVE_PHOTO": "Quitar foto de perfil",
+      "MEMBER_SINCE": "Miembro desde",
+      "BACKEND_CONNECTED": "Backend conectado",
+      "NO_BACKEND": "Sin conexión al backend",
+      "ADD_FAMILY": "Añadir a familia",
+      "CLOSE_FAMILY": "Cerrar familia",
+      "EDIT_PROFILE": "Editar perfil",
+      "SAVE_CHANGES": "Guardar cambios",
+      "SAVING": "Guardando...",
+      "CANCEL": "Cancelar"
+    },
+    "FAMILY": {
+      "TITLE": "Mi familia",
+      "EMPTY": "Todavía no estás en ningún grupo. Crea uno abajo o únete al de alguien escribiendo su username.",
+      "ROLE_ADMIN": "Admin",
+      "ROLE_MEMBER": "Miembro",
+      "PERSON": "persona",
+      "PEOPLE": "personas",
+      "CREATE_GROUP": "Crear un grupo",
+      "CREATE_PLACEHOLDER": "Ej. Casa Ruiz",
+      "BTN_CREATE": "Crear",
+      "BTN_CREATING": "Un momento...",
+      "JOIN_USERNAME": "Unirme con un username",
+      "SEARCH_PLACEHOLDER": "Ej. luis",
+      "BTN_SEARCH": "Buscar",
+      "BTN_JOIN": "Unirme",
+      "FROM": "De"
+    },
+    "PERSONAL_INFO": {
+      "TITLE": "Información personal",
+      "EDIT": "Editar",
+      "FULL_NAME": "Nombre completo",
+      "EMAIL": "Correo electrónico",
+      "PHONE": "Teléfono",
+      "LOCATION": "Ubicación"
+    },
+    "SAVINGS": {
+      "TITLE": "TUS AHORROS EN ESTA TARJETA",
+      "GOAL": "meta",
+      "COMPLETED": "completado"
+    },
+    "MONEY": {
+      "TITLE": "Resumen financiero",
+      "ACTIVE_BALANCE": "Saldo activo",
+      "SPENT_MONTH": "Gastado este mes",
+      "ACTIVE_WALLETS": "Billeteras activas"
+    },
+    "PREFERENCES": {
+      "TITLE": "Preferencias",
+      "LANGUAGE_TITLE": "Idioma / Language / Ch'ab'äl",
+      "LANGUAGE_DESC": "Selecciona el idioma de tu preferencia para CURBI.",
+      "NOTIFICATIONS_TITLE": "Notificaciones push",
+      "NOTIFICATIONS_DESC": "Recibe alertas de pagos, metas de ahorro y actividad familiar.",
+      "BIOMETRIC_TITLE": "Inicio biométrico",
+      "BIOMETRIC_DESC": "Usa huella o Face ID al abrir CURBI."
+    },
+    "SESSION": {
+      "TITLE": "Sesión",
+      "DESC": "Cerrar sesión en CURBI en este dispositivo.",
+      "SIGN_OUT": "Cerrar sesión"
+    },
+    "MESSAGES": {
+      "FAMILY_NAME_REQUIRED": "Ponle un nombre a la familia",
+      "FAMILY_CREATE_ERROR": "No se pudo crear el grupo",
+      "USERNAME_REQUIRED": "Escribe un username",
+      "SEARCH_ERROR": "No se pudo buscar",
+      "JOIN_ERROR": "No se pudo unir al grupo",
+      "SAVE_ERROR": "No se pudieron guardar los cambios",
+      "SAVE_SUCCESS": "Cambios guardados",
+      "IMAGE_INVALID": "Selecciona un archivo de imagen válido.",
+      "AVATAR_UPDATED": "Foto de perfil actualizada.",
+      "AVATAR_SAVED_OFFLINE": "Foto guardada (sin conexión al servidor).",
+      "IMAGE_ERROR": "Ocurrió un error al procesar la imagen."
+    }
+  },
+  "HOME": {
+    "STATUS": {
+      "TREND": "Tendencia:",
+      "UP": "▲ subiendo",
+      "DOWN": "▼ bajando",
+      "STABLE": "■ estable",
+      "LAST_UPDATE": "Última actualización:"
+    },
+    "KPI": {
+      "TOTAL_BALANCE": "SALDO TOTAL",
+      "IN_SESSION": "en la sesión",
+      "TOTAL_SAVED": "AHORRO TOTAL",
+      "ACTIVE_GOALS": "metas activas",
+      "MONTH_EXPENSES": "GASTOS DEL MES",
+      "VS_START": "vs. inicio",
+      "INCOME_VS_EXPENSES": "INGRESOS vs GASTOS",
+      "NET_BALANCE": "Balance neto"
+    },
+    "CHART": {
+      "EVOLUTION": "EVOLUCIÓN DEL SALDO",
+      "UPDATES_EVERY": "actualiza cada 3s",
+      "ALL": "Todos",
+      "CURRENT": "Actual:",
+      "LIVE_BALANCE": "Saldo en vivo",
+      "ACTIVE": "Activo:"
+    },
+    "WALLETS": {
+      "TITLE": "TUS BILLETERAS ACTIVAS",
+      "LAST_UPDATE": "Última actualización —",
+      "CURRENT_BALANCE": "Saldo actual (GTQ)",
+      "SAVINGS_ON_CARD": "TUS AHORROS EN ESTA TARJETA",
+      "MONTHS_6": "6 Meses",
+      "RECENT_SPENDING": "Gastos recientes — Este Mes",
+      "NO_MOVEMENTS": "Aún no hay movimientos."
+    },
+    "SPEND_CONTROL": {
+      "TITLE": "Control de gastos",
+      "SUBTITLE": "Presupuestos y el freno de compras.",
+      "BUDGETS_TITLE": "Presupuestos",
+      "NO_LIMITS": "Todavía no tienes límites. Ponle uno a una categoría para que el freno tenga contra qué decidir.",
+      "EXCEEDED_BY": "Te pasaste por",
+      "REMAINING": "Te quedan",
+      "CATEGORY": "Categoría",
+      "MONTH_LIMIT": "Límite del mes",
+      "SET_LIMIT": "Poner límite",
+      "SAVING": "Guardando…",
+      "BRAKE_TITLE": "Freno de compras",
+      "BRAKE_SUBTITLE": "Pide el gasto antes de hacerlo. Si te pasas de tu límite, queda frenado y no se descuenta nada.",
+      "WHAT_TO_BUY": "Qué quieres comprar",
+      "AMOUNT": "Monto",
+      "ACCOUNT": "Cuenta",
+      "CHOOSE_ACCOUNT": "Elige una cuenta",
+      "REQUEST_PURCHASE": "Pedir compra",
+      "CONSULTING": "Consultando…",
+      "FRENADO": "Frenado.",
+      "APPROVED": "Aprobado.",
+      "DISCOUNTED": "Se descontó de la cuenta.",
+      "RECENT_ATTEMPTS": "Intentos recientes"
+    },
+    "LEARN_BANNER": {
+      "TAG": "EDUCACIÓN FINANCIERA",
+      "TITLE": "Aprende a gestionar tu dinero con CURBI",
+      "DESC": "Calcula el impacto de tus gastos hormiga, simula la regla 50/30/20 y domina tus finanzas con nuestras guías interactivas.",
+      "BTN": "Ir a Aprende →"
+    },
+    "TOUR": {
+      "TITLE_0": "¡Bienvenido a CURBI! 👋",
+      "TEXT_0": "Esta es tu Dashboard: aquí ves tu saldo total y tus gráficas en vivo. Sigue este mini tutorial para conocer la aplicación.",
+      "TITLE_1": "Gráficas por banco",
+      "TEXT_1": "En Dashboard hay pestañas para elegir de qué banco quieres ver las gráficas. Presiona el banco y solo se mostrará su evolución.",
+      "TITLE_2": "Tu Wallet (billetera)",
+      "TEXT_2": "En Wallet agregas tarjetas de débito o crédito de tu banco, transfieres, pagas facturas y solicitas dinero. Tus movimientos se guardan aquí y en el Dashboard.",
+      "TITLE_3": "Saves y Transactions",
+      "TEXT_3": "Saves guarda tus metas de ahorro y Transactions muestra el historial completo con filtros.",
+      "TITLE_4": "¡Listo! 🎉",
+      "TEXT_4": "Explora cada sección desde el menú superior. Puedes cerrar este tutorial cuando quieras.",
+      "SKIP": "Saltar",
+      "NEXT": "Siguiente",
+      "GOT_IT": "Entendido"
+    },
+    "WELCOME": "Bienvenido",
+    "WELCOME_SUB": "Aquí tienes el resumen de tu actividad financiera y movimientos recientes."
+  },
+  "WALLET": {
+    "TITLE": "Mis billeteras",
+    "SYNCED": "Sincronizado con el backend",
+    "NO_BACKEND": "Sin conexión al backend",
+    "UPDATED": "actualizado",
+    "ADD_CARD": "Agregar Tarjeta Crédito/Débito",
+    "ACTIVE_BALANCE": "Saldo disponible",
+    "TRANSFER": "Transferir",
+    "PAY_BILL": "Pagar servicio",
+    "REQUEST_CREDIT": "Solicitar crédito",
+    "STACK_LABEL": "Tus tarjetas",
+    "CARD": {
+      "HOLDER": "Titular",
+      "EXPIRY": "Vigencia",
+      "AVAILABLE_BALANCE": "Saldo Disponible",
+      "REMOVE": "Quitar tarjeta",
+      "CREDIT": "crédito",
+      "DEBIT": "débito"
+    },
+    "ACCOUNT_DEPOSIT": "Número de cuenta para que te depositen",
+    "COPY": "Copiar",
+    "COPIED": "¡Copiado!",
+    "EMPTY": {
+      "TITLE": "Aún no tienes tarjetas",
+      "SUBTITLE": "Agrega una tarjeta de débito o crédito para empezar a ver tu saldo y movimientos.",
+      "BTN": "Agregar mi primera tarjeta"
+    },
+    "QUICK": {
+      "TITLE": "Acciones rápidas",
+      "TRANSFER": "Transferir",
+      "REQUEST": "Solicitar",
+      "PAY_BILL": "Pagar servicio",
+      "ADD_CARD": "Agregar tarjeta",
+      "INCOME_MONTH": "Ingresos (mes)",
+      "EXPENSE_MONTH": "Gastos (mes)"
+    },
+    "MOVEMENTS": {
+      "TITLE": "ÚLTIMOS MOVIMIENTOS",
+      "SEE_ALL": "Ver todos",
+      "EMPTY": "Aún no hay movimientos registrados."
+    }
+  },
+  "SAVES": {
+    "TITLE": "Mis ahorros",
+    "TOTAL_SAVED": "SALDO TOTAL AHORRADO",
+    "CASHBACK": "CASHBACK ACUMULADO",
+    "INTEREST": "INTERESES GENERADOS",
+    "GOALS_TITLE": "Tus metas de ahorro",
+    "NEW_GOAL": "+ Nueva meta",
+    "EMPTY_TITLE": "Aún no tienes metas de ahorro",
+    "EMPTY_DESC": "Crea tu primera meta y empieza a aportar hasta completarla.",
+    "EMPTY_BTN": "Crear mi primera meta",
+    "COMPLETED": "completado",
+    "VIEW_DETAILS": "Ver detalles",
+    "GOAL_COMPLETE": "Meta completa",
+    "CONTRIBUTE_BTN": "Aportar $",
+    "MODAL_NEW": {
+      "TITLE": "Nueva meta de ahorro",
+      "NAME_LABEL": "¿Para qué ahorras?",
+      "NAME_PLACEHOLDER": "Ej. Viaje a Antigua",
+      "CATEGORY_LABEL": "Categoría",
+      "CATEGORY_HINT": "El icono de la tarjeta sale de la categoría que elijas.",
+      "TARGET_LABEL": "Monto objetivo (Q)",
+      "TARGET_HINT": "La meta empieza en Q0.00 y vas sumando aportes hasta llegar al objetivo.",
+      "CANCEL": "Cancelar",
+      "CREATING": "Creando...",
+      "SUBMIT": "Crear meta"
+    },
+    "MODAL_CONTRIBUTE": {
+      "TITLE_PREFIX": "Aportar a",
+      "CARD_BALANCE": "Saldo disponible en tarjeta:",
+      "MAX_AFFORDABLE": "Máximo con esta tarjeta:",
+      "AMOUNT_LABEL": "Monto a aportar (Q)",
+      "COMPLETE_GOAL": "Completar meta",
+      "PROJECTED": "Progreso proyectado:",
+      "CONFIRM": "Confirmar aporte",
+      "SUBMITTING": "Aportando..."
+    }
+  },
+  "TRANSACTIONS": {
+    "TITLE": "Transacciones",
+    "NEW_TX": "+ Nueva transacción",
+    "CLOSE": "Cerrar",
+    "DESCRIPTION": "Descripción",
+    "AMOUNT": "Monto",
+    "CATEGORY": "Categoría",
+    "ACCOUNT": "Cuenta",
+    "EMPTY": "Aún no hay transacciones registradas.",
+    "FORM": {
+      "TITLE": "Nueva transacción",
+      "DESCRIPTION": "Descripción",
+      "AMOUNT": "Monto",
+      "TYPE": "Tipo",
+      "EXPENSE": "Gasto",
+      "INCOME": "Ingreso",
+      "CATEGORY": "Categoría",
+      "ACCOUNT": "Cuenta",
+      "CHOOSE_ACCOUNT": "Elige una cuenta",
+      "CLEAR": "Limpiar",
+      "SAVE": "Guardar movimiento",
+      "SAVING": "Guardando…"
+    },
+    "STATS": {
+      "INCOME": "INGRESOS",
+      "EXPENSE": "GASTOS",
+      "TOTAL": "TOTAL MOVIMIENTOS"
+    },
+    "FILTERS": {
+      "SEARCH": "Buscar",
+      "SEARCH_PLACEHOLDER": "Descripción o categoría",
+      "TYPE": "Tipo",
+      "ALL": "Todas",
+      "INCOME": "Ingresos",
+      "EXPENSE": "Gastos",
+      "CATEGORY": "Categoría",
+      "CLEAR": "Limpiar"
+    },
+    "EMPTY_FILTERED": "No hay transacciones con esos filtros."
+  },
+  "LEARN": {
+    "BADGE": "EDUCACIÓN FINANCIERA",
+    "TITLE": "Aprende con CURBI",
+    "SUBTITLE": "Guías prácticas, calculadoras interactivas y conceptos clave para tomar decisiones financieras informadas.",
+    "READ_PROGRESS": "leídas",
+    "TAB_LESSONS": "Guías y Lecturas",
+    "TAB_CALCULATORS": "Calculadoras",
+    "TAB_GLOSSARY": "Glosario",
+    "FILTERS": {
+      "ALL": "Todas",
+      "BASICS": "Fundamentos",
+      "EXPENSES": "Control de Gastos",
+      "CREDIT": "Crédito y Deudas",
+      "FUTURE": "Inversión y Futuro"
+    },
+    "CARD": {
+      "READ_GUIDE": "Leer guía →",
+      "COMPLETED": "✓ Completada",
+      "MARK_READ": "Marcar leída",
+      "PENDING": "Marcar como pendiente"
+    },
+    "CALCULATORS": {
+      "SIMULATOR": "SIMULADOR",
+      "BUG_TITLE": "Calculadora de Gastos Hormiga",
+      "BUG_DESC": "Estima el impacto acumulado de pequeños consumos regulares a mediano y largo plazo.",
+      "RULE_TITLE": "Simulador Regla 50/30/20",
+      "RULE_DESC": "Distribuye tu ingreso mensual en Necesidades (50%), Deseos (30%) y Ahorro (20%)."
+    },
+    "LEVELS": {
+      "STRATEGIST": {
+        "TITLE": "Estratega Financiero",
+        "DESC": "Dominio avanzado de finanzas personales"
+      },
+      "SAVER": {
+        "TITLE": "Ahorrador Consciente",
+        "DESC": "Hábitos financieros en desarrollo"
+      },
+      "LEARNER": {
+        "TITLE": "En Aprendizaje",
+        "DESC": "Explora las guías para empezar"
+      },
+      "BASIC": "Básico",
+      "INTERMEDIATE": "Intermedio",
+      "ADVANCED": "Avanzado"
+    },
+    "CATEGORIES": {
+      "BASICS": "Fundamentos",
+      "EXPENSES": "Control de Gastos",
+      "CREDIT": "Crédito y Deudas",
+      "FUTURE": "Inversión y Futuro"
+    },
+    "CALC": {
+      "BUG": {
+        "TAG": "SIMULADOR",
+        "TITLE": "Calculadora de Gastos Hormiga",
+        "SUBTITLE": "Estima el impacto acumulado de pequeños consumos regulares a mediano y largo plazo.",
+        "CONCEPT_LABEL": "Concepto del gasto:",
+        "CONCEPT_PLACEHOLDER": "ej. Café, aperitivos, delivery",
+        "AMOUNT_LABEL": "Monto por día (Q):",
+        "FREQ_LABEL": "Frecuencia semanal:",
+        "DAYS_1": "1 día / semana",
+        "DAYS_2": "2 días / semana",
+        "DAYS_3": "3 días / semana",
+        "DAYS_4": "4 días / semana",
+        "DAYS_5": "5 días (Laborales)",
+        "DAYS_6": "6 días / semana",
+        "DAYS_7": "Todos los días (7)",
+        "RESULT_MONTHLY": "Gasto Mensual Estimado",
+        "RESULT_YEARLY": "Gasto Anual Acumulado",
+        "RESULT_5YEARS": "Proyección Ahorro a 5 años",
+        "ADVICE_TITLE": "Análisis CURBI",
+        "ADVICE_DESC": "Reasignar el 50% de este gasto representaría un ahorro mensual de",
+        "ADVICE_SUFFIX": "directo a tus metas de ahorro."
+      },
+      "RULE": {
+        "TAG": "DISTRIBUCIÓN",
+        "TITLE": "Distribución de Ingresos 50 / 30 / 20",
+        "SUBTITLE": "Ingresa tu ingreso neto mensual para obtener una estructura de presupuesto recomendada.",
+        "INCOME_LABEL": "Ingreso mensual neto (Q):",
+        "NEEDS_TAG": "50% NECESIDADES BÁSICAS",
+        "NEEDS_DESC": "Vivienda, alimentación esencial, servicios básicos, salud y transporte.",
+        "WANTS_TAG": "30% GASTOS PERSONALES",
+        "WANTS_DESC": "Entretenimiento, salidas, compras personales y suscripciones.",
+        "SAVINGS_TAG": "20% AHORRO Y DEUDAS",
+        "SAVINGS_DESC": "Fondo de emergencia, metas en CURBI o amortización de créditos.",
+        "LINK_SAVES": "Configurar presupuestos en CURBI"
+      },
+      "EMERG": {
+        "TAG": "PROTECCIÓN",
+        "TITLE": "Meta de Fondo de Emergencia",
+        "SUBTITLE": "Calcula el colchón de seguridad financiero necesario en función de tus gastos esenciales.",
+        "EXPENSES_LABEL": "Gastos esenciales mensuales (Q):",
+        "COVERAGE_LABEL": "Cobertura deseada:",
+        "MONTHS_3": "3 meses (Recomendado estándar)",
+        "MONTHS_6": "6 meses (Mayor tranquilidad)",
+        "MONTHS_9": "9 meses",
+        "MONTHS_12": "12 meses (Independientes o freelancers)",
+        "TARGET_LABEL": "Fondo de Emergencia Sugerido",
+        "TARGET_MONTHS_LABEL": "Plazo para completarlo",
+        "PLAN_6": "En 6 meses",
+        "PLAN_12": "En 12 meses",
+        "PLAN_18": "En 18 meses",
+        "PER_MONTH": "/ mes",
+        "LINK_GOAL": "Crear Meta en CURBI"
+      }
+    },
+    "GLOSSARY": {
+      "SEARCH_PLACEHOLDER": "Buscar concepto financiero (ej. fondo, inflación, interés, crédito, liquidez)...",
+      "PRACTICAL_EXAMPLE": "Ejemplo práctico",
+      "NO_RESULTS": "No se encontraron resultados para \"{{ query }}\".",
+      "VIEW_ALL": "Ver todos los términos",
+      "TAGS": {
+        "BASICS": "Fundamentos",
+        "SAVINGS": "Ahorro",
+        "BUDGETS": "Presupuestos",
+        "INVESTMENT": "Inversión",
+        "CREDIT": "Crédito",
+        "ECONOMY": "Economía",
+        "FINANCE": "Finanzas"
+      },
+      "TERMS": {
+        "emergency-fund": {
+          "TERM": "Fondo de Emergencia",
+          "SHORT_DESC": "Tu red de seguridad financiera ante imprevistos.",
+          "EXPLANATION": "Es una cantidad de dinero reservada exclusivamente para emergencias reales (problemas de salud, reparaciones mecánicas urgentes o pérdida temporal de empleo). Lo ideal es tener entre 3 y 6 meses de tus gastos fijos básicos.",
+          "EXAMPLE": "Si tus gastos fijos son Q3,000 al mes, un fondo de 3 meses sería de Q9,000."
+        },
+        "micro-expenses": {
+          "TERM": "Gastos Hormiga",
+          "SHORT_DESC": "Pequeñas compras cotidianas que pasan desapercibidas.",
+          "EXPLANATION": "Son aquellos gastos de bajo monto que hacemos casi a diario sin pensarlo (café de camino al trabajo, snacks, propinas extras, suscripciones no utilizadas). Individualmente parecen inofensivos, pero al mes o al año suman una cifra enorme.",
+          "EXAMPLE": "Gastar Q20 diarios en golosinas equivale a Q600 al mes y Q7,200 al año."
+        },
+        "rule-50-30-20": {
+          "TERM": "Regla 50 / 30 / 20",
+          "SHORT_DESC": "Fórmula sencilla para repartir tus ingresos mensuales.",
+          "EXPLANATION": "Un método clásico de presupuesto: el 50% de tus ingresos se destina a Necesidades básicas (vivienda, comida, servicios), el 30% a Deseos/Estilo de vida (salidas, entretenimiento) y el 20% al Ahorro o pago de deudas.",
+          "EXAMPLE": "Con un sueldo de Q5,000: Q2,500 para necesidades, Q1,500 para gustos y Q1,000 para ahorro."
+        },
+        "compound-interest": {
+          "TERM": "Interés Compuesto",
+          "SHORT_DESC": "Ganar intereses sobre los intereses ya ganados.",
+          "EXPLANATION": "Es el efecto multiplicador del dinero a lo largo del tiempo. Cuando ahorras o inviertes, las ganancias que generas se suman a tu capital original, y en el siguiente ciclo generas intereses sobre un monto mayor.",
+          "EXAMPLE": "Si ahorras Q1,000 al 5% anual, el primer año ganas Q50. El segundo año ganas el 5% sobre Q1,050."
+        },
+        "full-payer": {
+          "TERM": "Totalero (Tarjeta de Crédito)",
+          "SHORT_DESC": "Persona que paga el 100% de su estado de cuenta cada mes.",
+          "EXPLANATION": "Ser totalero significa pagar el saldo total adeudado antes de la fecha límite de pago. De esta manera disfrutas de los beneficios de la tarjeta (seguridad, puntos, financiamiento temporal) sin pagar ni un solo centavo de intereses.",
+          "EXAMPLE": "Compraste Q800 en el mes y pagas exactamente Q800 en la fecha de pago."
+        },
+        "inflation": {
+          "TERM": "Inflación",
+          "SHORT_DESC": "El aumento generalizado de precios y la pérdida de poder adquisitivo.",
+          "EXPLANATION": "Es cuando las cosas que compras habitualmente suben de precio con el tiempo, haciendo que con el mismo dinero puedas comprar menos productos que antes. Por eso dejar dinero guardado bajo el colchón pierde valor.",
+          "EXAMPLE": "Si un almuerzo costaba Q30 el año pasado y hoy cuesta Q33, la inflación fue del 10%."
+        },
+        "liquidity": {
+          "TERM": "Liquidez",
+          "SHORT_DESC": "La rapidez con la que puedes convertir un activo en dinero en efectivo.",
+          "EXPLANATION": "El dinero en tu cuenta bancaria de CURBI es 100% líquido porque puedes transferirlo de inmediato. Una casa o un automóvil tienen baja liquidez porque tardas semanas o meses en venderlos para tener efectivo.",
+          "EXAMPLE": "Tener dinero en tu cuenta monetaria o de ahorros te da liquidez instantánea."
+        },
+        "zero-based-budget": {
+          "TERM": "Presupuesto Base Cero",
+          "SHORT_DESC": "Darle un propósito específico a cada centavo que entra.",
+          "EXPLANATION": "Consiste en asignar cada quetzal de tus ingresos a una categoría (necesidades, gustos, ahorros, deudas) hasta que la resta de Ingresos - Gastos/Ahorros sea exactamente cero. No significa gastar todo, sino planificar todo.",
+          "EXAMPLE": "Si ganas Q4,000, asignas exactamente Q4,000 distribuidos entre tus gastos y tus metas."
+        }
+      }
+    },
+    "MODAL": {
+      "CLOSE": "Cerrar lección",
+      "OF_READING": "de lectura",
+      "KEY_POINTS": "Puntos clave",
+      "ACTION_TIP": "Acción recomendada"
+    },
+    "LESSONS": {
+      "regla-50-30-20": {
+        "TITLE": "La regla 50 / 30 / 20 para organizar tu dinero",
+        "SUMMARY": "Aprende a distribuir tus ingresos sin cálculos complicados ni privarte de las cosas que te gustan.",
+        "ACTION_TIP": "Ve a la pestaña \"Calculadoras\" para calcular tu desglose 50/30/20 personalizado en segundos.",
+        "LINK_LABEL": "Configurar presupuestos en CURBI"
+      },
+      "fondo-emergencia": {
+        "TITLE": "Tu primer Fondo de Emergencia",
+        "SUMMARY": "Descubre por qué un colchón para imprevistos es la mejor protección contra las deudas.",
+        "ACTION_TIP": "Empieza con una meta pequeña pero alcanzable, como ahorrar Q200 esta quincena en tu meta de emergencia.",
+        "LINK_LABEL": "Crear Meta de Emergencia"
+      },
+      "gastos-hormiga": {
+        "TITLE": "Control de Gastos Hormiga y compras impulsivas",
+        "SUMMARY": "Cómo identificar los pequeños consumos diarios que reducen tu capacidad de ahorro.",
+        "ACTION_TIP": "Haz una revisión de tus suscripciones activas y cancela al menos una que no hayas utilizado recientemente.",
+        "LINK_LABEL": "Ver mis últimos movimientos"
+      },
+      "tarjetas-credito": {
+        "TITLE": "Tarjetas de Crédito: Uso responsable y sin intereses",
+        "SUMMARY": "Aprende a aprovechar los beneficios de una tarjeta de crédito sin generar cargos por financiamiento.",
+        "ACTION_TIP": "Programa un aviso previo a tu fecha de corte para revisar tus saldos.",
+        "LINK_LABEL": "Administrar mis cuentas"
+      },
+      "metodo-bola-de-nieve": {
+        "TITLE": "Método Bola de Nieve para liquidación de deudas",
+        "SUMMARY": "Una estrategia progresiva y estructurada para ordenar y liquidar compromisos financieros.",
+        "ACTION_TIP": "Lista tus saldos pendientes y calcula el plazo estimado para liquidar la menor de tus obligaciones.",
+        "LINK_LABEL": "Ver Metas de Ahorro"
+      },
+      "interes-compuesto": {
+        "TITLE": "El Interés Compuesto y la constancia de ahorro",
+        "SUMMARY": "Cómo los rendimientos continuos potencian el crecimiento del capital a mediano y largo plazo.",
+        "ACTION_TIP": "Define un aporte periódico automático, sin importar que el monto inicial sea modesto.",
+        "LINK_LABEL": "Ver Metas de Ahorro"
+      }
+    }
+  },
+  "NOTIFICATIONS": {
+    "TITLE": "Notificaciones",
+    "SUBTITLE": "Hola, aquí te avisamos de tus movimientos y aprobaciones.",
+    "UPDATE": "Actualizar",
+    "UPDATING": "Actualizando...",
+    "MARK_ALL_READ": "Marcar leídas",
+    "TAB_ALL": "Todas",
+    "TAB_UNREAD": "No leídas",
+    "EMPTY": "No tienes notificaciones en esta categoría."
+  }
+}

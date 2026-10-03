@@ -1,0 +1,217 @@
+<div class="page">
+  <header class="topbar">
+    <div class="topbar-lang-wrapper">
+      <select
+        class="topbar-lang-select"
+        [value]="languageService.currentLang"
+        (change)="onLanguageChange($event)"
+        [title]="'TOPBAR.SELECT_LANGUAGE' | translate"
+        [attr.aria-label]="'TOPBAR.SELECT_LANGUAGE' | translate"
+      >
+        @for (lang of languageService.supportedLanguages; track lang.code) {
+          <option [value]="lang.code">
+            {{ lang.flag }} {{ lang.nameInLang }}
+          </option>
+        }
+      </select>
+    </div>
+    <a routerLink="/login" class="nav-btn nav-btn--light">{{ 'REGISTER.LOGIN_NAV' | translate }}</a>
+    <a routerLink="/register" class="nav-btn nav-btn--dark">{{ 'REGISTER.REGISTER_NAV' | translate }}</a>
+  </header>
+
+  <main class="card">
+    <section class="brand">
+      <!-- PLACEHOLDER: assets/icons/curbi-mascot.png -->
+      <div class="mascot" aria-hidden="true">
+        <img [src]="mascot" [alt]="'REGISTER.MASCOT_ALT' | translate" width="340" height="360" />
+      </div>
+
+      <div class="chat-box">
+        <input
+          type="text"
+          class="chat-input"
+          [placeholder]="'REGISTER.CHAT_PLACEHOLDER' | translate"
+          [(ngModel)]="chatText"
+          (keydown.enter)="onSendChat()"
+        />
+        <div class="chat-actions">
+          <div class="chat-icons">
+            <button
+              type="button"
+              class="icon-btn"
+              (click)="chatTip('attach')"
+              [attr.aria-label]="'REGISTER.ATTACH_IMG' | translate"
+              [title]="'REGISTER.ATTACH_IMG' | translate"
+            >
+              <img [src]="chatIcons.attach" alt="" width="16" height="16" />
+            </button>
+            <button
+              type="button"
+              class="icon-btn"
+              (click)="chatTip('emoji')"
+              [attr.aria-label]="'REGISTER.EMOJI' | translate"
+              [title]="'REGISTER.EMOJI' | translate"
+            >
+              <img [src]="chatIcons.emoji" alt="" width="16" height="16" />
+            </button>
+            <button
+              type="button"
+              class="icon-btn"
+              (click)="chatTip('mic')"
+              [attr.aria-label]="'REGISTER.MIC' | translate"
+              [title]="'REGISTER.MIC' | translate"
+            >
+              <img [src]="chatIcons.mic" alt="" width="16" height="16" />
+            </button>
+          </div>
+          <button
+            type="button"
+            class="send-btn"
+            (click)="onSendChat()"
+            [attr.aria-label]="'REGISTER.SEND' | translate"
+            [title]="'REGISTER.SEND' | translate"
+          >
+            <img [src]="chatIcons.send" alt="" width="14" height="14" />
+          </button>
+        </div>
+        @if (chatResponse()) {
+          <p class="chat-bubble" role="status">{{ chatResponse() }}</p>
+        }
+      </div>
+    </section>
+
+    <section class="form-side">
+      <div class="hero">
+        <h1 class="hero-title">
+          <span class="hero-welcome"><span>{{ 'REGISTER.WELCOME' | translate }}</span> <span>{{ 'REGISTER.TO' | translate }}</span></span>
+          <span class="hero-name">CURBI</span>
+        </h1>
+        <p class="hero-subtitle">{{ 'REGISTER.SUBTITLE' | translate }}</p>
+      </div>
+
+      <h2 class="form-title">{{ 'REGISTER.TITLE' | translate }}</h2>
+
+      <div class="social-actions">
+        <a href="http://localhost:3000/api/auth/google" class="social-btn" (click)="registerWithGoogle()">
+          <!-- PLACEHOLDER: assets/images/google.png -->
+          <img class="social-icon" [src]="googleIcon" alt="" width="20" height="20" />
+          {{ 'REGISTER.GOOGLE_BTN' | translate }}
+        </a>
+
+        <button type="button" class="social-btn" (click)="registerWithOutlook()">
+          <!-- PLACEHOLDER: assets/images/outlook.png -->
+          <img class="social-icon" [src]="outlookIcon" alt="" width="20" height="20" />
+          {{ 'LOGIN.OUTLOOK_BTN' | translate }}
+        </button>
+      </div>
+
+      <p class="form-hint">{{ 'REGISTER.FORM_HINT' | translate }}</p>
+
+      @if (error()) {
+        <p class="form-error" role="alert">{{ error() }}</p>
+      }
+
+      @if (infoMessage()) {
+        <p class="form-info" role="status">{{ infoMessage() }}</p>
+      }
+
+      <form class="login-form" (ngSubmit)="onSubmit()">
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">{{ 'REGISTER.FULL_NAME' | translate }}</span>
+            <input
+              type="text"
+              name="fullName"
+              required
+              [placeholder]="'REGISTER.FULL_NAME_PLACEHOLDER' | translate"
+              [(ngModel)]="fullName"
+              autocomplete="name"
+            />
+          </label>
+
+          <label class="field">
+            <span class="field-label">{{ 'REGISTER.USERNAME' | translate }}</span>
+            <input
+              type="text"
+              name="username"
+              required
+              [placeholder]="'REGISTER.USERNAME_PLACEHOLDER' | translate"
+              [(ngModel)]="username"
+              autocomplete="username"
+            />
+          </label>
+        </div>
+
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">{{ 'REGISTER.EMAIL' | translate }}</span>
+            <input
+              type="email"
+              name="email"
+              required
+              [placeholder]="'REGISTER.EMAIL_PLACEHOLDER' | translate"
+              [(ngModel)]="email"
+              autocomplete="email"
+            />
+          </label>
+
+          <label class="field">
+            <span class="field-label">{{ 'REGISTER.PHONE' | translate }}</span>
+            <input
+              type="tel"
+              name="phone"
+              [placeholder]="'REGISTER.PHONE_PLACEHOLDER' | translate"
+              [(ngModel)]="phone"
+              autocomplete="tel"
+            />
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="field-label">{{ 'REGISTER.PASSWORD' | translate }}</span>
+          <div class="password-wrapper">
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              name="password"
+              required
+              minlength="8"
+              [placeholder]="'REGISTER.PASSWORD_PLACEHOLDER' | translate"
+              [(ngModel)]="password"
+              autocomplete="new-password"
+            />
+            <button
+              type="button"
+              class="pwd-toggle-btn"
+              (click)="togglePassword()"
+              [title]="showPassword() ? ('LOGIN.HIDE_PASSWORD' | translate) : ('LOGIN.SHOW_PASSWORD' | translate)"
+              [attr.aria-label]="showPassword() ? ('LOGIN.HIDE_PASSWORD' | translate) : ('LOGIN.SHOW_PASSWORD' | translate)"
+            >
+              {{ showPassword() ? '👁️' : '🙈' }}
+            </button>
+          </div>
+        </label>
+
+        <p class="password-hint">{{ 'REGISTER.PASSWORD_HINT' | translate }}</p>
+
+        <label class="agree">
+          <input type="checkbox" name="agreed" [(ngModel)]="agreed" />
+          <span>
+            {{ 'REGISTER.AGREE_PRE' | translate }}
+            <a href="#" (click)="onPrivacyPolicy($event)">{{ 'REGISTER.PRIVACY_POLICY' | translate }}</a>
+            {{ 'REGISTER.AND' | translate }}
+            <a href="#" (click)="onTerms($event)">{{ 'REGISTER.TERMS' | translate }}</a>.
+          </span>
+        </label>
+
+        <button type="submit" class="signin-btn" [disabled]="loading()">
+          {{ loading() ? ('REGISTER.SUBMITTING_BTN' | translate) : ('REGISTER.SUBMIT_BTN' | translate) }}
+        </button>
+
+        <p class="signup-note">
+          {{ 'REGISTER.ALREADY_HAVE' | translate }}
+          <a routerLink="/login">{{ 'REGISTER.LOGIN_LINK' | translate }}</a>
+        </p>
+      </form>
+    </section>
+  </main>
+</div>

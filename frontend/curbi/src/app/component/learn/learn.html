@@ -1,0 +1,464 @@
+<div class="page">
+  <div class="content">
+    <app-topbar [active]="active"></app-topbar>
+
+    <header class="page-head">
+      <div class="head-info">
+        <div class="head-badge">{{ 'LEARN.BADGE' | translate }}</div>
+        <h1 class="page-title">{{ 'LEARN.TITLE' | translate }}</h1>
+        <p class="page-subtitle">
+          {{ 'LEARN.SUBTITLE' | translate }}
+        </p>
+      </div>
+
+      <!-- Progreso del usuario -->
+      <div class="progress-card">
+        <div class="progress-header">
+          <div class="level-info">
+            <span class="level-title">{{ userLevel().title }}</span>
+            <span class="level-desc">{{ userLevel().desc }}</span>
+          </div>
+          <span class="progress-badge">{{ completedCount() }} / {{ lessons.length }} {{ 'LEARN.READ_PROGRESS' | translate }}</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" [style.width.%]="progressPercentage()"></div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="tab-nav" aria-label="Secciones de aprendizaje">
+      <button
+        type="button"
+        class="tab-btn"
+        [class.is-active]="activeTab() === 'lessons'"
+        (click)="setTab('lessons')"
+      >
+        {{ 'LEARN.TAB_LESSONS' | translate }}
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.is-active]="activeTab() === 'calculators'"
+        (click)="setTab('calculators')"
+      >
+        {{ 'LEARN.TAB_CALCULATORS' | translate }}
+      </button>
+      <button
+        type="button"
+        class="tab-btn"
+        [class.is-active]="activeTab() === 'glossary'"
+        (click)="setTab('glossary')"
+      >
+        {{ 'LEARN.TAB_GLOSSARY' | translate }}
+      </button>
+    </nav>
+
+    <!--  LECTURAS    -->
+    @if (activeTab() === 'lessons') {
+      <section class="tab-section">
+        <!-- Filtro por categoría -->
+        <div class="category-filters">
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="selectedCategory() === 'all'"
+            (click)="setCategory('all')"
+          >
+            {{ 'LEARN.FILTERS.ALL' | translate }} ({{ lessons.length }})
+          </button>
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="selectedCategory() === 'basics'"
+            (click)="setCategory('basics')"
+          >
+            {{ 'LEARN.FILTERS.BASICS' | translate }}
+          </button>
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="selectedCategory() === 'expenses'"
+            (click)="setCategory('expenses')"
+          >
+            {{ 'LEARN.FILTERS.EXPENSES' | translate }}
+          </button>
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="selectedCategory() === 'credit'"
+            (click)="setCategory('credit')"
+          >
+            {{ 'LEARN.FILTERS.CREDIT' | translate }}
+          </button>
+          <button
+            type="button"
+            class="filter-pill"
+            [class.is-active]="selectedCategory() === 'future'"
+            (click)="setCategory('future')"
+          >
+            {{ 'LEARN.FILTERS.FUTURE' | translate }}
+          </button>
+        </div>
+
+        <!-- lecciones -->
+        <div class="lessons-grid">
+          @for (lesson of filteredLessons(); track lesson.id) {
+            <article class="lesson-card" [class.is-done]="isLessonCompleted(lesson.id)">
+              <div class="card-top">
+                <div class="lesson-num">{{ lesson.icon }}</div>
+                <div class="card-meta">
+                  <span class="category-badge">{{ getLessonCategory(lesson) }}</span>
+                  <span class="time-badge">{{ lesson.readTime }}</span>
+                </div>
+              </div>
+
+              <h2 class="card-title">{{ getLessonTitle(lesson) }}</h2>
+              <p class="card-summary">{{ getLessonSummary(lesson) }}</p>
+
+              <div class="card-footer">
+                <button
+                  type="button"
+                  class="btn-read"
+                  (click)="openLesson(lesson)"
+                >
+                  {{ 'LEARN.CARD.READ_GUIDE' | translate }}
+                </button>
+                <button
+                  type="button"
+                  class="btn-check"
+                  [class.is-checked]="isLessonCompleted(lesson.id)"
+                  (click)="toggleLessonComplete(lesson.id)"
+                  [title]="isLessonCompleted(lesson.id) ? ('LEARN.CARD.PENDING' | translate) : ('LEARN.CARD.MARK_READ' | translate)"
+                >
+                  {{ isLessonCompleted(lesson.id) ? ('LEARN.CARD.COMPLETED' | translate) : ('LEARN.CARD.MARK_READ' | translate) }}
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+    }
+
+    <!--  PRÁCTICAS Y CALCULADORAS    -->
+    @if (activeTab() === 'calculators') {
+      <section class="tab-section calculators-container">
+        
+        <!-- Calculadora 1: Gastos Hormiga -->
+        <div class="calc-card">
+          <div class="calc-header">
+            <div>
+              <span class="calc-tag">{{ 'LEARN.CALC.BUG.TAG' | translate }}</span>
+              <h2 class="calc-title">{{ 'LEARN.CALC.BUG.TITLE' | translate }}</h2>
+              <p class="calc-subtitle">{{ 'LEARN.CALC.BUG.SUBTITLE' | translate }}</p>
+            </div>
+          </div>
+
+          <div class="calc-body">
+            <div class="calc-inputs">
+              <div class="form-group">
+                <label for="bugName">{{ 'LEARN.CALC.BUG.CONCEPT_LABEL' | translate }}</label>
+                <input
+                  id="bugName"
+                  type="text"
+                  class="form-control"
+                  [ngModel]="bugExpenseName()"
+                  (ngModelChange)="bugExpenseName.set($event)"
+                  [placeholder]="'LEARN.CALC.BUG.CONCEPT_PLACEHOLDER' | translate"
+                />
+              </div>
+
+              <div class="form-row">
+                <div class="form-group flex-1">
+                  <label for="bugAmount">{{ 'LEARN.CALC.BUG.AMOUNT_LABEL' | translate }}</label>
+                  <input
+                    id="bugAmount"
+                    type="number"
+                    min="1"
+                    class="form-control"
+                    [ngModel]="bugExpenseAmount()"
+                    (ngModelChange)="bugExpenseAmount.set(+$event)"
+                  />
+                </div>
+
+                <div class="form-group flex-1">
+                  <label for="bugDays">{{ 'LEARN.CALC.BUG.FREQ_LABEL' | translate }}</label>
+                  <select
+                    id="bugDays"
+                    class="form-control"
+                    [ngModel]="bugExpenseDays()"
+                    (ngModelChange)="bugExpenseDays.set(+$event)"
+                  >
+                    <option [value]="1">{{ 'LEARN.CALC.BUG.DAYS_1' | translate }}</option>
+                    <option [value]="2">{{ 'LEARN.CALC.BUG.DAYS_2' | translate }}</option>
+                    <option [value]="3">{{ 'LEARN.CALC.BUG.DAYS_3' | translate }}</option>
+                    <option [value]="4">{{ 'LEARN.CALC.BUG.DAYS_4' | translate }}</option>
+                    <option [value]="5">{{ 'LEARN.CALC.BUG.DAYS_5' | translate }}</option>
+                    <option [value]="6">{{ 'LEARN.CALC.BUG.DAYS_6' | translate }}</option>
+                    <option [value]="7">{{ 'LEARN.CALC.BUG.DAYS_7' | translate }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Resultados en tiempo real -->
+            <div class="calc-results highlight-box">
+              <div class="result-item">
+                <span class="result-label">{{ 'LEARN.CALC.BUG.RESULT_MONTHLY' | translate }}</span>
+                <span class="result-value">Q{{ bugMonthly() | number: '1.0-0' }}</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">{{ 'LEARN.CALC.BUG.RESULT_YEARLY' | translate }}</span>
+                <span class="result-value warning">Q{{ bugYearly() | number: '1.0-0' }}</span>
+              </div>
+              <div class="result-item">
+                <span class="result-label">{{ 'LEARN.CALC.BUG.RESULT_5YEARS' | translate }}</span>
+                <span class="result-value success">Q{{ bugFiveYearsWithInterest() | number: '1.0-0' }}</span>
+              </div>
+            </div>
+
+            <div class="calc-advice">
+              <strong>{{ 'LEARN.CALC.BUG.ADVICE_TITLE' | translate }}:</strong> {{ 'LEARN.CALC.BUG.ADVICE_DESC' | translate }} Q{{ bugMonthly() / 2 | number: '1.0-0' }} {{ 'LEARN.CALC.BUG.ADVICE_SUFFIX' | translate }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculadora 2: Regla 50 / 30 / 20 -->
+        <div class="calc-card">
+          <div class="calc-header">
+            <div>
+              <span class="calc-tag">{{ 'LEARN.CALC.RULE.TAG' | translate }}</span>
+              <h2 class="calc-title">{{ 'LEARN.CALC.RULE.TITLE' | translate }}</h2>
+              <p class="calc-subtitle">{{ 'LEARN.CALC.RULE.SUBTITLE' | translate }}</p>
+            </div>
+          </div>
+
+          <div class="calc-body">
+            <div class="form-group">
+              <label for="salary">{{ 'LEARN.CALC.RULE.INCOME_LABEL' | translate }}</label>
+              <input
+                id="salary"
+                type="number"
+                min="500"
+                step="100"
+                class="form-control big-input"
+                [ngModel]="salaryInput()"
+                (ngModelChange)="salaryInput.set(+$event)"
+              />
+            </div>
+
+            <div class="rule-breakdown">
+              <!-- 50% Necesidades -->
+              <div class="rule-card needs">
+                <div class="rule-tag">{{ 'LEARN.CALC.RULE.NEEDS_TAG' | translate }}</div>
+                <div class="rule-amount">Q{{ ruleNeeds() | number: '1.0-0' }}</div>
+                <p class="rule-desc">{{ 'LEARN.CALC.RULE.NEEDS_DESC' | translate }}</p>
+              </div>
+
+              <!-- 30% Deseos -->
+              <div class="rule-card wants">
+                <div class="rule-tag">{{ 'LEARN.CALC.RULE.WANTS_TAG' | translate }}</div>
+                <div class="rule-amount">Q{{ ruleWants() | number: '1.0-0' }}</div>
+                <p class="rule-desc">{{ 'LEARN.CALC.RULE.WANTS_DESC' | translate }}</p>
+              </div>
+
+              <!-- 20% Ahorro -->
+              <div class="rule-card savings">
+                <div class="rule-tag">{{ 'LEARN.CALC.RULE.SAVINGS_TAG' | translate }}</div>
+                <div class="rule-amount">Q{{ ruleSavings() | number: '1.0-0' }}</div>
+                <p class="rule-desc">{{ 'LEARN.CALC.RULE.SAVINGS_DESC' | translate }}</p>
+              </div>
+            </div>
+
+            <div class="calc-footer-action">
+              <a routerLink="/saves" class="btn-primary-link">
+                {{ 'LEARN.CALC.RULE.LINK_SAVES' | translate }} &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculadora 3: Fondo de Emergencia -->
+        <div class="calc-card">
+          <div class="calc-header">
+            <div>
+              <span class="calc-tag">{{ 'LEARN.CALC.EMERG.TAG' | translate }}</span>
+              <h2 class="calc-title">{{ 'LEARN.CALC.EMERG.TITLE' | translate }}</h2>
+              <p class="calc-subtitle">{{ 'LEARN.CALC.EMERG.SUBTITLE' | translate }}</p>
+            </div>
+          </div>
+
+          <div class="calc-body">
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="emergExp">{{ 'LEARN.CALC.EMERG.EXPENSES_LABEL' | translate }}</label>
+                <input
+                  id="emergExp"
+                  type="number"
+                  min="500"
+                  class="form-control"
+                  [ngModel]="emergencyMonthlyExpenses()"
+                  (ngModelChange)="emergencyMonthlyExpenses.set(+$event)"
+                />
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="emergMonths">{{ 'LEARN.CALC.EMERG.COVERAGE_LABEL' | translate }}</label>
+                <select
+                  id="emergMonths"
+                  class="form-control"
+                  [ngModel]="emergencyMonths()"
+                  (ngModelChange)="emergencyMonths.set(+$event)"
+                >
+                  <option [value]="3">{{ 'LEARN.CALC.EMERG.MONTHS_3' | translate }}</option>
+                  <option [value]="6">{{ 'LEARN.CALC.EMERG.MONTHS_6' | translate }}</option>
+                  <option [value]="9">{{ 'LEARN.CALC.EMERG.MONTHS_9' | translate }}</option>
+                  <option [value]="12">{{ 'LEARN.CALC.EMERG.MONTHS_12' | translate }}</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="emergency-summary-box">
+              <div class="emerg-target">
+                <span class="emerg-label">{{ 'LEARN.CALC.EMERG.TARGET_LABEL' | translate }}:</span>
+                <span class="emerg-value">Q{{ emergencyTarget() | number: '1.0-0' }}</span>
+              </div>
+
+              <div class="emerg-plan">
+                <label for="targetMonths">{{ 'LEARN.CALC.EMERG.TARGET_MONTHS_LABEL' | translate }}:</label>
+                <select
+                  id="targetMonths"
+                  class="form-control small-select"
+                  [ngModel]="emergencySavingsMonthsTarget()"
+                  (ngModelChange)="emergencySavingsMonthsTarget.set(+$event)"
+                >
+                  <option [value]="6">{{ 'LEARN.CALC.EMERG.PLAN_6' | translate }} (Q{{ emergencyTarget() / 6 | number: '1.0-0' }} {{ 'LEARN.CALC.EMERG.PER_MONTH' | translate }})</option>
+                  <option [value]="12">{{ 'LEARN.CALC.EMERG.PLAN_12' | translate }} (Q{{ emergencyTarget() / 12 | number: '1.0-0' }} {{ 'LEARN.CALC.EMERG.PER_MONTH' | translate }})</option>
+                  <option [value]="18">{{ 'LEARN.CALC.EMERG.PLAN_18' | translate }} (Q{{ emergencyTarget() / 18 | number: '1.0-0' }} {{ 'LEARN.CALC.EMERG.PER_MONTH' | translate }})</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="calc-footer-action">
+              <a routerLink="/saves" class="btn-primary-link">
+                {{ 'LEARN.CALC.EMERG.LINK_GOAL' | translate }} &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    }
+
+    <!-- GLOSARIO FINANCIERO    -->
+    @if (activeTab() === 'glossary') {
+      <section class="tab-section">
+        <!-- Buscador -->
+        <div class="glossary-search-bar">
+          <input
+            type="text"
+            class="glossary-input"
+            [ngModel]="glossarySearch()"
+            (ngModelChange)="glossarySearch.set($event)"
+            [placeholder]="'LEARN.GLOSSARY.SEARCH_PLACEHOLDER' | translate"
+          />
+          @if (glossarySearch()) {
+            <button type="button" class="btn-clear" (click)="glossarySearch.set('')">✕</button>
+          }
+        </div>
+
+        <div class="glossary-grid">
+          @for (item of filteredTerms(); track item.id) {
+            <div class="glossary-card">
+              <div class="glossary-head">
+                <h3 class="glossary-term">{{ getTermName(item) }}</h3>
+                <span class="glossary-tag">{{ getTermTag(item) }}</span>
+              </div>
+              <p class="glossary-short">{{ getTermShortDesc(item) }}</p>
+              <div class="glossary-explanation">
+                {{ getTermExplanation(item) }}
+              </div>
+              <div class="glossary-example">
+                <strong>{{ 'LEARN.GLOSSARY.PRACTICAL_EXAMPLE' | translate }}:</strong> {{ getTermExample(item) }}
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-glossary">
+              <p>{{ 'LEARN.GLOSSARY.NO_RESULTS' | translate: { query: glossarySearch() } }}</p>
+              <button type="button" class="btn-reset" (click)="glossarySearch.set('')">
+                {{ 'LEARN.GLOSSARY.VIEW_ALL' | translate }}
+              </button>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (selectedLesson(); as lesson) {
+      <div class="modal-backdrop" (click)="closeLesson()">
+        <div class="lesson-modal" (click)="$event.stopPropagation()">
+          <header class="modal-header">
+            <div class="modal-meta">
+              <span class="category-badge">{{ getLessonCategory(lesson) }}</span>
+              <span class="level-pill">{{ getLessonLevel(lesson) }}</span>
+              <span class="time-badge">{{ lesson.readTime }} {{ 'LEARN.MODAL.OF_READING' | translate }}</span>
+            </div>
+            <button type="button" class="btn-close" (click)="closeLesson()" [attr.aria-label]="'LEARN.MODAL.CLOSE' | translate">✕</button>
+          </header>
+
+          <div class="modal-body">
+            <div class="lesson-headline">
+              <div class="lesson-num-lg">{{ lesson.icon }}</div>
+              <h2 class="modal-title">{{ getLessonTitle(lesson) }}</h2>
+            </div>
+
+            <div class="key-points-box">
+              <h3 class="box-title">{{ 'LEARN.MODAL.KEY_POINTS' | translate }}</h3>
+              <ul class="key-points-list">
+                @for (point of lesson.keyPoints; track point) {
+                  <li>{{ point }}</li>
+                }
+              </ul>
+            </div>
+
+            <!-- Párrafos de la lectura -->
+            <div class="lesson-text">
+              @for (paragraph of lesson.content; track paragraph) {
+                <p>{{ paragraph }}</p>
+              }
+            </div>
+
+            <!-- Consejo práctico accionable -->
+            <div class="action-tip-box">
+              <div class="tip-header">{{ 'LEARN.MODAL.ACTION_TIP' | translate }}</div>
+              <p class="tip-text">{{ getLessonActionTip(lesson) }}</p>
+            </div>
+
+            <!-- regresar a curbi -->
+            @if (lesson.curbiLink) {
+              <div class="modal-curbi-action">
+                <a [routerLink]="lesson.curbiLink.route" (click)="closeLesson()" class="curbi-action-btn">
+                  {{ getLessonLinkLabel(lesson) }} &rarr;
+                </a>
+              </div>
+            }
+          </div>
+
+          <footer class="modal-footer">
+            <button
+              type="button"
+              class="btn-toggle-read"
+              [class.is-done]="isLessonCompleted(lesson.id)"
+              (click)="toggleLessonComplete(lesson.id)"
+            >
+              {{ isLessonCompleted(lesson.id) ? ('LEARN.CARD.COMPLETED' | translate) : ('LEARN.CARD.MARK_READ' | translate) }}
+            </button>
+            <button type="button" class="btn-secondary" (click)="closeLesson()">
+              {{ 'COMMON.CLOSE' | translate }}
+            </button>
+          </footer>
+        </div>
+      </div>
+    }
+
+  </div>
+</div>

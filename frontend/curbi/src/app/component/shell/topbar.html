@@ -1,0 +1,59 @@
+<header class="app-topbar">
+  <a routerLink="/home" class="app-brand" aria-label="CURBI home">
+    <img [src]="brandUrl" alt="" width="28" height="28" />
+    <span class="app-brand-name">CURBI</span>
+  </a>
+
+  <nav class="app-nav" aria-label="Main">
+    <a routerLink="/home" class="app-nav-link" [class.is-active]="active === 'home'">{{ 'TOPBAR.HOME' | translate }}</a>
+    <a routerLink="/wallet" class="app-nav-link" [class.is-active]="active === 'wallet'"
+      >{{ 'TOPBAR.WALLET' | translate }}</a
+    >
+    <a routerLink="/saves" class="app-nav-link" [class.is-active]="active === 'saves'">{{ 'TOPBAR.SAVES' | translate }}</a>
+    <a routerLink="/transactions" class="app-nav-link" [class.is-active]="active === 'transactions'"
+      >{{ 'TOPBAR.TRANSACTIONS' | translate }}</a
+    >
+    <a routerLink="/learn" class="app-nav-link" [class.is-active]="active === 'learn'">{{ 'TOPBAR.LEARN' | translate }}</a>
+  </nav>
+
+  <div class="app-topbar-right">
+    <div class="topbar-lang-wrapper">
+      <select
+        class="topbar-lang-select"
+        [value]="languageService.currentLang"
+        (change)="onLanguageChange($event)"
+        [title]="'TOPBAR.SELECT_LANGUAGE' | translate"
+        [attr.aria-label]="'TOPBAR.SELECT_LANGUAGE' | translate"
+      >
+        @for (lang of languageService.supportedLanguages; track lang.code) {
+          <option [value]="lang.code">
+            {{ lang.flag }} {{ lang.nameInLang }}
+          </option>
+        }
+      </select>
+    </div>
+
+    <a
+      routerLink="/notifications"
+      class="app-bell"
+      [class.is-active]="active === 'notifications'"
+      [title]="'TOPBAR.NOTIFICATIONS' | translate"
+      [attr.aria-label]="'TOPBAR.NOTIFICATIONS' | translate"
+    >
+      <span class="app-bell-icon" aria-hidden="true">🔔</span>
+      @if (unread > 0) {
+        <span class="app-bell-badge">{{ unread > 9 ? '9+' : unread }}</span>
+      }
+    </a>
+
+    <a
+      routerLink="/profile"
+      class="app-avatar"
+      [class.is-active]="active === 'profile'"
+      [title]="'TOPBAR.PROFILE' | translate"
+      [attr.aria-label]="'TOPBAR.PROFILE' | translate"
+    >
+      <img [src]="avatarUrl" [alt]="'TOPBAR.PROFILE' | translate" width="38" height="38" />
+    </a>
+  </div>
+</header>
