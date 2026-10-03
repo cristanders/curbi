@@ -2,11 +2,12 @@
   <app-topbar active="home" />
 
   <main class="content">
+    <div class="home-welcome">
+      <h1 class="welcome-title">{{ 'HOME.WELCOME' | translate }}, {{ userName }}! 👋</h1>
+      <p class="welcome-subtitle">{{ 'HOME.WELCOME_SUB' | translate }}</p>
+    </div>
+
     <section class="status-bar" aria-live="polite">
-      <div class="status-chip" [class.is-demo]="source() === 'demo'">
-        <span class="status-dot" [class.is-live]="source() === 'api'"></span>
-        {{ sourceLabel }}
-      </div>
       <div class="status-chip status-chip--trend" [attr.data-trend]="status">
         {{ 'HOME.STATUS.TREND' | translate }}
         {{ status === 'up' ? ('HOME.STATUS.UP' | translate) : status === 'down' ? ('HOME.STATUS.DOWN' | translate) : ('HOME.STATUS.STABLE' | translate) }}

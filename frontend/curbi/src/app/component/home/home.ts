@@ -121,6 +121,10 @@ export class Home implements OnInit, OnDestroy {
     return this.market.banks();
   }
 
+  get userName(): string {
+    return this.session.currentUser?.name || this.session.currentUser?.username || 'Usuario';
+  }
+
   get selectedBank() {
     return this.banks.find((b) => b.monogramClass === this.selectedBankId()) ?? null;
   }

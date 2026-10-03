@@ -48,7 +48,15 @@
     "NO_ACCOUNT": "Vous n'avez pas de compte ?",
     "REGISTER_LINK": "Inscrivez-vous ici",
     "REMEMBER_ME": "Se souvenir de moi",
-    "ERROR_SERVER": "Impossible de se connecter au serveur. Veuillez réessayer."
+    "ERROR_SERVER": "Impossible de se connecter au serveur. Veuillez réessayer.",
+    "ERROR_REQUIRED": "Veuillez saisir votre email ou identifiant et votre mot de passe.",
+    "FORGOT_INFO": "Pour réinitialiser votre mot de passe, contactez le support ou connectez-vous avec Google/Outlook.",
+    "HIDE_PASSWORD": "Masquer le mot de passe",
+    "SHOW_PASSWORD": "Afficher le mot de passe",
+    "CHAT_TIP_DEFAULT": "Bonjour ! Je suis Curbi, votre assistant intelligent pour vos finances et votre épargne.",
+    "CHAT_TIP_SAVINGS": "Avec CURBI, créez des objectifs d'épargne, des fonds d'urgence et appliquez la règle 50/30/20.",
+    "CHAT_TIP_CARDS": "Gérez et liez facilement toutes vos cartes bancaires.",
+    "CHAT_TIP_GENERAL": "Connectez-vous ou inscrivez-vous pour prendre le contrôle de votre argent."
   },
   "REGISTER": {
     "LOGIN_NAV": "Connexion",
@@ -83,7 +91,15 @@
     "SUBMIT_BTN": "Créer un compte",
     "SUBMITTING_BTN": "Création en cours…",
     "ALREADY_HAVE": "Vous avez déjà un compte ?",
-    "LOGIN_LINK": "Connexion"
+    "LOGIN_LINK": "Connexion",
+    "ERROR_REQUIRED": "Veuillez remplir tous les champs obligatoires.",
+    "ERROR_EMAIL": "Veuillez saisir une adresse email valide.",
+    "ERROR_PASSWORD": "Le mot de passe doit comporter au moins 8 caractères.",
+    "ERROR_AGREED": "Vous devez accepter la politique de confidentialité et les conditions d'utilisation.",
+    "ERROR_SERVER": "Impossible de se connecter au serveur. Veuillez réessayer.",
+    "CHAT_TIP_DEFAULT": "Créez votre compte sur CURBI pour gérer vos finances et vos objectifs !",
+    "CHAT_TIP_FREE": "CURBI est 100% gratuit pour vous accompagner vers la liberté financière !",
+    "CHAT_TIP_GENERAL": "Remplissez le formulaire à droite pour rejoindre CURBI en une minute."
   },
   "PROFILE": {
     "HERO": {
@@ -243,7 +259,9 @@
       "SKIP": "Passer",
       "NEXT": "Suivant",
       "GOT_IT": "Compris"
-    }
+    },
+    "WELCOME": "Bienvenue",
+    "WELCOME_SUB": "Voici le résumé de votre activité financière et de vos transactions récentes."
   },
   "WALLET": {
     "TITLE": "Mes portefeuilles",
@@ -391,6 +409,193 @@
       "BUG_DESC": "Estimez l'impact cumulé des petites dépenses quotidiennes sur le long terme.",
       "RULE_TITLE": "Simulateur Règle 50/30/20",
       "RULE_DESC": "Répartissez vos revenus entre Besoins (50%), Envies (30%) et Épargne (20%)."
+    },
+    "LEVELS": {
+      "STRATEGIST": {
+        "TITLE": "Stratège Financier",
+        "DESC": "Maîtrise avancée des finances personnelles"
+      },
+      "SAVER": {
+        "TITLE": "Épargnant Conscient",
+        "DESC": "Habitudes financières en plein essor"
+      },
+      "LEARNER": {
+        "TITLE": "En Apprentissage",
+        "DESC": "Explorez les guides pour démarrer"
+      },
+      "BASIC": "Basique",
+      "INTERMEDIATE": "Intermédiaire",
+      "ADVANCED": "Avancé"
+    },
+    "CATEGORIES": {
+      "BASICS": "Fondamentaux",
+      "EXPENSES": "Contrôle des Dépenses",
+      "CREDIT": "Crédit et Dettes",
+      "FUTURE": "Investissement et Futur"
+    },
+    "CALC": {
+      "BUG": {
+        "TAG": "SIMULATEUR",
+        "TITLE": "Calculateur de Dépenses Invisibles",
+        "SUBTITLE": "Évaluez l'impact cumulé de petites dépenses quotidiennes sur le moyen et long terme.",
+        "CONCEPT_LABEL": "Type de dépense :",
+        "CONCEPT_PLACEHOLDER": "ex. Café, collations, livraison",
+        "AMOUNT_LABEL": "Montant journalier (Q) :",
+        "FREQ_LABEL": "Fréquence hebdomadaire :",
+        "DAYS_1": "1 jour / semaine",
+        "DAYS_2": "2 jours / semaine",
+        "DAYS_3": "3 jours / semaine",
+        "DAYS_4": "4 jours / semaine",
+        "DAYS_5": "5 jours (Ouvrés)",
+        "DAYS_6": "6 jours / semaine",
+        "DAYS_7": "Tous les jours (7)",
+        "RESULT_MONTHLY": "Dépense Mensuelle Estimée",
+        "RESULT_YEARLY": "Dépense Annuelle Cumulée",
+        "RESULT_5YEARS": "Projection d'Épargne sur 5 ans",
+        "ADVICE_TITLE": "Analyse CURBI",
+        "ADVICE_DESC": "Réallouer 50% de cette dépense représenterait une épargne mensuelle de",
+        "ADVICE_SUFFIX": "directement vers vos objectifs."
+      },
+      "RULE": {
+        "TAG": "RÈGLE BUDGÉTAIRE",
+        "TITLE": "Répartition des Revenus 50 / 30 / 20",
+        "SUBTITLE": "Indiquez votre revenu net mensuel pour obtenir une structure budgétaire équilibrée.",
+        "INCOME_LABEL": "Revenu net mensuel (Q) :",
+        "NEEDS_TAG": "50% BESOINS FONDAMENTAUX",
+        "NEEDS_DESC": "Logement, alimentation essentielle, charges, santé et transport.",
+        "WANTS_TAG": "30% DÉPENSES PERSONNELLES",
+        "WANTS_DESC": "Sorties, loisirs, achats plaisir et abonnements de divertissement.",
+        "SAVINGS_TAG": "20% ÉPARGNE & DETTES",
+        "SAVINGS_DESC": "Fonds d'urgence, projets dans CURBI ou remboursement anticipé.",
+        "LINK_SAVES": "Définir mon budget dans CURBI"
+      },
+      "EMERG": {
+        "TAG": "PROTECTION",
+        "TITLE": "Objectif Fonds d'Urgence",
+        "SUBTITLE": "Calculez votre matelas de sécurité indispensable selon vos dépenses courantes.",
+        "EXPENSES_LABEL": "Dépenses mensuelles essentielles (Q) :",
+        "COVERAGE_LABEL": "Couverture souhaitée :",
+        "MONTHS_3": "3 mois (Recommandation standard)",
+        "MONTHS_6": "6 mois (Plus de sérénité)",
+        "MONTHS_9": "9 mois",
+        "MONTHS_12": "12 mois (Indépendants / Freelances)",
+        "TARGET_LABEL": "Fonds d'Urgence Conseillé",
+        "TARGET_MONTHS_LABEL": "Délai pour l'atteindre",
+        "PLAN_6": "En 6 mois",
+        "PLAN_12": "En 12 mois",
+        "PLAN_18": "En 18 mois",
+        "PER_MONTH": "/ mois",
+        "LINK_GOAL": "Créer un objectif dans CURBI"
+      }
+    },
+    "GLOSSARY": {
+      "SEARCH_PLACEHOLDER": "Rechercher un terme (ex. fonds, inflation, intérêt, crédit, liquidité)...",
+      "PRACTICAL_EXAMPLE": "Exemple pratique",
+      "NO_RESULTS": "Aucun résultat trouvé pour \"{{ query }}\".",
+      "VIEW_ALL": "Voir tous les termes",
+      "TAGS": {
+        "BASICS": "Fondamentaux",
+        "SAVINGS": "Épargne",
+        "BUDGETS": "Budgets",
+        "INVESTMENT": "Investissement",
+        "CREDIT": "Crédit",
+        "ECONOMY": "Économie",
+        "FINANCE": "Finances"
+      },
+      "TERMS": {
+        "emergency-fund": {
+          "TERM": "Fonds d'Urgence",
+          "SHORT_DESC": "Votre filet de sécurité financière en cas d'imprévu.",
+          "EXPLANATION": "Somme réservée exclusivement aux imprévus graves (santé, panne, perte d'emploi). L'idéal est de disposer de 3 à 6 mois de dépenses de base.",
+          "EXAMPLE": "Si vos dépenses fixes sont de 3 000 Q, un fonds de 3 mois est de 9 000 Q."
+        },
+        "micro-expenses": {
+          "TERM": "Dépenses Invisibles (Fourmis)",
+          "SHORT_DESC": "Petits achats journaliers qui passent inaperçus.",
+          "EXPLANATION": "Achats anodins du quotidien (café, snacks, pourboires, abonnements oubliés). Isolés, ils paraissent futiles, mais cumulés ils grèvent lourdement votre budget.",
+          "EXAMPLE": "Dépenser 20 Q par jour représente 600 Q par mois et 7 200 Q par an."
+        },
+        "rule-50-30-20": {
+          "TERM": "Règle 50 / 30 / 20",
+          "SHORT_DESC": "Formule simple pour structurer ses revenus.",
+          "EXPLANATION": "Méthode budgétaire : 50% pour les Besoins essentiels, 30% pour les Envies et le style de vie, 20% pour l'Épargne et les dettes.",
+          "EXAMPLE": "Sur un salaire de 5 000 Q : 2 500 Q pour les besoins, 1 500 Q pour les loisirs, 1 000 Q pour l'épargne."
+        },
+        "compound-interest": {
+          "TERM": "Intérêts Composés",
+          "SHORT_DESC": "Générer des intérêts sur les intérêts déjà acquis.",
+          "EXPLANATION": "Effet boule de neige financier : les gains s'ajoutent au capital initial pour faire grossir exponentiellement la somme épargnée au fil du temps.",
+          "EXAMPLE": "Épargner 1 000 Q à 5% rapporte 50 Q la 1ère année, puis 5% sur 1 050 Q la 2ème."
+        },
+        "full-payer": {
+          "TERM": "Payeur Intégral (Carte de Crédit)",
+          "SHORT_DESC": "Personne réglant 100% de son relevé bancaire chaque mois.",
+          "EXPLANATION": "Régler l'intégralité du solde avant la date limite pour profiter des avantages de la carte sans payer aucun frais financier ni intérêt.",
+          "EXAMPLE": "Vous dépensez 800 Q dans le mois et réglez exactement 800 Q à échéance."
+        },
+        "inflation": {
+          "TERM": "Inflation",
+          "SHORT_DESC": "Hausse générale des prix et perte de pouvoir d'achat.",
+          "EXPLANATION": "Augmentation durable du coût de la vie qui fait perdre de la valeur à l'argent non investi ou conservé en espèces.",
+          "EXAMPLE": "Si un repas coûtait 30 Q l'an passé et 33 Q aujourd'hui, l'inflation est de 10%."
+        },
+        "liquidity": {
+          "TERM": "Liquidité",
+          "SHORT_DESC": "Facilité et rapidité de conversion d'un actif en argent disponible.",
+          "EXPLANATION": "L'argent sur votre compte CURBI est immédiatement disponible. Un bien immobilier présente une faible liquidité car sa vente prend des mois.",
+          "EXAMPLE": "Disposer de fonds sur son compte courant assure une liquidité immédiate."
+        },
+        "zero-based-budget": {
+          "TERM": "Budget Base Zéro",
+          "SHORT_DESC": "Donner un rôle précis à chaque centime perçu.",
+          "EXPLANATION": "Allouer l'intégralité de ses revenus à des catégories prédéfinies jusqu'à ce que Revenus moins Dépenses/Épargne soit égal à zéro.",
+          "EXAMPLE": "Pour 4 000 Q gagnés, exactement 4 000 Q sont répartis entre dépenses et projets."
+        }
+      }
+    },
+    "MODAL": {
+      "CLOSE": "Fermer la leçon",
+      "OF_READING": "de lecture",
+      "KEY_POINTS": "Points clés",
+      "ACTION_TIP": "Action recommandée"
+    },
+    "LESSONS": {
+      "regla-50-30-20": {
+        "TITLE": "La règle 50 / 30 / 20 pour organiser votre argent",
+        "SUMMARY": "Structurez vos revenus facilement sans privation excessive ni calculs fastidieux.",
+        "ACTION_TIP": "Utilisez l'onglet Calculateurs pour simuler votre répartition 50/30/20.",
+        "LINK_LABEL": "Configurer mes budgets dans CURBI"
+      },
+      "fondo-emergencia": {
+        "TITLE": "Votre premier Fonds d'Urgence",
+        "SUMMARY": "Comprenez pourquoi une réserve financière est votre meilleur rempart contre les dettes.",
+        "ACTION_TIP": "Commencez petit : épargnez 200 Q dès ce mois-ci dans votre fonds d'urgence.",
+        "LINK_LABEL": "Créer un Objectif d'Urgence"
+      },
+      "gastos-hormiga": {
+        "TITLE": "Maîtriser les Dépenses Invisibles et Impulsives",
+        "SUMMARY": "Identifiez les petits achats anodins qui rongent silencieusement votre capacité d'épargne.",
+        "ACTION_TIP": "Vérifiez vos abonnements actifs et résiliez-en au moins un que vous n'utilisez plus.",
+        "LINK_LABEL": "Voir mes dernières transactions"
+      },
+      "tarjetas-credito": {
+        "TITLE": "Cartes de Crédit : Usage responsable et sans frais",
+        "SUMMARY": "Bénéficiez des protections bancaires sans jamais payer d'intérêts d'emprunt.",
+        "ACTION_TIP": "Notez la date de clôture de votre relevé pour toujours anticiper vos règlements.",
+        "LINK_LABEL": "Gérer mes comptes"
+      },
+      "metodo-bola-de-nieve": {
+        "TITLE": "La Méthode Boule de Neige contre l'endettement",
+        "SUMMARY": "Une stratégie psychologique et efficace pour rembourser méthodiquement ses créances.",
+        "ACTION_TIP": "Listez vos soldes restants et focalisez-vous sur le montant le plus faible en premier.",
+        "LINK_LABEL": "Voir les Objectifs d'Épargne"
+      },
+      "interes-compuesto": {
+        "TITLE": "Les Intérêts Composés et la régularité d'épargne",
+        "SUMMARY": "Comment la capitalisation transforme l'effort continu en patrimoine solide.",
+        "ACTION_TIP": "Mettez en place un virement récurrent automatique, même pour un petit montant.",
+        "LINK_LABEL": "Voir les Objectifs d'Épargne"
+      }
     }
   },
   "NOTIFICATIONS": {

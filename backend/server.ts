@@ -1,7 +1,21 @@
 import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Cargar variables de entorno desde cloud.env
+dotenv.config({ path: 'cloud.env' });
+if (!process.env.GOOGLE_CLIENT_ID) {
+  dotenv.config({ path: path.join(__dirname, 'cloud.env') });
+}
+if (!process.env.GOOGLE_CLIENT_ID) {
+  dotenv.config({ path: path.join(__dirname, '..', 'cloud.env') });
+}
+dotenv.config({ path: path.join(__dirname, 'process.env') });
+
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import path from 'path';
+import passport from 'passport';
+import { configurePassport } from './config/passport';
 
 import { UserController } from './controller/userController';
 import { CustomerController } from './controller/customerController';
@@ -20,8 +34,10 @@ import { NotificationController } from './controller/notificationController';
 import cookieParser from 'cookie-parser';
 import { i18nMiddleware } from './middlewares/i18n';
 
+configurePassport();
+
 const app = express();
-const PORT = Number(process.env.PORT || process.env.API_PORT || 4000);
+const PORT = Number(process.env.PORT || process.env.API_PORT || 3000);
 
 app.use(cors({
   origin: true,
@@ -30,10 +46,7 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use(i18nMiddleware);
-
-// Credenciales del archivo process.env (o .env si existe)
-import dotenv from 'dotenv';
-dotenv.config({ path: path.join(__dirname, 'process.env') });
+app.use(passport.initialize());
 
 const users = new UserController();
 const auth = new AuthController();
@@ -56,6 +69,12 @@ app.get('/api/health', (_req: Request, res: Response) => {
 // Auth
 app.post('/api/auth/login', auth.login);
 app.post('/api/auth/register', auth.register);
+app.get('/api/auth/google', passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
+app.get(
+  '/api/auth/google/callback',
+  passport.authenticate('google', { session: false, failureRedirect: 'http://localhost:4200/login?error=oauth_failed' }),
+  auth.googleCallback
+);
 
 // Users
 app.get('/api/users', users.getUsers);

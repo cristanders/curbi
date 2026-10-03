@@ -107,13 +107,13 @@
               <div class="card-top">
                 <div class="lesson-num">{{ lesson.icon }}</div>
                 <div class="card-meta">
-                  <span class="category-badge">{{ lesson.categoryLabel }}</span>
+                  <span class="category-badge">{{ getLessonCategory(lesson) }}</span>
                   <span class="time-badge">{{ lesson.readTime }}</span>
                 </div>
               </div>
 
-              <h2 class="card-title">{{ lesson.title }}</h2>
-              <p class="card-summary">{{ lesson.summary }}</p>
+              <h2 class="card-title">{{ getLessonTitle(lesson) }}</h2>
+              <p class="card-summary">{{ getLessonSummary(lesson) }}</p>
 
               <div class="card-footer">
                 <button
@@ -139,7 +139,7 @@
       </section>
     }
 
-    <!--  PRÁCTICAS    -->
+    <!--  PRÁCTICAS Y CALCULADORAS    -->
     @if (activeTab() === 'calculators') {
       <section class="tab-section calculators-container">
         
@@ -147,29 +147,29 @@
         <div class="calc-card">
           <div class="calc-header">
             <div>
-              <span class="calc-tag">SIMULADOR</span>
-              <h2 class="calc-title">Calculadora de Gastos Hormiga</h2>
-              <p class="calc-subtitle">Estima el impacto acumulado de pequeños consumos regulares a mediano y largo plazo.</p>
+              <span class="calc-tag">{{ 'LEARN.CALC.BUG.TAG' | translate }}</span>
+              <h2 class="calc-title">{{ 'LEARN.CALC.BUG.TITLE' | translate }}</h2>
+              <p class="calc-subtitle">{{ 'LEARN.CALC.BUG.SUBTITLE' | translate }}</p>
             </div>
           </div>
 
           <div class="calc-body">
             <div class="calc-inputs">
               <div class="form-group">
-                <label for="bugName">Concepto del gasto:</label>
+                <label for="bugName">{{ 'LEARN.CALC.BUG.CONCEPT_LABEL' | translate }}</label>
                 <input
                   id="bugName"
                   type="text"
                   class="form-control"
                   [ngModel]="bugExpenseName()"
                   (ngModelChange)="bugExpenseName.set($event)"
-                  placeholder="ej. Café, aperitivos, delivery"
+                  [placeholder]="'LEARN.CALC.BUG.CONCEPT_PLACEHOLDER' | translate"
                 />
               </div>
 
               <div class="form-row">
                 <div class="form-group flex-1">
-                  <label for="bugAmount">Monto por día (Q):</label>
+                  <label for="bugAmount">{{ 'LEARN.CALC.BUG.AMOUNT_LABEL' | translate }}</label>
                   <input
                     id="bugAmount"
                     type="number"
@@ -181,20 +181,20 @@
                 </div>
 
                 <div class="form-group flex-1">
-                  <label for="bugDays">Frecuencia semanal:</label>
+                  <label for="bugDays">{{ 'LEARN.CALC.BUG.FREQ_LABEL' | translate }}</label>
                   <select
                     id="bugDays"
                     class="form-control"
                     [ngModel]="bugExpenseDays()"
                     (ngModelChange)="bugExpenseDays.set(+$event)"
                   >
-                    <option [value]="1">1 día / semana</option>
-                    <option [value]="2">2 días / semana</option>
-                    <option [value]="3">3 días / semana</option>
-                    <option [value]="4">4 días / semana</option>
-                    <option [value]="5">5 días (Laborales)</option>
-                    <option [value]="6">6 días / semana</option>
-                    <option [value]="7">Todos los días (7)</option>
+                    <option [value]="1">{{ 'LEARN.CALC.BUG.DAYS_1' | translate }}</option>
+                    <option [value]="2">{{ 'LEARN.CALC.BUG.DAYS_2' | translate }}</option>
+                    <option [value]="3">{{ 'LEARN.CALC.BUG.DAYS_3' | translate }}</option>
+                    <option [value]="4">{{ 'LEARN.CALC.BUG.DAYS_4' | translate }}</option>
+                    <option [value]="5">{{ 'LEARN.CALC.BUG.DAYS_5' | translate }}</option>
+                    <option [value]="6">{{ 'LEARN.CALC.BUG.DAYS_6' | translate }}</option>
+                    <option [value]="7">{{ 'LEARN.CALC.BUG.DAYS_7' | translate }}</option>
                   </select>
                 </div>
               </div>
@@ -203,21 +203,21 @@
             <!-- Resultados en tiempo real -->
             <div class="calc-results highlight-box">
               <div class="result-item">
-                <span class="result-label">Gasto Mensual Estimado</span>
+                <span class="result-label">{{ 'LEARN.CALC.BUG.RESULT_MONTHLY' | translate }}</span>
                 <span class="result-value">Q{{ bugMonthly() | number: '1.0-0' }}</span>
               </div>
               <div class="result-item">
-                <span class="result-label">Gasto Anual Acumulado</span>
+                <span class="result-label">{{ 'LEARN.CALC.BUG.RESULT_YEARLY' | translate }}</span>
                 <span class="result-value warning">Q{{ bugYearly() | number: '1.0-0' }}</span>
               </div>
               <div class="result-item">
-                <span class="result-label">Proyección Ahorro a 5 años</span>
+                <span class="result-label">{{ 'LEARN.CALC.BUG.RESULT_5YEARS' | translate }}</span>
                 <span class="result-value success">Q{{ bugFiveYearsWithInterest() | number: '1.0-0' }}</span>
               </div>
             </div>
 
             <div class="calc-advice">
-              <strong>Análisis CURBI:</strong> Reasignar el 50% de este gasto representaría un ahorro mensual de Q{{ bugMonthly() / 2 | number: '1.0-0' }} directo a tus metas de ahorro.
+              <strong>{{ 'LEARN.CALC.BUG.ADVICE_TITLE' | translate }}:</strong> {{ 'LEARN.CALC.BUG.ADVICE_DESC' | translate }} Q{{ bugMonthly() / 2 | number: '1.0-0' }} {{ 'LEARN.CALC.BUG.ADVICE_SUFFIX' | translate }}
             </div>
           </div>
         </div>
@@ -226,15 +226,15 @@
         <div class="calc-card">
           <div class="calc-header">
             <div>
-              <span class="calc-tag">DISTRIBUCIÓN</span>
-              <h2 class="calc-title">Distribución de Ingresos 50 / 30 / 20</h2>
-              <p class="calc-subtitle">Ingresa tu ingreso neto mensual para obtener una estructura de presupuesto recomendada.</p>
+              <span class="calc-tag">{{ 'LEARN.CALC.RULE.TAG' | translate }}</span>
+              <h2 class="calc-title">{{ 'LEARN.CALC.RULE.TITLE' | translate }}</h2>
+              <p class="calc-subtitle">{{ 'LEARN.CALC.RULE.SUBTITLE' | translate }}</p>
             </div>
           </div>
 
           <div class="calc-body">
             <div class="form-group">
-              <label for="salary">Ingreso mensual neto (Q):</label>
+              <label for="salary">{{ 'LEARN.CALC.RULE.INCOME_LABEL' | translate }}</label>
               <input
                 id="salary"
                 type="number"
@@ -249,29 +249,29 @@
             <div class="rule-breakdown">
               <!-- 50% Necesidades -->
               <div class="rule-card needs">
-                <div class="rule-tag">50% NECESIDADES BÁSICAS</div>
+                <div class="rule-tag">{{ 'LEARN.CALC.RULE.NEEDS_TAG' | translate }}</div>
                 <div class="rule-amount">Q{{ ruleNeeds() | number: '1.0-0' }}</div>
-                <p class="rule-desc">Vivienda, alimentación esencial, servicios básicos, salud y transporte.</p>
+                <p class="rule-desc">{{ 'LEARN.CALC.RULE.NEEDS_DESC' | translate }}</p>
               </div>
 
               <!-- 30% Deseos -->
               <div class="rule-card wants">
-                <div class="rule-tag">30% GASTOS PERSONALES</div>
+                <div class="rule-tag">{{ 'LEARN.CALC.RULE.WANTS_TAG' | translate }}</div>
                 <div class="rule-amount">Q{{ ruleWants() | number: '1.0-0' }}</div>
-                <p class="rule-desc">Entretenimiento, salidas, compras personales y suscripciones.</p>
+                <p class="rule-desc">{{ 'LEARN.CALC.RULE.WANTS_DESC' | translate }}</p>
               </div>
 
               <!-- 20% Ahorro -->
               <div class="rule-card savings">
-                <div class="rule-tag">20% AHORRO Y DEUDAS</div>
+                <div class="rule-tag">{{ 'LEARN.CALC.RULE.SAVINGS_TAG' | translate }}</div>
                 <div class="rule-amount">Q{{ ruleSavings() | number: '1.0-0' }}</div>
-                <p class="rule-desc">Fondo de emergencia, metas en CURBI o amortización de créditos.</p>
+                <p class="rule-desc">{{ 'LEARN.CALC.RULE.SAVINGS_DESC' | translate }}</p>
               </div>
             </div>
 
             <div class="calc-footer-action">
               <a routerLink="/saves" class="btn-primary-link">
-                Configurar presupuestos en CURBI &rarr;
+                {{ 'LEARN.CALC.RULE.LINK_SAVES' | translate }} &rarr;
               </a>
             </div>
           </div>
@@ -281,16 +281,16 @@
         <div class="calc-card">
           <div class="calc-header">
             <div>
-              <span class="calc-tag">PROTECCIÓN</span>
-              <h2 class="calc-title">Meta de Fondo de Emergencia</h2>
-              <p class="calc-subtitle">Calcula el colchón de seguridad financiero necesario en función de tus gastos esenciales.</p>
+              <span class="calc-tag">{{ 'LEARN.CALC.EMERG.TAG' | translate }}</span>
+              <h2 class="calc-title">{{ 'LEARN.CALC.EMERG.TITLE' | translate }}</h2>
+              <p class="calc-subtitle">{{ 'LEARN.CALC.EMERG.SUBTITLE' | translate }}</p>
             </div>
           </div>
 
           <div class="calc-body">
             <div class="form-row">
               <div class="form-group flex-1">
-                <label for="emergExp">Gastos esenciales mensuales (Q):</label>
+                <label for="emergExp">{{ 'LEARN.CALC.EMERG.EXPENSES_LABEL' | translate }}</label>
                 <input
                   id="emergExp"
                   type="number"
@@ -302,45 +302,45 @@
               </div>
 
               <div class="form-group flex-1">
-                <label for="emergMonths">Cobertura deseada:</label>
+                <label for="emergMonths">{{ 'LEARN.CALC.EMERG.COVERAGE_LABEL' | translate }}</label>
                 <select
                   id="emergMonths"
                   class="form-control"
                   [ngModel]="emergencyMonths()"
                   (ngModelChange)="emergencyMonths.set(+$event)"
                 >
-                  <option [value]="3">3 meses (Recomendado estándar)</option>
-                  <option [value]="6">6 meses (Mayor tranquilidad)</option>
-                  <option [value]="9">9 meses</option>
-                  <option [value]="12">12 meses (Independientes o freelancers)</option>
+                  <option [value]="3">{{ 'LEARN.CALC.EMERG.MONTHS_3' | translate }}</option>
+                  <option [value]="6">{{ 'LEARN.CALC.EMERG.MONTHS_6' | translate }}</option>
+                  <option [value]="9">{{ 'LEARN.CALC.EMERG.MONTHS_9' | translate }}</option>
+                  <option [value]="12">{{ 'LEARN.CALC.EMERG.MONTHS_12' | translate }}</option>
                 </select>
               </div>
             </div>
 
             <div class="emergency-summary-box">
               <div class="emerg-target">
-                <span class="emerg-label">Fondo de Emergencia Sugerido:</span>
+                <span class="emerg-label">{{ 'LEARN.CALC.EMERG.TARGET_LABEL' | translate }}:</span>
                 <span class="emerg-value">Q{{ emergencyTarget() | number: '1.0-0' }}</span>
               </div>
 
               <div class="emerg-plan">
-                <label for="targetMonths">Plazo para completarlo:</label>
+                <label for="targetMonths">{{ 'LEARN.CALC.EMERG.TARGET_MONTHS_LABEL' | translate }}:</label>
                 <select
                   id="targetMonths"
                   class="form-control small-select"
                   [ngModel]="emergencySavingsMonthsTarget()"
                   (ngModelChange)="emergencySavingsMonthsTarget.set(+$event)"
                 >
-                  <option [value]="6">En 6 meses (Q{{ emergencyTarget() / 6 | number: '1.0-0' }} / mes)</option>
-                  <option [value]="12">En 12 meses (Q{{ emergencyTarget() / 12 | number: '1.0-0' }} / mes)</option>
-                  <option [value]="18">En 18 meses (Q{{ emergencyTarget() / 18 | number: '1.0-0' }} / mes)</option>
+                  <option [value]="6">{{ 'LEARN.CALC.EMERG.PLAN_6' | translate }} (Q{{ emergencyTarget() / 6 | number: '1.0-0' }} {{ 'LEARN.CALC.EMERG.PER_MONTH' | translate }})</option>
+                  <option [value]="12">{{ 'LEARN.CALC.EMERG.PLAN_12' | translate }} (Q{{ emergencyTarget() / 12 | number: '1.0-0' }} {{ 'LEARN.CALC.EMERG.PER_MONTH' | translate }})</option>
+                  <option [value]="18">{{ 'LEARN.CALC.EMERG.PLAN_18' | translate }} (Q{{ emergencyTarget() / 18 | number: '1.0-0' }} {{ 'LEARN.CALC.EMERG.PER_MONTH' | translate }})</option>
                 </select>
               </div>
             </div>
 
             <div class="calc-footer-action">
               <a routerLink="/saves" class="btn-primary-link">
-                Crear Meta en CURBI &rarr;
+                {{ 'LEARN.CALC.EMERG.LINK_GOAL' | translate }} &rarr;
               </a>
             </div>
           </div>
@@ -359,7 +359,7 @@
             class="glossary-input"
             [ngModel]="glossarySearch()"
             (ngModelChange)="glossarySearch.set($event)"
-            placeholder="Buscar concepto financiero (ej. fondo, inflación, interés, crédito, liquidez)..."
+            [placeholder]="'LEARN.GLOSSARY.SEARCH_PLACEHOLDER' | translate"
           />
           @if (glossarySearch()) {
             <button type="button" class="btn-clear" (click)="glossarySearch.set('')">✕</button>
@@ -367,25 +367,25 @@
         </div>
 
         <div class="glossary-grid">
-          @for (item of filteredTerms(); track item.term) {
+          @for (item of filteredTerms(); track item.id) {
             <div class="glossary-card">
               <div class="glossary-head">
-                <h3 class="glossary-term">{{ item.term }}</h3>
-                <span class="glossary-tag">{{ item.tag }}</span>
+                <h3 class="glossary-term">{{ getTermName(item) }}</h3>
+                <span class="glossary-tag">{{ getTermTag(item) }}</span>
               </div>
-              <p class="glossary-short">{{ item.shortDesc }}</p>
+              <p class="glossary-short">{{ getTermShortDesc(item) }}</p>
               <div class="glossary-explanation">
-                {{ item.explanation }}
+                {{ getTermExplanation(item) }}
               </div>
               <div class="glossary-example">
-                <strong>Ejemplo práctico:</strong> {{ item.example }}
+                <strong>{{ 'LEARN.GLOSSARY.PRACTICAL_EXAMPLE' | translate }}:</strong> {{ getTermExample(item) }}
               </div>
             </div>
           } @empty {
             <div class="empty-glossary">
-              <p>No se encontraron resultados para "{{ glossarySearch() }}".</p>
+              <p>{{ 'LEARN.GLOSSARY.NO_RESULTS' | translate: { query: glossarySearch() } }}</p>
               <button type="button" class="btn-reset" (click)="glossarySearch.set('')">
-                Ver todos los términos
+                {{ 'LEARN.GLOSSARY.VIEW_ALL' | translate }}
               </button>
             </div>
           }
@@ -398,21 +398,21 @@
         <div class="lesson-modal" (click)="$event.stopPropagation()">
           <header class="modal-header">
             <div class="modal-meta">
-              <span class="category-badge">{{ lesson.categoryLabel }}</span>
-              <span class="level-pill">{{ lesson.level }}</span>
-              <span class="time-badge">{{ lesson.readTime }} de lectura</span>
+              <span class="category-badge">{{ getLessonCategory(lesson) }}</span>
+              <span class="level-pill">{{ getLessonLevel(lesson) }}</span>
+              <span class="time-badge">{{ lesson.readTime }} {{ 'LEARN.MODAL.OF_READING' | translate }}</span>
             </div>
-            <button type="button" class="btn-close" (click)="closeLesson()" aria-label="Cerrar lección">✕</button>
+            <button type="button" class="btn-close" (click)="closeLesson()" [attr.aria-label]="'LEARN.MODAL.CLOSE' | translate">✕</button>
           </header>
 
           <div class="modal-body">
             <div class="lesson-headline">
               <div class="lesson-num-lg">{{ lesson.icon }}</div>
-              <h2 class="modal-title">{{ lesson.title }}</h2>
+              <h2 class="modal-title">{{ getLessonTitle(lesson) }}</h2>
             </div>
 
             <div class="key-points-box">
-              <h3 class="box-title">Puntos clave</h3>
+              <h3 class="box-title">{{ 'LEARN.MODAL.KEY_POINTS' | translate }}</h3>
               <ul class="key-points-list">
                 @for (point of lesson.keyPoints; track point) {
                   <li>{{ point }}</li>
@@ -429,15 +429,15 @@
 
             <!-- Consejo práctico accionable -->
             <div class="action-tip-box">
-              <div class="tip-header">Acción recomendada</div>
-              <p class="tip-text">{{ lesson.actionTip }}</p>
+              <div class="tip-header">{{ 'LEARN.MODAL.ACTION_TIP' | translate }}</div>
+              <p class="tip-text">{{ getLessonActionTip(lesson) }}</p>
             </div>
 
             <!-- regresar a curbi -->
             @if (lesson.curbiLink) {
               <div class="modal-curbi-action">
                 <a [routerLink]="lesson.curbiLink.route" (click)="closeLesson()" class="curbi-action-btn">
-                  {{ lesson.curbiLink.label }} &rarr;
+                  {{ getLessonLinkLabel(lesson) }} &rarr;
                 </a>
               </div>
             }
@@ -450,10 +450,10 @@
               [class.is-done]="isLessonCompleted(lesson.id)"
               (click)="toggleLessonComplete(lesson.id)"
             >
-              {{ isLessonCompleted(lesson.id) ? '✓ Completada' : 'Marcar como leída' }}
+              {{ isLessonCompleted(lesson.id) ? ('LEARN.CARD.COMPLETED' | translate) : ('LEARN.CARD.MARK_READ' | translate) }}
             </button>
             <button type="button" class="btn-secondary" (click)="closeLesson()">
-              Cerrar
+              {{ 'COMMON.CLOSE' | translate }}
             </button>
           </footer>
         </div>
